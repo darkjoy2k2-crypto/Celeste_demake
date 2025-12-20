@@ -1,0 +1,189 @@
+#include <genesis.h>
+#include "checkCollisions.h"
+#include "entity_list.h" 
+#include "level.h"
+#include "debug.h"
+
+#define TILE_SIZE_PX 8
+#define MAP_WIDTH_TILES MAP_W   
+#define MAP_HEIGHT_TILES MAP_H  
+#define HELPING_HOP FIX16(-3)
+#define MAX_COLLISION_STEP 4
+#define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))
+
+static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot) {
+    s16 tile_x = world_x >> 3;
+    s16 tile_y = world_y >> 3;
+
+    if (tile_x < 0 || tile_y < 0 || tile_x >= MAP_WIDTH_TILES || tile_y >= MAP_HEIGHT_TILES) 
+        return true;
+
+    u16 tile_index = map_collision_data[tile_y * MAP_WIDTH_TILES + tile_x];
+
+    if (tile_index == 0) return false;
+
+    if (tile_index == 7) {
+        s16 local_y = world_y & 7; 
+        if (local_y >= 5) entity->trampolin = true;
+        return false; 
+    }
+
+    if (tile_index == 6) {
+        if (is_foot && entity->vy >= F16_0) {
+            s16 local_y = world_y & 7;
+            if (local_y <= 2) return true; 
+        }
+        return false; 
+    }
+
+    return true; 
+}
+
+static void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 current_y)
+{
+    if (saved_vx == F16_0) return;
+
+    s16 dir = (saved_vx > 0) ? 1 : -1;
+    s16 half_w = entity->width >> 1;
+    s16 half_h = entity->height >> 1;
+
+    s16 check_x = current_x + (dir * half_w) + dir;
+    s16 foot_y = current_y + half_h - 1; 
+    s16 head_y = current_y - half_h;
+
+    bool foot_blocked = isTileSolid(entity, check_x, foot_y, true);
+    bool head_free    = !isTileSolid(entity, check_x, head_y, false);
+
+    if (foot_blocked && head_free)
+    {
+        entity->vx = saved_vx;
+        entity->vy = HELPING_HOP;
+        entity->state = P_FALLING;
+    }
+}
+
+void check_collision(Entity *entity)
+{
+    entity->is_on_wall = false;
+   // entity->facing = 0; 
+    bool isOnGround = false;
+    bool blocked_horizontally = false;
+    entity->trampolin = false;
+
+    fix16 saved_vx = entity->vx;
+
+    s16 current_x = FIX32_TO_S16(entity->x_f32);
+    s16 current_y = FIX32_TO_S16(entity->y_f32);
+    s16 half_w = (entity->width >> 1);
+    s16 half_h = (entity->height >> 1);
+
+    s16 desired_x = FIX32_TO_S16(entity->x_f32 + F16_toFix32(entity->vx));
+    s16 desired_y = FIX32_TO_S16(entity->y_f32 + F16_toFix32(entity->vy));
+
+    s16 dx = desired_x - current_x;
+    if (dx != 0)
+    {
+        entity->facing = (dx > 0) ? 1 : -1;
+        s16 steps = (abs(dx) + MAX_COLLISION_STEP - 1) / MAX_COLLISION_STEP;
+        s16 step_x = dx / steps;
+        for (int i = 0; i < steps; i++) {
+            current_x += step_x;
+            s16 check_x = (dx > 0) ? (current_x + half_w - 1) : (current_x - half_w);
+            if (isTileSolid(entity, check_x, current_y - half_h + 1, false) ||
+                isTileSolid(entity, check_x, current_y, false) ||
+                isTileSolid(entity, check_x, current_y + half_h - 1, false)) 
+            {
+                current_x -= step_x;
+                entity->vx = F16_0;
+                blocked_horizontally = true;
+                s16 tile_col_x = (check_x >> 3);
+                current_x = (dx > 0) ? (tile_col_x << 3) - half_w : (tile_col_x << 3) + 8 + half_w;
+                break;
+            }
+        }
+    }
+
+    if (entity->state == P_GROUNDED && blocked_horizontally && saved_vx != F16_0)
+        apply_step_up(entity, saved_vx, current_x, current_y);
+
+    s16 dy = desired_y - current_y;
+    if (dy != 0)
+    {
+        s16 steps = (abs(dy) + MAX_COLLISION_STEP - 1) / MAX_COLLISION_STEP;
+        s16 step_y = dy / steps;
+        for (int i = 0; i < steps; i++) {
+            current_y += step_y;
+            s16 check_y = (dy > 0) ? (current_y + half_h) : (current_y - half_h);
+            bool is_f = (dy > 0);
+
+            bool hitLeft  = isTileSolid(entity, current_x - half_w + 1, check_y, is_f);
+            bool hitRight = isTileSolid(entity, current_x + half_w - 1, check_y, is_f);
+            bool hitMid   = isTileSolid(entity, current_x, check_y, is_f);
+
+            bool collision = (dy > 0) ? (isTileSolid(entity, current_x - half_w + 3, check_y, true) || hitMid || isTileSolid(entity, current_x + half_w - 3, check_y, true)) 
+                                      : (hitLeft || hitMid || hitRight);
+
+            if (collision) {
+                if (dy < 0 && !hitMid) {
+                    if (hitLeft && !hitRight) { current_x += 2; entity->x_f32 = FIX32(current_x); continue; }
+                    else if (hitRight && !hitLeft) { current_x -= 2; entity->x_f32 = FIX32(current_x); continue; }
+                }
+                current_y -= step_y;
+                entity->vy = F16_0;
+                s16 tile_col_y = (check_y >> 3);
+                if (dy > 0) { current_y = (tile_col_y << 3) - half_h; isOnGround = true; }
+                else { current_y = (tile_col_y << 3) + 8 + half_h; }
+                break;
+            }
+        }
+    }
+
+    entity->x = current_x;
+    entity->y = current_y;
+    entity->x_f32 = FIX32(current_x);
+    entity->y_f32 = FIX32(current_y);
+
+    s16 right_x = current_x + half_w;
+    if (isTileSolid(entity, right_x, current_y - half_h + 1, false) ||
+        isTileSolid(entity, right_x, current_y, false) ||
+        isTileSolid(entity, right_x, current_y + half_h - 1, false))
+    {
+        entity->is_on_wall = true;
+        entity->facing = 1;
+    }
+    else 
+    {
+        s16 left_x = current_x - half_w - 1;
+        if (isTileSolid(entity, left_x, current_y - half_h + 1, false) ||
+            isTileSolid(entity, left_x, current_y, false) ||
+            isTileSolid(entity, left_x, current_y + half_h - 1, false))
+        {
+            entity->is_on_wall = true;
+            entity->facing = -1;
+        }
+    }
+
+    debug_set(0, entity->timer_stamina);
+    debug_set(1, entity->facing);
+
+    if (entity->trampolin) {
+        entity->vy = FIX16(3.5);
+        entity->state = P_FALLING;
+    } else if (isOnGround && entity->vy >= F16_0) {
+        entity->state = P_GROUNDED;
+        entity->vy = F16_0;
+    } else {
+        if (entity->state != P_SHOT_JUMP && entity->state != P_ON_WALL && entity->state != P_JUMPING && entity->state != P_EDGE_GRAB && entity->state != P_FLYING) {
+            if (entity->vy < F16_0) {
+                entity->state = P_FALLING;
+            } else {
+                s16 check_y_ground = entity->y + half_h + 1;
+                bool has_ground = isTileSolid(entity, current_x - half_w + 3, check_y_ground, true) ||
+                                  isTileSolid(entity, current_x, check_y_ground, true) ||
+                                  isTileSolid(entity, current_x + half_w - 3, check_y_ground, true);
+                if (!has_ground) entity->state = P_FALLING;
+                else { entity->state = P_GROUNDED; entity->vy = F16_0; }
+            }
+        }
+    }
+}
