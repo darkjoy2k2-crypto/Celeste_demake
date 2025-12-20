@@ -1,0 +1,9 @@
+/*
+!/src/
+!/res/
+!Celeste_demake.code-workspace
+!.gitignore
+
+!/out/
+/out/*
+!/out/rom.bin
