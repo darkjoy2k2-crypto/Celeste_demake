@@ -7,80 +7,19 @@
 #include "debug.h"
 #include "camera.h"
 #include "area.h"
+#include "fade.h"
 
-// Diese Deklarationen sagen dem Compiler, dass die Daten in einer anderen .c Datei liegen
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
 Map* level_1_map;
 bool show_level = true;
-
 int i = 0;
 int player_id = 0;
-
-/*
-static void handlecamera(Entity* player){
-    int p_int_x = player->x;
-    int p_int_y = player->y;
-
-    int p_screen_x = p_int_x - camera_position.x;
-    int p_screen_y = p_int_y - camera_position.y;
-
-    int new_cam_x;
-    int new_cam_y;
-
-    if (p_screen_x > cam_max_x){
-        new_cam_x = p_int_x - cam_max_x;
-    } else if (p_screen_x < cam_min_x){
-        new_cam_x = p_int_x - cam_min_x;
-    } else {
-        new_cam_x = camera_position.x;
-    }
-
-    if (p_screen_y > cam_max_y){
-        new_cam_y = p_int_y - cam_max_y;
-    } else if (p_screen_y < cam_min_y){
-        new_cam_y = p_int_y - cam_min_y;
-    } else {
-        new_cam_y = camera_position.y;
-    }
-
-    if (new_cam_x != camera_position.x || new_cam_y != camera_position.y){
-        camera_position.x = new_cam_x;
-        camera_position.y = new_cam_y;
-    }
-
-    if (camera_position.x < 0){
-        camera_position.x = 0;
-    }
-    if (camera_position.y < -16){
-        camera_position.y = -16;
-    }
-
-    if (camera_position.x > MAP_W * 8 - 320){ 
-        camera_position.x = MAP_W * 8 - 320;
-    }
-    if (camera_position.y > MAP_H * 8 - 224){ 
-        camera_position.y = MAP_H * 8  - 224;
-    }
-
-    if (show_level){
-        MAP_scrollTo(level_1_map, camera_position.x, camera_position.y);
-    }
-
-    VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
-    int scroll_index_y = 128;
-    VDP_setVerticalScroll(BG_B, scroll_index_y);
-
-    SPR_setPosition(player->sprite, p_int_x - camera_position.x - 8, p_int_y - camera_position.y - 8);
-}
-*/
-
 u16 ind = TILE_USER_INDEX;
 
 void update_animation(Entity* e){
     int dx = e->x_old - e->x;
-
     e->anim_index += dx ; 
 
     if (e->anim_index < 0) e->anim_index += 50;
@@ -93,13 +32,11 @@ int main() {
     SPR_init(); 
     VDP_setScreenWidth320();
     
-    PAL_setPalette(PAL0, bg_palette.data, DMA);
-    PAL_setPalette(PAL1, player_sprite.palette->data, DMA);
-    PAL_setPalette(PAL3, layer_1_palette.data, DMA);
-
     VDP_setTextPlane(WINDOW); 
     VDP_setWindowHPos(0, 0);
     VDP_setWindowVPos(0, 34);
+
+    FADE_init();
 
     VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
     ind += layer_bg.tileset->numTile;
@@ -110,10 +47,8 @@ int main() {
     init_camera();
     debug_init();
     
-    // 1. Areas laden
     load_areas(level_1_areas, level_1_area_count);
 
-    // 2. Spawn berechnen
     const Area* start_area = get_area(0);
     if (start_area) {
         s16 spawn_x = start_area->spawn.x << 3; 
@@ -121,41 +56,52 @@ int main() {
 
         player_id = create_entity(spawn_x, spawn_y, 13, 13, ENTITY_PLAYER);
 
-        // Kamera initial auf den Spawn zentrieren
         camera_position.x = spawn_x - 160;
         camera_position.y = spawn_y - 112;
     }
 
-    // 3. Level Map laden
-    if (show_level){
+if (show_level){
         VDP_loadTileSet(&our_tileset, ind, DMA);
         level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
         ind += our_tileset.numTile;
-
-        // Erster Scroll-Befehl damit Tiles geladen werden
+        
+        // 1. Position the map
         MAP_scrollTo(level_1_map, camera_position.x, camera_position.y);
+        center_camera(&entities[player_id], level_1_map);
     }
 
+    // 2. Position the sprites (Player) before the fade starts
+    if (player_id != -1) {
+        Entity* p = &entities[player_id];
+        // Ensure sprite is placed relative to camera immediately
+        SPR_setPosition(p->sprite, p->x - camera_position.x - 8, p->y - camera_position.y - 8);
+    }
+
+    // 3. Force one frame to "snap" everything into place while CRAM is still black
+    SPR_update();
+    SYS_doVBlankProcess();
+
+    // 4. Now it is safe to fade in
+    FADE_in(30);
 
     while(1) {
         debug_draw();
         handle_all_entities();
 
         if (player_id != -1) {
-            update_animation(&entities[player_id]);
-            update_camera(&entities[player_id], level_1_map);
+            Entity* p = &entities[player_id];
+            
+            update_animation(p);
+            update_camera(p, level_1_map);
 
-            entities[player_id].x_old = entities[player_id].x;
-            entities[player_id].y_old = entities[player_id].y;
+            p->x_old = p->x;
+            p->y_old = p->y;
+
+            char msg[32];
+            int cid = get_current_area_id(p->x, p->y);
+            sprintf(msg, "ID:%d PX:%d PY:%d  ", cid, p->x, p->y);
+            VDP_drawText(msg, 1, 1);
         }
-
-
-// In der Main-Loop vor SPR_update()
-char msg[32];
-int cid = get_current_area_id(entities[player_id].x, entities[player_id].y);
-
-sprintf(msg, "ID:%d PX:%d PY:%d  ", cid, entities[player_id].x, entities[player_id].y);
-VDP_drawText(msg, 1, 1);
 
         SPR_update(); 
         SYS_doVBlankProcess();
