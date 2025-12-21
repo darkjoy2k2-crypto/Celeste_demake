@@ -3,6 +3,7 @@
 !/res/
 !Celeste_demake.code-workspace
 !.gitignore
+README.md
 
 !/out/
 /out/*
