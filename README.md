@@ -11,7 +11,7 @@ A private, non-commercial technical study focused on porting the core mechanics 
 
 You can run this project directly in your browser or on dedicated hardware/emulators.
 
-1. **Play in Browser:** [Click here to launch the web-based emulator](index.html).
+1. **Play in Browser:** [Click here to launch the web-based emulator](https://darkjoy2k2-crypto.github.io/Celeste_demake/).
 2. **Download the ROM:** Get the latest build from the [`out/rom.bin`](https://github.com/darkjoy2k2-crypto/Celeste_demake/blob/main/out/rom.bin) directory.
 3. **Using an Emulator:** Open the `.bin` file with a Sega Genesis emulator (e.g., BlastEm, Genesis Plus GX, or Fusion).
 4. **Using Original Hardware:** Copy the `rom.bin` file to a flash cartridge (like an EverDrive) and insert it into a Sega Genesis/Mega Drive console.
