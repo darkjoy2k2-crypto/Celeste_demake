@@ -1,32 +1,66 @@
-# Celeste Demake (Sega Genesis)
+# Celeste Sega Genesis Demake
 
-A demake of the popular indie title **Celeste**, developed specifically for the Sega Genesis / Mega Drive hardware.
+A private, non-commercial technical study focused on porting the core mechanics of *Celeste* to the Sega Genesis/Mega Drive hardware.
 
-## 🕹️ Play Now
-You can play the game directly in your browser via GitHub Pages:
-**[Run in Emulator](https://darkjoy2k2-crypto.github.io/Celeste_demake/)**
+> **Note:** This is a hobbyist learning project. There is no set release schedule, and it is intended for educational purposes only.
 
-## Project Overview
-This project aims to recreate the core mechanics of Celeste while adhering to the technical constraints of 16-bit hardware. 
+## 🖼️ Screenshots
+<img width="1205" height="796" alt="Celeste Genesis Gameplay" src="https://github.com/user-attachments/assets/00f60461-bde5-45e8-9514-36035ae6c0db" />
 
-- **Platform:** Sega Genesis / Mega Drive
-- **Format:** `.bin` / `.md` ROM
-- **Emulator:** Powered by [EmulatorJS](https://emulatorjs.org/)
+## 🚀 Installation & Execution
 
-## Browser Controls
-When playing in the web player, the default mapping is:
+You can run this project using an emulator or on real hardware.
 
-| Sega Button | Function |
+1. **Download the ROM:** Get the latest build from the [`out/rom.bin`](https://github.com/darkjoy2k2-crypto/Celeste_demake/blob/main/out/rom.bin) directory.
+2. **Using an Emulator:** Open the `.bin` file with a Sega Genesis emulator (e.g., BlastEm, Genesis Plus GX, or Fusion).
+3. **Using Original Hardware:** Copy the `rom.bin` file to a flash cartridge (like an EverDrive) and insert it into a Sega Genesis/Mega Drive console.
+
+## 🎮 Controls
+
+| Input | Action |
 | :--- | :--- |
-| **D-Pad** | Movement |
+| **D-Pad Left/Right** | Move on ground |
+| **D-Pad Up/Down** | Move while climbing walls |
 | **Button A** | Jump |
-| **Button B** | Climb |
-| **Button C** | Dash |
-| **Mode** | Fly (Debug) |
-| **Start** | Pause / Menu |
+| **Button B (Hold)** | Climb walls |
+| **Button C** | Dash (while in air) |
+| **Mode** | Toggle Fly State (Debug) |
 
-## Development
-The ROM is located in the `out/` directory. If you are using a physical console or a local emulator (like Fusion or Genesis Plus GX), simply load `out/rom.bin`.
+## 🎯 Learning Objectives
 
----
-*If you find any bugs or have suggestions, feel free to open an Issue in this repository.*
+The primary goal of this repository is to document the process of retro-game development. Key focus areas include:
+
+* **C Programming:** Gaining proficiency in the C language within an embedded context.
+* **Genesis Hardware:** Understanding the VDP (Video Display Processor) and memory constraints.
+* **SGDK SDK:** Leveraging the [Sega Genesis Development Kit](https://github.com/Stephane-D/SGDK).
+* **Game Physics:** Implementing high-precision platformer physics on 16-bit hardware.
+
+## 🛠️ Project Status
+
+### Achieved Features
+* **Player Physics:** Glitch-free collision (16x16 sprite vs. 8x8 tiles).
+* **Core Mechanics:** Jump, climb, dash, and a functional stamina system.
+* **Quality of Life (QoL):** Implemented Coyote-time, buffered jumping, step-ups, and edge-correction.
+* **Advanced Camera:** Dynamic camera following with player deadzones and area-based locking.
+
+### To-Do List
+* [ ] Death and Respawn mechanics
+* [ ] Collectibles (Strawberries)
+* [ ] Screen Effects (Fade-in/out, Camera Shake)
+* [ ] In-Game Menu & Title Screen
+* [ ] Level Transition system
+
+## ⚖️ Copyright & Credits
+
+### Concept & Resources
+* **Original Game:** *Celeste* was created by Maddy Thorson and Noel Berry (Maddy Makes Games). This project is a tribute and a study; I make no claim to the original concept or intellectual property.
+* **Graphics:** Currently utilizing edited tilesets from *Cavernas* by Adam Saltsman.
+
+### Source Code
+The code in this repository was authored by **Darkjoy2k2**, utilizing AI as a pair-programming tool for logic and optimization. No original *Celeste* source code was used, disassembled, or referenced.
+
+## 🔗 Tools & Links
+* **Development:** [Visual Studio](https://visualstudio.microsoft.com/de/)
+* **Level Design:** [LDTK](https://ldtk.io/)
+* **Engine/SDK:** [SGDK](https://github.com/Stephane-D/SGDK)
+* **Original Game:** [Celeste on Steam](https://store.steampowered.com/app/504230/Celeste/)
