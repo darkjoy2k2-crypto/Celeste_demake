@@ -1,8 +1,15 @@
 #include "debug.h"
 #include "genesis.h"
 
+
 char info[40];
 int debug_value[10];
+
+void debug_init(){
+    for(int i = 0; i < 10; i++){
+        debug_value[i] = 0;
+    }
+}
 
 void debug_set(int place, int value){
     debug_value[place] = value;

@@ -10,7 +10,9 @@ typedef struct {
     Vect2D_s16 min;       
     Vect2D_s16 max;       
     Vect2D_s16 spawn;     
-    Vect2D_s16 cam;       
+    Vect2D_s16 cam;      
+    Vect2D_s16 cam_min;    
+    Vect2D_s16 cam_max;      
     u16 cam_mode;
     u16 type;
 } Area;

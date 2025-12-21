@@ -163,8 +163,8 @@ void check_collision(Entity *entity)
         }
     }
 
-    debug_set(0, entity->timer_stamina);
-    debug_set(1, entity->facing);
+    debug_set(0, entity->x);
+    debug_set(1, entity->y);
 
     if (entity->trampolin) {
         entity->vy = FIX16(3.5);

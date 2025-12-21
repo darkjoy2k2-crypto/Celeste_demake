@@ -108,7 +108,8 @@ int main() {
         
     init_entities();
     init_camera();
-
+    debug_init();
+    
     // 1. Areas laden
     load_areas(level_1_areas, level_1_area_count);
 
@@ -134,6 +135,7 @@ int main() {
         // Erster Scroll-Befehl damit Tiles geladen werden
         MAP_scrollTo(level_1_map, camera_position.x, camera_position.y);
     }
+
 
     while(1) {
         debug_draw();
