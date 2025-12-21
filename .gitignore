@@ -3,8 +3,8 @@
 !/res/
 !Celeste_demake.code-workspace
 !.gitignore
-README.md
-
+!README.md
+!index.html
 !/out/
 /out/*
 !/out/rom.bin
