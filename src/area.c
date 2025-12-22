@@ -18,19 +18,16 @@ const Area* get_area(u16 id) {
 int get_current_area_id(s16 px, s16 py) {
     if (active_areas == NULL) return -1;
 
-    for (u16 i = active_count - 1; i > 0; i--) {
+    // Wir suchen RÜCKWÄRTS. 
+    // Wenn Area 3 passt, nehmen wir die. 
+    // Area 0 (die größte) kommt ganz am Ende dran.
+    for (int i = (int)active_count - 1; i >= 0; i--) {
         const Area* a = &active_areas[i];
         
         if (px >= a->min.x && px < a->max.x &&
             py >= a->min.y && py < a->max.y) {
-            return (int)i;
+            return i;
         }
-    }
-
-    const Area* master = &active_areas[0];
-    if (px >= master->min.x && px < master->max.x &&
-        py >= master->min.y && py < master->max.y) {
-        return 0;
     }
 
     return -1;

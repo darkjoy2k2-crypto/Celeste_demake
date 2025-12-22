@@ -37,6 +37,7 @@ int create_entity(s16 x, s16 y, u16 width, u16 height, u16 type) {
             e->state_old_joy = 0;
             e->trampolin = false;
             e->type = type;
+            e->is_dying = false;
 
             e->timer_buffer = 0;
             e->timer_edgegrab = 0;

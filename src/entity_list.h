@@ -68,6 +68,7 @@ typedef struct {
 
     bool trampolin;
     bool dontbreakjump;
+    bool is_dying;
     
 } Entity;
 

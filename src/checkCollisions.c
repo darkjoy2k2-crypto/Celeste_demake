@@ -1,5 +1,6 @@
 #include <genesis.h>
 #include "checkCollisions.h"
+#include "tiles.h"
 #include "entity_list.h" 
 #include "level.h"
 #include "debug.h"
@@ -12,6 +13,10 @@
 #define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))
 
 static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot) {
+    // RIEGEL: Wenn der Spieler gerade stirbt/teleportiert wurde, 
+    // ignorieren wir alle weiteren Aufrufe in diesem Frame.
+    if (entity->is_dying) return false;
+
     s16 tile_x = world_x >> 3;
     s16 tile_y = world_y >> 3;
 
@@ -20,23 +25,13 @@ static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot) 
 
     u16 tile_index = map_collision_data[tile_y * MAP_WIDTH_TILES + tile_x];
 
-    if (tile_index == 0) return false;
+    handle_tile_action(tile_index, entity, world_y);
 
-    if (tile_index == 7) {
-        s16 local_y = world_y & 7; 
-        if (local_y >= 5) entity->trampolin = true;
-        return false; 
-    }
+    // Falls handle_tile_action gerade den Tod ausgelöst hat, 
+    // geben wir sofort false zurück, damit die Physik-Schleife nicht blockiert
+    if (entity->is_dying) return false;
 
-    if (tile_index == 6) {
-        if (is_foot && entity->vy >= F16_0) {
-            s16 local_y = world_y & 7;
-            if (local_y <= 2) return true; 
-        }
-        return false; 
-    }
-
-    return true; 
+    return is_tile_solid_only(tile_index, entity, world_y, is_foot);
 }
 
 static void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 current_y)

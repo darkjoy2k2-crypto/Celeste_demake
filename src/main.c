@@ -82,7 +82,7 @@ if (show_level){
     SYS_doVBlankProcess();
 
     // 4. Now it is safe to fade in
-    FADE_in(30);
+    FADE_in(15);
 
     while(1) {
         debug_draw();
@@ -97,10 +97,10 @@ if (show_level){
             p->x_old = p->x;
             p->y_old = p->y;
 
-            char msg[32];
-            int cid = get_current_area_id(p->x, p->y);
-            sprintf(msg, "ID:%d PX:%d PY:%d  ", cid, p->x, p->y);
-            VDP_drawText(msg, 1, 1);
+            //char msg[32];
+            //int cid = get_current_area_id(p->x, p->y);
+            //sprintf(msg, "ID:%d PX:%d PY:%d  ", cid, p->x, p->y);
+            //VDP_drawText(msg, 1, 1);
         }
 
         SPR_update(); 
