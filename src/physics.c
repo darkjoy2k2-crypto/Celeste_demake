@@ -18,7 +18,10 @@ void handle_physics(Entity* e){
 
     if (e->type == ENTITY_PLAYER){
         // SCHRITT 1: State Machine Logik (in player_update.c)
+        
+        update_area(e);
         update_player_state_and_physics(e); 
+
     }
 
     // SCHRITT 2: Kollisionsprüfung

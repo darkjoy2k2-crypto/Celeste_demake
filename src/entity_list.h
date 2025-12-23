@@ -7,6 +7,9 @@
 #define F16_0 FIX16(0)
 #define F16_1 FIX16(1)
 
+/* Forward Declaration statt #include */
+struct Area; 
+
 enum ENTITY_TYPE {
     ENTITY_PLAYER = 0
 };
@@ -29,29 +32,28 @@ enum ENTITY_STATE {
 };
 
 typedef struct {
+    /* 1. Pointer (Immer ganz oben) */
+    Sprite* sprite;
+    struct Area* current_area;
+    /* 2. 32-Bit Werte (Fixpoint) */
     fix32 x_f32;
-    s16 x;
-
     fix32 y_f32;
-    s16 y;
-    s16 x_old;
     fix32 x_old_f32;
-
-    s16 y_old;
     fix32 y_old_f32;
-
     fix16 vx;
     fix16 vy;
 
+    /* 3. 16-Bit Werte (Integer / Enums) */
+    s16 x;
+    s16 y;
+    s16 x_old;
+    s16 y_old;
     u16 width;
     u16 height;
-
     u16 state;
     u16 state_old;
     u16 state_old_joy;
-    
     s16 anim_index;
-
     s16 timer_grace;
     s16 timer_buffer;
     s16 timer_edgegrab;
@@ -59,20 +61,18 @@ typedef struct {
     s16 timer_wall_exec;
     s16 timer_shot_jump;
     s16 timer_stamina;
-
-    Sprite* sprite;
+    s16 timer_death;  /* Neu hierher verschoben */
+    s16 facing;
     enum ENTITY_TYPE type;
 
+    /* 4. 8-Bit Werte / Booleans (Ganz unten) */
     bool is_on_wall;
-    s16 facing;
-
     bool trampolin;
     bool dontbreakjump;
     bool is_dying;
-    
 } Entity;
 
-#define MAX_ENTITIES 10
+#define MAX_ENTITIES 1
 extern Entity entities[MAX_ENTITIES];
 extern u8 entity_used[MAX_ENTITIES];
 

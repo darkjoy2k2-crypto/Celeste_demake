@@ -3,7 +3,7 @@
 #include "title.h"
 
 
-#define MAX_ENTITIES 10
+#define MAX_ENTITIES 1
 
 Entity entities[MAX_ENTITIES];
 u8 entity_used[MAX_ENTITIES];
@@ -53,7 +53,6 @@ int create_entity(s16 x, s16 y, u16 width, u16 height, u16 type) {
             if (e->sprite) {
                 SPR_setAnimAndFrame(e->sprite, 0, 0);
             }
-
             return i;
         }
     }

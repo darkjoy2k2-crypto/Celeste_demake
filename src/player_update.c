@@ -1,4 +1,5 @@
 #include <genesis.h>
+#include "area.h"
 #include "entity_list.h" // KORREKTUR: Alle Entity-Definitionen kommen von hier
 #include "player_update.h" 
 #include "debug.h"
@@ -244,6 +245,25 @@ void update_player_state_and_physics(Entity* player) {
     if (player->timer_wall > 0) player->timer_wall--;
     if (player->timer_shot_jump > 0) player->timer_shot_jump--;
     
+    if (player->is_dying) {
+
+            FADE_out(15);
+
+            player->x = player->current_area->spawn.x << 3;
+            player->y = player->current_area->spawn.y << 3 ;
+            player->x_f32 = FIX32(player->x);
+            player->y_f32 = FIX32(player->y);
+            
+            player->vx = F16_0;
+            player->vy = F16_0;
+            player->state = P_FALLING;
+            player->trampolin = false;
+
+            FADE_in(15);
+            
+            player->is_dying = false;
+    }  
+
     switch (player->state) {
         case P_IDLE:
         case P_RUNNING:

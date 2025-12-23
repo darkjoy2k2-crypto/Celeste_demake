@@ -56,13 +56,10 @@ void center_camera(Entity* player, Map* level_map) {
 void update_camera(Entity* player, Map* level_map) {
     if (player == NULL) return;
 
+
+    const Area* a = player->current_area;
     s16 px = player->x;
     s16 py = player->y;
-
-    int area_id = get_current_area_id(px, py);
-    if (area_id == -1) return;
-
-    const Area* a = get_area(area_id);
     Vect2D_s16 target;
 
     target.x = px - (SCREEN_W / 2);

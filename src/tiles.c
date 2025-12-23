@@ -10,36 +10,7 @@ void handle_tile_action(u16 tile_index, Entity* entity, s16 world_y) {
 
     switch(tile_index) {
         case TILE_DEATH:
-            if (entity->is_dying) return;
             entity->is_dying = true;
-
-            s16 last_x = entity->x;
-            s16 last_y = entity->y;
-
-            int area_id = get_current_area_id(last_x, last_y);
-            const Area* current = get_area(area_id != -1 ? area_id : 0);
-
-            char msg[32];
-            sprintf(msg, "Death ID:%d PX:%d PY:%d  ", area_id, last_x, last_y);
-            VDP_drawText(msg, 1, 1);
-
-            FADE_out(15);
-
-            if (current != NULL) {
-                entity->x = current->spawn.x * 8;
-                entity->y = current->spawn.y * 8;
-                entity->x_f32 = FIX32(entity->x);
-                entity->y_f32 = FIX32(entity->y);
-            }
-            
-            entity->vx = F16_0;
-            entity->vy = F16_0;
-            entity->state = P_FALLING;
-            entity->trampolin = false;
-
-            FADE_in(15);
-            
-            entity->is_dying = false;
             break;
 
         case TILE_TRAMPOLINE:

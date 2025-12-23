@@ -1,7 +1,22 @@
 #include "area.h"
+#include "entity_list.h"
 
 static const Area* active_areas = NULL;
 static u16 active_count = 0;
+
+
+void update_area(Entity* e) {
+    s16 px = e->x;
+    s16 py = e->y;
+
+    s16 area_id = get_current_area_id(px, py);
+    if (area_id == -1) return;
+
+    const Area* a = get_area(area_id);
+    e->current_area = (Area*)a; 
+    
+
+}
 
 void load_areas(const Area* data, u16 count) {
     active_areas = data;

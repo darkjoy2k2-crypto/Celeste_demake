@@ -12,9 +12,7 @@
 #define MAX_COLLISION_STEP 4
 #define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))
 
-static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot) {
-    // RIEGEL: Wenn der Spieler gerade stirbt/teleportiert wurde, 
-    // ignorieren wir alle weiteren Aufrufe in diesem Frame.
+static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot, bool is_peek) {
     if (entity->is_dying) return false;
 
     s16 tile_x = world_x >> 3;
@@ -25,11 +23,10 @@ static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, bool is_foot) 
 
     u16 tile_index = map_collision_data[tile_y * MAP_WIDTH_TILES + tile_x];
 
-    handle_tile_action(tile_index, entity, world_y);
-
-    // Falls handle_tile_action gerade den Tod ausgelöst hat, 
-    // geben wir sofort false zurück, damit die Physik-Schleife nicht blockiert
-    if (entity->is_dying) return false;
+    if (!is_peek) {
+        handle_tile_action(tile_index, entity, world_y);
+        if (entity->is_dying) return false;
+    }
 
     return is_tile_solid_only(tile_index, entity, world_y, is_foot);
 }
@@ -46,8 +43,8 @@ static void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 cur
     s16 foot_y = current_y + half_h - 1; 
     s16 head_y = current_y - half_h;
 
-    bool foot_blocked = isTileSolid(entity, check_x, foot_y, true);
-    bool head_free    = !isTileSolid(entity, check_x, head_y, false);
+    bool foot_blocked = isTileSolid(entity, check_x, foot_y, true, true);
+    bool head_free    = !isTileSolid(entity, check_x, head_y, false, true);
 
     if (foot_blocked && head_free)
     {
@@ -60,7 +57,6 @@ static void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 cur
 void check_collision(Entity *entity)
 {
     entity->is_on_wall = false;
-   // entity->facing = 0; 
     bool isOnGround = false;
     bool blocked_horizontally = false;
     entity->trampolin = false;
@@ -84,10 +80,11 @@ void check_collision(Entity *entity)
         for (int i = 0; i < steps; i++) {
             current_x += step_x;
             s16 check_x = (dx > 0) ? (current_x + half_w - 1) : (current_x - half_w);
-            if (isTileSolid(entity, check_x, current_y - half_h + 1, false) ||
-                isTileSolid(entity, check_x, current_y, false) ||
-                isTileSolid(entity, check_x, current_y + half_h - 1, false)) 
+            if (isTileSolid(entity, check_x, current_y - half_h + 1, false, false) ||
+                isTileSolid(entity, check_x, current_y, false, false) ||
+                isTileSolid(entity, check_x, current_y + half_h - 1, false, false)) 
             {
+                if (entity->is_dying) return;
                 current_x -= step_x;
                 entity->vx = F16_0;
                 blocked_horizontally = true;
@@ -111,12 +108,16 @@ void check_collision(Entity *entity)
             s16 check_y = (dy > 0) ? (current_y + half_h) : (current_y - half_h);
             bool is_f = (dy > 0);
 
-            bool hitLeft  = isTileSolid(entity, current_x - half_w + 1, check_y, is_f);
-            bool hitRight = isTileSolid(entity, current_x + half_w - 1, check_y, is_f);
-            bool hitMid   = isTileSolid(entity, current_x, check_y, is_f);
+            bool hitLeft  = isTileSolid(entity, current_x - half_w + 1, check_y, is_f, false);
+            bool hitRight = isTileSolid(entity, current_x + half_w - 1, check_y, is_f, false);
+            bool hitMid   = isTileSolid(entity, current_x, check_y, is_f, false);
 
-            bool collision = (dy > 0) ? (isTileSolid(entity, current_x - half_w + 3, check_y, true) || hitMid || isTileSolid(entity, current_x + half_w - 3, check_y, true)) 
+            if (entity->is_dying) return;
+
+            bool collision = (dy > 0) ? (isTileSolid(entity, current_x - half_w + 3, check_y, true, false) || hitMid || isTileSolid(entity, current_x + half_w - 3, check_y, true, false)) 
                                       : (hitLeft || hitMid || hitRight);
+
+            if (entity->is_dying) return;
 
             if (collision) {
                 if (dy < 0 && !hitMid) {
@@ -139,9 +140,9 @@ void check_collision(Entity *entity)
     entity->y_f32 = FIX32(current_y);
 
     s16 right_x = current_x + half_w;
-    if (isTileSolid(entity, right_x, current_y - half_h + 1, false) ||
-        isTileSolid(entity, right_x, current_y, false) ||
-        isTileSolid(entity, right_x, current_y + half_h - 1, false))
+    if (isTileSolid(entity, right_x, current_y - half_h + 1, false, true) ||
+        isTileSolid(entity, right_x, current_y, false, true) ||
+        isTileSolid(entity, right_x, current_y + half_h - 1, false, true))
     {
         entity->is_on_wall = true;
         entity->facing = 1;
@@ -149,17 +150,14 @@ void check_collision(Entity *entity)
     else 
     {
         s16 left_x = current_x - half_w - 1;
-        if (isTileSolid(entity, left_x, current_y - half_h + 1, false) ||
-            isTileSolid(entity, left_x, current_y, false) ||
-            isTileSolid(entity, left_x, current_y + half_h - 1, false))
+        if (isTileSolid(entity, left_x, current_y - half_h + 1, false, true) ||
+            isTileSolid(entity, left_x, current_y, false, true) ||
+            isTileSolid(entity, left_x, current_y + half_h - 1, false, true))
         {
             entity->is_on_wall = true;
             entity->facing = -1;
         }
     }
-
-    debug_set(0, entity->x);
-    debug_set(1, entity->y);
 
     if (entity->trampolin) {
         entity->vy = FIX16(3.5);
@@ -173,9 +171,12 @@ void check_collision(Entity *entity)
                 entity->state = P_FALLING;
             } else {
                 s16 check_y_ground = entity->y + half_h + 1;
-                bool has_ground = isTileSolid(entity, current_x - half_w + 3, check_y_ground, true) ||
-                                  isTileSolid(entity, current_x, check_y_ground, true) ||
-                                  isTileSolid(entity, current_x + half_w - 3, check_y_ground, true);
+                bool has_ground = isTileSolid(entity, current_x - half_w + 3, check_y_ground, true, false) ||
+                                  isTileSolid(entity, current_x, check_y_ground, true, false) ||
+                                  isTileSolid(entity, current_x + half_w - 3, check_y_ground, true, false);
+                
+                if (entity->is_dying) return;
+
                 if (!has_ground) entity->state = P_FALLING;
                 else { entity->state = P_GROUNDED; entity->vy = F16_0; }
             }
