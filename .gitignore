@@ -1,6 +1,8 @@
 /*
 !/src/
 !/res/
+!/vscode/
+!/py/
 !Celeste_demake.code-workspace
 !.gitignore
 !README.md

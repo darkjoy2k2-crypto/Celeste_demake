@@ -246,7 +246,7 @@ void update_player_state_and_physics(Entity* player) {
     if (player->timer_shot_jump > 0) player->timer_shot_jump--;
     
     if (player->is_dying) {
-
+            player->timer_death = 30;
             FADE_out(15);
 
             player->x = player->current_area->spawn.x << 3;
