@@ -1,65 +1,45 @@
 #include "entity_list.h"
-#include "genesis.h"
-#include "title.h"
+#include "title.h "
 
-
-#define MAX_ENTITIES 1
-
-Entity entities[MAX_ENTITIES];
+EntitySlot entity_pool[MAX_ENTITIES];
+Entity* entities[MAX_ENTITIES];
 u8 entity_used[MAX_ENTITIES];
 
 void init_entities() {
-    for (int i = 0; i < MAX_ENTITIES; i++) {
+    for (u16 i = 0; i < MAX_ENTITIES; i++) {
         entity_used[i] = 0;
+        entities[i] = &entity_pool[i].entity;
+        entity_pool[i].entity.type = ENTITY_NONE;
+        entity_pool[i].entity.sprite = NULL;
     }
 }
 
-int create_entity(s16 x, s16 y, u16 width, u16 height, u16 type) {
-    for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (!entity_used[i]) {
+int create_entity(s16 x, s16 y, u8 w, u8 h, EntityType type) {
+    for (u16 i = 0; i < MAX_ENTITIES; i++) {
+        if (entity_used[i] == 0) {
             entity_used[i] = 1;
-            Entity* e = &entities[i];
-
-            e->height = height;
-            e->width = width;
-            e->x = e->x_old = x;
-            e->x_f32 = e->x_old_f32 = FIX32(x);
-            e->y = e->y_old = y;
-            e->y_f32 = e->y_old_f32 = FIX32(y);
-
-            e->vx = F16_0;
-            e->vy = F16_0;
-
-            e->dontbreakjump = false;
-            e->facing = 0;
-            e->is_on_wall = false;
-            e->state = e->state_old = P_FLYING;
-            e->state_old_joy = 0;
-            e->trampolin = false;
+            
+            Entity* e = entities[i];
             e->type = type;
-            e->is_dying = false;
-
-            e->timer_buffer = 0;
-            e->timer_edgegrab = 0;
-            e->timer_grace = 0;
-            e->timer_shot_jump = 0;
-             e->timer_stamina = 100;
-
-            e->timer_wall = 0;
-            e->timer_wall_exec = 0;
-
-            e->anim_index = 0;
-            e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL1, 0, FALSE, FALSE));
-            if (e->sprite) {
-                SPR_setAnimAndFrame(e->sprite, 0, 0);
+            e->x = x;
+            e->y = y;
+            e->x_f32 = FIX32(x);
+            e->y_f32 = FIX32(y);
+            e->width = w;
+            e->height = h;
+            
+            if (type == ENTITY_PLAYER) {
+                e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+                
             }
+
+            if (type == ENTITY_PLATFORM) {
+                e->sprite = SPR_addSprite(&stone_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
+                SPR_setPriority(e->sprite, 0);
+            }
+            
             return i;
         }
     }
     return -1;
-}
-
-void delete_entity(int id) {
-    if (id < 0 || id >= MAX_ENTITIES) return;
-    entity_used[id] = 0;
 }

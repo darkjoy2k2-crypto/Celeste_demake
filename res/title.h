@@ -10,5 +10,6 @@ extern const MapDefinition our_level_map;
 extern const Palette bg_palette;
 extern const Palette layer_1_palette;
 extern const SpriteDefinition player_sprite;
+extern const SpriteDefinition stone_sprite;
 
 #endif // _RES_TITLE_H_

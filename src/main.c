@@ -19,24 +19,49 @@ int player_id = 0;
 u16 ind = TILE_USER_INDEX;
 
 void update_animation(Entity* e){
-    int dx = e->x_old - e->x;
-    e->anim_index += dx ; 
+    switch (e->type)
+    {
+    case ENTITY_PLAYER:
+        // Hier greifen wir direkt auf x zu, da 'ent.' nicht existiert
+        int dx = e->x_old - e->x; 
+        e->anim_index += dx; 
 
-    if (e->anim_index < 0) e->anim_index += 50;
-    if (e->anim_index > 49) e->anim_index -= 50;
+        if (e->anim_index < 0) e->anim_index += 50;
+        if (e->anim_index > 49) e->anim_index -= 50;
 
-    SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
+        SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
+        break;
+    case ENTITY_PLATFORM:
+        SPR_setAnimAndFrame(e->sprite, 0, 0);
+        break;
+    default:
+        break;
+    }
 }
 
 int main() {
     SPR_init(); 
     VDP_setScreenWidth320();
-    
+
     VDP_setTextPlane(WINDOW); 
     VDP_setWindowHPos(0, 0);
-    VDP_setWindowVPos(0, 34);
+    VDP_setWindowVPos(0, 2); // 2 Zeilen = 16 Pixel
+VDP_setTextPriority(1);
+VDP_setTextPalette(PAL0);   
+   
+   
+    // um ein massives Rechteck zu haben. 
+    // Falls Tile 0 bei dir transparent ist,<n< füllen wir es hier mit Farbe:
+    u32 tiles[8] = { 
+        0x11111111, 0x11111111, 0x11111111, 0x11111111, 
+        0x11111111, 0x11111111, 0x11111111, 0x11111111 
+    };
+    VDP_loadTileData(tiles, 1, 1, CPU); // Lädt ein massives Tile an Index 1
 
-    FADE_init();
+    u16 priority_attr = TILE_ATTR_FULL(PAL0, 1, 0, 0, 1); // Nutzt Tile Index 1
+    VDP_fillTileMapRect(WINDOW, priority_attr, 0, 0, 40, 2);
+
+FADE_init();
 
     VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
     ind += layer_bg.tileset->numTile;
@@ -56,51 +81,56 @@ int main() {
 
         player_id = create_entity(spawn_x, spawn_y, 13, 13, ENTITY_PLAYER);
 
+        if (player_id != -1) {
+            Player* pl = (Player*) entities[player_id];
+            pl->state = P_FALLING;
+            pl->state_old = P_FALLING;
+            pl->timer_stamina = 100;
+            pl->facing = 0;
+            pl->is_dying = false;
+            pl->timer_grace = 0;
+            pl->timer_buffer = 0;
+            pl->timer_shot_jump = 0;
+        }
+
         camera_position.x = spawn_x - 160;
         camera_position.y = spawn_y - 112;
     }
 
-if (show_level){
+    create_entity(16 + 8, 160 + 8, 16, 16, ENTITY_PLATFORM);
+    create_entity(32 + 8, 160 + 8, 16, 16, ENTITY_PLATFORM);
+
+    if (show_level){
         VDP_loadTileSet(&our_tileset, ind, DMA);
         level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
         ind += our_tileset.numTile;
         
-        // 1. Position the map
         MAP_scrollTo(level_1_map, camera_position.x, camera_position.y);
-        center_camera(&entities[player_id], level_1_map);
+        
+        if (player_id != -1) {
+            center_camera(entities[player_id], level_1_map);
+        }
     }
 
-    // 2. Position the sprites (Player) before the fade starts
     if (player_id != -1) {
-        Entity* p = &entities[player_id];
-        // Ensure sprite is placed relative to camera immediately
-        SPR_setPosition(p->sprite, p->x - camera_position.x - 8, p->y - camera_position.y - 8);
+        Entity* e = entities[player_id];
+        // Zugriff wieder ohne .ent
+        SPR_setPosition(e->sprite, e->x - camera_position.x - 8, e->y - camera_position.y - 8);
     }
 
-    // 3. Force one frame to "snap" everything into place while CRAM is still black
     SPR_update();
     SYS_doVBlankProcess();
 
-    // 4. Now it is safe to fade in
     FADE_in(15);
 
     while(1) {
         debug_draw();
-        handle_all_entities();
+        handle_all_entities(); 
 
         if (player_id != -1) {
-            Entity* p = &entities[player_id];
-            
-            update_animation(p);
-            update_camera(p, level_1_map);
-
-            p->x_old = p->x;
-            p->y_old = p->y;
-
-            //char msg[32];
-            //int cid = get_current_area_id(p->x, p->y);
-            //sprintf(msg, "ID:%d PX:%d PY:%d  ", cid, p->x, p->y);
-            //VDP_drawText(msg, 1, 1);
+            Entity* e = entities[player_id];
+            update_animation(e);
+            update_camera(e, level_1_map);
         }
 
         SPR_update(); 

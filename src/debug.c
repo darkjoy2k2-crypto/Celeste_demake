@@ -23,5 +23,6 @@ void debug_draw(){
         debug_value[3],
         debug_value[4]);
 
-    VDP_drawText(info, 0, 0);
-}
+    VDP_drawTextEx(WINDOW, info, TILE_ATTR(PAL0, 1, 0, 0), 1, 0, TILE_USER_INDEX);
+
+};

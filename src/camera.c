@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "entity_list.h"
 
 Vect2D_s16 camera_position = {0, 0};
 
@@ -15,8 +16,9 @@ void init_camera() {
 void center_camera(Entity* player, Map* level_map) {
     if (player == NULL) return;
 
-    s16 px = player->x;
-    s16 py = player->y;
+    Player* p = (Player*) player;
+    s16 px = p->ent.x;
+    s16 py = p->ent.y;
 
     int area_id = get_current_area_id(px, py);
     if (area_id == -1) return;
@@ -50,16 +52,45 @@ void center_camera(Entity* player, Map* level_map) {
     VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
     VDP_setVerticalScroll(BG_B, 128); 
 
-    SPR_setPosition(player->sprite, px - camera_position.x - 8, py - camera_position.y - 8);
+    SPR_setPosition(p->ent.sprite, px - camera_position.x - 8, py - camera_position.y - 8);
 }
+
+
+
+
+void update_all_entities_sprites() {
+    for (int i = 0; i < MAX_ENTITIES; i++) {
+        if (entity_used[i] == 1 && entities[i] != NULL) {
+            Entity* e = entities[i];
+            if (e->sprite != NULL) {
+                s16 x = e->x - camera_position.x - 8;
+                s16 y = e->y - camera_position.y - 8;
+
+                if (x < -16 || x > SCREEN_W || y < -16 || y > SCREEN_H) {
+                    SPR_setVisibility(e->sprite, HIDDEN);;
+                }
+                else {
+                    SPR_setVisibility(e->sprite, VISIBLE);
+                    SPR_setPosition(e->sprite, x, y);
+                }
+            }
+        }
+    }
+}
+
+
+
 
 void update_camera(Entity* player, Map* level_map) {
     if (player == NULL) return;
 
+    Player* p = (Player*) player;
+    const Area* a = p->current_area;
+    
+    if (a == NULL) return;
 
-    const Area* a = player->current_area;
-    s16 px = player->x;
-    s16 py = player->y;
+    s16 px = p->ent.x;
+    s16 py = p->ent.y;
     Vect2D_s16 target;
 
     target.x = px - (SCREEN_W / 2);
@@ -100,5 +131,8 @@ void update_camera(Entity* player, Map* level_map) {
     VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
     VDP_setVerticalScroll(BG_B, 128); 
 
-    SPR_setPosition(player->sprite, px - camera_position.x - 8, py - camera_position.y - 8);
+    // SPR_setPosition(p->ent.sprite, px - camera_position.x - 8, py - camera_position.y - 8);
+
+    update_all_entities_sprites();
+
 }
