@@ -9,6 +9,7 @@
 #include "area.h"
 #include "fade.h"
 #include "sprites.h"
+#include "states.h"
 
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
@@ -28,8 +29,8 @@ int main() {
     VDP_setTextPlane(WINDOW); 
     VDP_setWindowHPos(0, 0);
     VDP_setWindowVPos(0, 2); // 2 Zeilen = 16 Pixel
-VDP_setTextPriority(1);
-VDP_setTextPalette(PAL0);   
+    VDP_setTextPriority(1);
+    VDP_setTextPalette(PAL0);   
    
    
     // um ein massives Rechteck zu haben. 
@@ -43,7 +44,7 @@ VDP_setTextPalette(PAL0);
     u16 priority_attr = TILE_ATTR_FULL(PAL0, 1, 0, 0, 1); // Nutzt Tile Index 1
     VDP_fillTileMapRect(WINDOW, priority_attr, 0, 0, 40, 2);
 
-FADE_init();
+    FADE_init();
 
     VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
     ind += layer_bg.tileset->numTile;
@@ -105,7 +106,12 @@ FADE_init();
 
     FADE_in(15);
 
+    STATE_set(&State_InGame);
+
     while(1) {
+
+        STATE_update();
+        
         handle_all_entities(); 
 
         if (player_id != -1) {
