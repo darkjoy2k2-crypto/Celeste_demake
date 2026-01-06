@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "area.h"
 #include "fade.h"
+#include "sprites.h"
 
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
@@ -18,26 +19,7 @@ int i = 0;
 int player_id = 0;
 u16 ind = TILE_USER_INDEX;
 
-void update_animation(Entity* e){
-    switch (e->type)
-    {
-    case ENTITY_PLAYER:
-        // Hier greifen wir direkt auf x zu, da 'ent.' nicht existiert
-        int dx = e->x_old - e->x; 
-        e->anim_index += dx; 
 
-        if (e->anim_index < 0) e->anim_index += 50;
-        if (e->anim_index > 49) e->anim_index -= 50;
-
-        SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
-        break;
-    case ENTITY_PLATFORM:
-        SPR_setAnimAndFrame(e->sprite, 0, 0);
-        break;
-    default:
-        break;
-    }
-}
 
 int main() {
     SPR_init(); 
@@ -124,14 +106,16 @@ FADE_init();
     FADE_in(15);
 
     while(1) {
-        debug_draw();
         handle_all_entities(); 
 
         if (player_id != -1) {
             Entity* e = entities[player_id];
-            update_animation(e);
             update_camera(e, level_1_map);
         }
+
+
+        debug_draw();
+        handle_all_animations();
 
         SPR_update(); 
         SYS_doVBlankProcess();

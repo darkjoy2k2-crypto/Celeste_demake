@@ -1,5 +1,5 @@
 #include "entity_list.h"
-#include "title.h "
+#include "../res/title.h" "
 
 EntitySlot entity_pool[MAX_ENTITIES];
 Entity* entities[MAX_ENTITIES];
@@ -43,3 +43,4 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, EntityType type) {
     }
     return -1;
 }
+
