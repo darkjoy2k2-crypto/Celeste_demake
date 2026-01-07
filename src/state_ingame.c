@@ -6,6 +6,7 @@
 #include "entity_list.h"
 #include "title.h"
 #include "camera.h"
+#include "hud.h"
 
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
@@ -15,10 +16,14 @@ Map* level_1_map;
 int player_id = 0;
 
 static void enter() {
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
+    setup_hud();
+    init_entities();
+    init_camera();
 
     VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
     ind += layer_bg.tileset->numTile;
-    
+
     load_areas(level_1_areas, level_1_area_count);
 
     const Area* start_area = get_area(0);
