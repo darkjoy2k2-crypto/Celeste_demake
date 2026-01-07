@@ -16,10 +16,10 @@ void setup_hud(){
     // Wir laden die Tiles an die aktuelle Position von 'ind'
     VDP_loadTileData(tiles, ind, 1, CPU);
 
+    u16 current_hud_attr = TILE_ATTR_FULL(PAL0, 1, 0, 0, ind);
+    hud_tile_base = ind;
     // Wir nutzen 'ind' für das Attribut
-    u16 priority_attr = TILE_ATTR_FULL(PAL0, 1, 0, 0, ind);
-    VDP_fillTileMapRect(WINDOW, priority_attr, 0, 0, 40, 2);
-
+    VDP_fillTileMapRect(WINDOW, current_hud_attr, 0, 0, 40, 2);
     // WICHTIG: Den globalen Index um die Anzahl der verbrauchten Tiles erhöhen
     // Da wir 1 Tile geladen haben:
     ind += 1;
