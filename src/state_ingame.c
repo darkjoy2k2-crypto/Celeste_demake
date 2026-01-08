@@ -55,11 +55,9 @@ static void enter() {
         VDP_loadTileSet(&our_tileset, ind, DMA);
         level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
         ind += our_tileset.numTile;
-        
-        MAP_scrollTo(level_1_map, camera_position.x, camera_position.y);
-        
+                
         if (player_id != -1) {
-            center_camera(entities[player_id], level_1_map);
+            update_camera(entities[player_id], level_1_map, true);
         }
 
     if (player_id != -1) {
@@ -81,7 +79,7 @@ static void update() {
 
         if (player_id != -1) {
             Entity* e = entities[player_id];
-            update_camera(e, level_1_map);
+            update_camera(e, level_1_map, false);
         }
 
 

@@ -13,16 +13,15 @@ void debug_init(){
 
 void debug_set(int place, int value){
     debug_value[place] = value;
-}
-
-void debug_draw(){
     sprintf(info, "%d %d %d %d %d ",
         debug_value[0], 
         debug_value[1], 
         debug_value[2],
         debug_value[3],
         debug_value[4]);
+}
 
-    VDP_drawTextEx(WINDOW, info, TILE_ATTR(PAL0, 1, 0, 0), 1, 0, hud_tile_base);
+void debug_draw(){
 
+    VDP_drawText(info, 1,0);
 };

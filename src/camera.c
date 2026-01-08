@@ -13,50 +13,6 @@ void init_camera() {
     camera_position.y = 0;
 }
 
-void center_camera(Entity* player, Map* level_map) {
-    if (player == NULL) return;
-
-    Player* p = (Player*) player;
-    s16 px = p->ent.x;
-    s16 py = p->ent.y;
-
-    int area_id = get_current_area_id(px, py);
-    if (area_id == -1) return;
-
-    const Area* a = get_area(area_id);
-    
-    s16 target_x = px - (SCREEN_W / 2);
-    s16 target_y = py - CENTER_Y_OFFSET;
-
-    s16 min_x = a->cam_min.x;
-    s16 max_x = a->cam_max.x - SCREEN_W;
-    s16 min_y = a->cam_min.y - HUD_H;
-    s16 max_y = a->cam_max.y - SCREEN_H;
-
-    if (max_x < min_x) max_x = min_x;
-    if (max_y < min_y) max_y = min_y;
-
-    if (target_x < min_x) target_x = min_x;
-    else if (target_x > max_x) target_x = max_x;
-
-    if (target_y < min_y) target_y = min_y;
-    else if (target_y > max_y) target_y = max_y;
-
-    camera_position.x = target_x;
-    camera_position.y = target_y;
-
-    if (level_map != NULL) {
-        MAP_scrollTo(level_map, camera_position.x, camera_position.y);
-    }
-
-    VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
-    VDP_setVerticalScroll(BG_B, 128); 
-
-    SPR_setPosition(p->ent.sprite, px - camera_position.x - 8, py - camera_position.y - 8);
-}
-
-
-
 
 void update_all_entities_sprites() {
     for (int i = 0; i < MAX_ENTITIES; i++) {
@@ -78,21 +34,25 @@ void update_all_entities_sprites() {
     }
 }
 
-
-
-
-void update_camera(Entity* player, Map* level_map) {
+void update_camera(Entity* player, Map* level_map, bool instant) {
     if (player == NULL) return;
 
     Player* p = (Player*) player;
-    const Area* a = p->current_area;
-    
-    if (a == NULL) return;
-
     s16 px = p->ent.x;
     s16 py = p->ent.y;
-    Vect2D_s16 target;
 
+    const Area* a;
+    if (instant) {
+        int area_id = get_current_area_id(px, py);
+        if (area_id == -1) return;
+        a = get_area(area_id);
+    } else {
+        a = p->current_area;
+    }
+
+    if (a == NULL) return;
+
+    Vect2D_s16 target;
     target.x = px - (SCREEN_W / 2);
     target.y = py - CENTER_Y_OFFSET;
 
@@ -105,23 +65,29 @@ void update_camera(Entity* player, Map* level_map) {
     if (max_y < min_y) max_y = min_y;
 
     if (target.x < min_x) target.x = min_x;
-    if (target.x > max_x) target.x = max_x;
+    else if (target.x > max_x) target.x = max_x;
+
     if (target.y < min_y) target.y = min_y;
-    if (target.y > max_y) target.y = max_y;
+    else if (target.y > max_y) target.y = max_y;
 
-    s16 step_x = (target.x - camera_position.x);
-    s16 step_y = (target.y - camera_position.y);
+    if (instant) {
+        camera_position.x = target.x;
+        camera_position.y = target.y;
+    } else {
+        s16 step_x = (target.x - camera_position.x);
+        s16 step_y = (target.y - camera_position.y);
 
-    if (step_x != 0) {
-        s16 move_x = step_x >> 3; 
-        if (move_x == 0) move_x = (step_x > 0) ? 1 : -1;
-        camera_position.x += move_x;
-    }
-    
-    if (step_y != 0) {
-        s16 move_y = step_y >> 3;
-        if (move_y == 0) move_y = (step_y > 0) ? 1 : -1;
-        camera_position.y += move_y;
+        if (step_x != 0) {
+            s16 move_x = step_x >> 3;
+            if (move_x == 0) move_x = (step_x > 0) ? 1 : -1;
+            camera_position.x += move_x;
+        }
+
+        if (step_y != 0) {
+            s16 move_y = step_y >> 3;
+            if (move_y == 0) move_y = (step_y > 0) ? 1 : -1;
+            camera_position.y += move_y;
+        }
     }
 
     if (level_map != NULL) {
@@ -129,10 +95,7 @@ void update_camera(Entity* player, Map* level_map) {
     }
 
     VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
-    VDP_setVerticalScroll(BG_B, 128); 
+    VDP_setVerticalScroll(BG_B, (camera_position.y >> 3) - 128);
 
-    // SPR_setPosition(p->ent.sprite, px - camera_position.x - 8, py - camera_position.y - 8);
-
-    update_all_entities_sprites();
-
+    update_all_entities_sprites();    
 }

@@ -69,6 +69,7 @@ void check_collision(Entity *entity)
     s16 dx = desired_x - current_x;
     if (dx != 0)
     {
+        debug_set(0, entity->x);
         if (p) p->facing = (dx > 0) ? 1 : -1;
         s16 steps = (abs(dx) + MAX_COLLISION_STEP - 1) / MAX_COLLISION_STEP;
         s16 step_x = dx / steps;
@@ -105,6 +106,8 @@ void check_collision(Entity *entity)
     s16 dy = desired_y - current_y;
     if (dy != 0)
     {
+                debug_set(1, entity->y);
+
         s16 steps = (abs(dy) + MAX_COLLISION_STEP - 1) / MAX_COLLISION_STEP;
         s16 step_y = dy / steps;
         for (int i = 0; i < steps; i++) {
