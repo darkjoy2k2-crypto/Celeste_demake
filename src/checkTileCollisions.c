@@ -1,5 +1,5 @@
 #include <genesis.h>
-#include "checkCollisions.h"
+#include "checkTileCollisions.h"
 #include "tiles.h"
 #include "entity_list.h" 
 #include "level.h"
@@ -47,7 +47,7 @@ static void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 cur
     }
 }
 
-void check_collision(Entity *entity)
+void check_tile_collision(Entity *entity)
 {
     Player* p = (entity->type == ENTITY_PLAYER) ? (Player*)entity : NULL;
 

@@ -211,6 +211,7 @@ void update_player_state_and_physics(Entity* entity) {
         case P_IDLE:
         case P_RUNNING:
         case P_GROUNDED:
+            player->ent.vy = FIX16(0.5); // Ein kleiner "Druck" nach unten statt 0
             player->timer_stamina = 300;
             check_for_shot(player, joy_state);
             if (player->trampolin) {
@@ -226,7 +227,7 @@ void update_player_state_and_physics(Entity* entity) {
             check_normal_jump(player, joy_state);
             check_grace_jump(player);
             player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
-            if (player->ent.vy > F16_0) player->state = P_FALLING;
+            if (player->ent.vy > FIX16(1)) player->state = P_FALLING;
             break;
 
         case P_JUMPING:

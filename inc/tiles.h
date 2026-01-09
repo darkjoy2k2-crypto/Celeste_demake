@@ -2,7 +2,7 @@
 
 #include <genesis.h>
 #include "entity_list.h"
-#include "checkCollisions.h"
+#include "checkTileCollisions.h"
 
 #define TILE_EMPTY      0
 #define TILE_ONEWAY     6

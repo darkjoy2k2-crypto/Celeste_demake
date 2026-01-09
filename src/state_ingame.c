@@ -13,7 +13,6 @@ extern const u16 level_1_area_count;
 
 Map* level_1_map;
 
-int player_id = 0;
 
 static void enter() {
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
@@ -49,8 +48,8 @@ static void enter() {
         camera_position.y = spawn_y - 112;
     }
 
-    create_entity(16 + 8, 160 + 8, 16, 16, ENTITY_PLATFORM);
-    create_entity(32 + 8, 160 + 8, 16, 16, ENTITY_PLATFORM);
+    create_entity(16 + 8, 176 + 8, 16, 16, ENTITY_PLATFORM);
+    create_entity(32 + 8, 176 + 8, 16, 16, ENTITY_PLATFORM);
 
         VDP_loadTileSet(&our_tileset, ind, DMA);
         level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));

@@ -7,6 +7,7 @@ typedef struct Area Area;
 
 #define MAX_ENTITIES 10
 #define F16_0 FIX16(0)
+#define F16_01 FIX16(0.1)
 
 typedef enum {
     ENTITY_NONE,
