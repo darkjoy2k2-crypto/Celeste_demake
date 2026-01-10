@@ -3,6 +3,7 @@
 #include "tiles.h"
 #include "entity_list.h" 
 #include "level.h"
+#include "globals.h"
 #include "debug.h"
 
 #define TILE_SIZE_PX 8

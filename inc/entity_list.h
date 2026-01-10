@@ -6,8 +6,7 @@ struct Area;
 typedef struct Area Area;
 
 #define MAX_ENTITIES 10
-#define F16_0 FIX16(0)
-#define F16_01 FIX16(0.1)
+
 
 typedef enum {
     ENTITY_NONE,
@@ -45,8 +44,9 @@ typedef struct {
     Entity ent; 
     PlayerState state;     
     PlayerState state_old;
-    u16 state_old_joy;
     
+    fix16 solid_vx, solid_vy;
+    u16 state_old_joy;
     s16 timer_grace;
     s16 timer_buffer;
     s16 timer_stamina;

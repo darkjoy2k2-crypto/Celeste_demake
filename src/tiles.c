@@ -5,6 +5,7 @@
 #include "level.h"
 #include "debug.h"
 #include "checkTileCollisions.h"
+#include "globals.h"
 
 bool is_tile_solid_only(u16 tile_index, Entity* entity, s16 world_x, s16 world_y, CollisionSide side) {
     

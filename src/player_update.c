@@ -4,6 +4,7 @@
 #include "player_update.h" 
 #include "debug.h"
 #include "fade.h"
+#include "globals.h"
 
 #define JUMP_VELOCITY_START FIX16(3)
 #define JUMP_VELOCITY_START_GC FIX16(2.8)
@@ -211,8 +212,7 @@ void update_player_state_and_physics(Entity* entity) {
         case P_IDLE:
         case P_RUNNING:
         case P_GROUNDED:
-            player->ent.vy = FIX16(0.5); // Ein kleiner "Druck" nach unten statt 0
-            player->timer_stamina = 300;
+            if (player->ent.vy < FIX16(0.5)) player->ent.vy = FIX16(0.5);            player->timer_stamina = 300;
             check_for_shot(player, joy_state);
             if (player->trampolin) {
                 jump(player, FIX16(1.2));
@@ -226,7 +226,9 @@ void update_player_state_and_physics(Entity* entity) {
             joy_check_directions(player, joy_state);
             check_normal_jump(player, joy_state);
             check_grace_jump(player);
+
             player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
+
             if (player->ent.vy > FIX16(1)) player->state = P_FALLING;
             break;
 
@@ -262,6 +264,8 @@ void update_player_state_and_physics(Entity* entity) {
             wall_move(player, joy_state);
             player->timer_stamina--;
             if (player->timer_stamina < 0) player->state = P_FALLING;
+
+
             break;    
 
         case P_EDGE_GRAB:
@@ -286,6 +290,10 @@ void update_player_state_and_physics(Entity* entity) {
     if (player->ent.vx < -RUN_SPEED_MAX) player->ent.vx = -RUN_SPEED_MAX;
     if (player->ent.vy > FALL_SPEED_MAX) player->ent.vy = FALL_SPEED_MAX;
    
+    player->ent.vx += player->solid_vx;
+    player->ent.vy += player->solid_vy;
+
+
     player->state_old_joy = joy_state;
     player->state_old = player->state;
 }
