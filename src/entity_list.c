@@ -14,7 +14,7 @@ void init_entities() {
     }
 }
 
-int create_entity(s16 x, s16 y, u8 w, u8 h, EntityType type) {
+int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
     for (u16 i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 0) {
             entity_used[i] = 1;
@@ -23,6 +23,8 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, EntityType type) {
             e->type = type;
             e->x = x;
             e->y = y;
+            e->vx = vx;
+            e->vy = vy;
             e->x_f32 = FIX32(x);
             e->y_f32 = FIX32(y);
             e->width = w;

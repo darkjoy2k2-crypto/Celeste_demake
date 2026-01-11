@@ -72,5 +72,5 @@ extern Entity* entities[MAX_ENTITIES];
 extern u8 entity_used[MAX_ENTITIES];
 
 void init_entities();
-int create_entity(s16 x, s16 y, u8 w, u8 h, EntityType type);
+int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type);
 

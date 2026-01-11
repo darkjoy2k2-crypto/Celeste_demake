@@ -212,7 +212,11 @@ void update_player_state_and_physics(Entity* entity) {
         case P_IDLE:
         case P_RUNNING:
         case P_GROUNDED:
-            if (player->ent.vy < FIX16(0.5)) player->ent.vy = FIX16(0.5);            player->timer_stamina = 300;
+            // Nur minimale Y-Velocity wenn keine Plattform
+            if (player->solid_vy == F16_0 && player->ent.vy < FIX16(0.5)) 
+                player->ent.vy = FIX16(0.5);
+                
+            player->timer_stamina = 300;
             check_for_shot(player, joy_state);
             if (player->trampolin) {
                 jump(player, FIX16(1.2));
@@ -264,8 +268,6 @@ void update_player_state_and_physics(Entity* entity) {
             wall_move(player, joy_state);
             player->timer_stamina--;
             if (player->timer_stamina < 0) player->state = P_FALLING;
-
-
             break;    
 
         case P_EDGE_GRAB:
@@ -290,8 +292,6 @@ void update_player_state_and_physics(Entity* entity) {
     if (player->ent.vx < -RUN_SPEED_MAX) player->ent.vx = -RUN_SPEED_MAX;
     if (player->ent.vy > FALL_SPEED_MAX) player->ent.vy = FALL_SPEED_MAX;
    
-    player->ent.vx += player->solid_vx;
-    player->ent.vy += player->solid_vy;
 
 
     player->state_old_joy = joy_state;

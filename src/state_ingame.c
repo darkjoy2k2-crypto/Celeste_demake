@@ -30,7 +30,7 @@ static void enter() {
         s16 spawn_x = start_area->spawn.x << 3; 
         s16 spawn_y = start_area->spawn.y << 3;
 
-        player_id = create_entity(spawn_x, spawn_y, 13, 13, ENTITY_PLAYER);
+        player_id = create_entity(spawn_x, spawn_y, 13, 13, F16_0, F16_0, ENTITY_PLAYER);
 
         if (player_id != -1) {
             Player* pl = (Player*) entities[player_id];
@@ -48,8 +48,8 @@ static void enter() {
         camera_position.y = spawn_y - 112;
     }
 
-    create_entity(16 + 8, 176 + 8, 16, 16, ENTITY_PLATFORM);
-    create_entity(32 + 8, 176 + 8, 16, 16, ENTITY_PLATFORM);
+    create_entity(16 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0),ENTITY_PLATFORM);
+    create_entity(32 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
 
         VDP_loadTileSet(&our_tileset, ind, DMA);
         level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));

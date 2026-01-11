@@ -30,44 +30,58 @@ void check_platform_collision(Player *p, Entity *plat)
 
     fix32 dx = p->ent.x_f32 - plat->x_f32;
     fix32 dy = p->ent.y_f32 - plat->y_f32;
-
     fix32 abs_dx = (dx < 0) ? -dx : dx;
     fix32 abs_dy = (dy < 0) ? -dy : dy;
 
-    fix32 gapX = abs_dx - (h_pw + h_ew);
-    fix32 gapY = abs_dy - (h_ph + h_eh);
-
-    if (gapX >= FIX32(2) || gapY >= FIX32(1)) return;
-
-    if (gapX > gapY)
+    // --- 1. X-SWEEP (Seitlich) ---
+    // Wir ignorieren die X-Korrektur, wenn wir sehr nah an der Oberkante sind
+    // Das verhindert das "Hängenbleiben" an Ecken beim Landen.
+    if (abs_dy < (h_ph + h_eh - FIX32(4))) // Puffer vergrößert auf 4
     {
-        if (p->state != P_GROUNDED)
+        fix32 gapX = abs_dx - (h_pw + h_ew);
+        if (gapX < FIX32(2)) // Toleranz für is_on_wall
         {
-            if (dx > 0) p->ent.x_f32 = plat->x_f32 + h_ew + h_pw;
-            else p->ent.x_f32 = plat->x_f32 - h_ew - h_pw;
-            
-            p->is_on_wall = true;
+            if (p->state != P_GROUNDED) {
+                p->is_on_wall = true;
+                if (gapX < 0) { // Nur bei echter Überlappung teleportieren
+                    if (dx > 0) p->ent.x_f32 = plat->x_f32 + h_ew + h_pw;
+                    else p->ent.x_f32 = plat->x_f32 - h_ew - h_pw;
+                }
+            }
+            if (abs16(plat->vx) > abs16(p->solid_vx)) p->solid_vx = plat->vx;
         }
-
-        if (abs16(plat->vx) > abs16(p->solid_vx)) p->solid_vx = plat->vx;
-        if (abs16(plat->vy) > abs16(p->solid_vy)) p->solid_vy = plat->vy; 
     }
-    else
-    {
-        if (dy > 0) // Kopfstoß von unten
-        {
-            p->ent.y_f32 = plat->y_f32 + h_eh + h_ph;
-            // Hier verzichten wir auf vy = 0, damit solid_vy das übernimmt
-        }
-        else // Auf der Plattform stehen
-        {
-            p->ent.y_f32 = plat->y_f32 - h_eh - h_ph;
-            
-            p->state = P_GROUNDED;
-        }
 
-        if (abs16(plat->vx) > abs16(p->solid_vx)) p->solid_vx = plat->vx;
-        if (abs16(plat->vy) > abs16(p->solid_vy)) p->solid_vy = plat->vy; 
+    // --- 2. Y-SWEEP (Kopfstoß & Landen) ---
+    if (abs_dx < (h_pw + h_ew - FIX32(2))) // Leicht eingerückt für smoothe Kanten
+    {
+        fix32 fall_margin = (p->ent.vy > 0) ? F16_toFix32(p->ent.vy) : FIX32(2);
+        
+        if (abs_dy < (h_ph + h_eh + fall_margin)) 
+        {
+            if (dy > 0) // Ball ist UNTER der Plattform (Kopfstoß-Bereich)
+            {
+                // Kopfstoß-Logik: Nur korrigieren, wenn wir uns nach oben bewegen
+                // UND wir tief genug unter der Plattform sind
+                if (p->ent.vy < 0 && dy < (h_ph + h_eh)) 
+                {
+                    p->ent.y_f32 = plat->y_f32 + h_eh + h_ph;
+                    p->ent.vy = 0;
+                }
+            }
+            else // Ball ist ÜBER der Plattform (Landen/Stehen)
+            {
+                if (p->ent.vy >= 0 || p->state == P_GROUNDED) 
+                {
+                    p->ent.y_f32 = plat->y_f32 - h_eh - h_ph;
+                    p->ent.vy = 0;
+                    p->state = P_GROUNDED;
+                    
+                    if (abs16(plat->vx) > abs16(p->solid_vx)) p->solid_vx = plat->vx;
+                    if (abs16(plat->vy) > abs16(p->solid_vy)) p->solid_vy = plat->vy;
+                }
+            }
+        }
     }
 
     p->ent.x = F32_toInt(p->ent.x_f32);

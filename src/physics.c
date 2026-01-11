@@ -4,23 +4,41 @@
 #include "checkPlatformCollision.h"
 #include "player_update.h"
 #include "globals.h"
+#include "area.h"
+#include "debug.h"
 
-#include "area.h" // Wichtig für update_area
+#define VELOCITY_DEADZONE 20 
+
+void apply_velocity_to_position(Player* player)
+{
+
+
+    // Nach der Reibungs-Berechnung:
+    if (F16_abs(player->ent.vx) < VELOCITY_DEADZONE) {
+        player->ent.vx = 0;
+    }
+
+    // Falls der Ball auch vertikal "zittert" (z.B. auf Schrägen):
+    if (F16_abs(player->ent.vy) < VELOCITY_DEADZONE && player->state == P_GROUNDED) {
+        player->ent.vy = 0;
+    }    
+
+    player->ent.x_f32 += F16_toFix32(player->ent.vx + player->solid_vx);
+    player->ent.y_f32 += F16_toFix32(player->ent.vy + player->solid_vy);
+    player->ent.x = F32_toInt(player->ent.x_f32);
+    player->ent.y = F32_toInt(player->ent.y_f32);
+}
 
 void handle_all_entities()
 {
-
     Entity* pEnt = entities[player_id];
     Player* player = (Player*) pEnt;
 
-    player->solid_vx = player->solid_vy = F16_0;
-    
+    // 1. Plattformen bewegen
     for (int i = 0; i < MAX_ENTITIES; i++)
     {
         if (entity_used[i] == 1 && entities[i]->type == ENTITY_PLATFORM)
         {
-            entities[i]->vx =  FIX16(0.6);
-            entities[i]->vy =  FIX16(-0.2);
             entities[i]->x_f32 += F16_toFix32(entities[i]->vx);
             entities[i]->x = F32_toInt(entities[i]->x_f32);            
             entities[i]->y_f32 += F16_toFix32(entities[i]->vy);
@@ -28,12 +46,32 @@ void handle_all_entities()
         }
     }
 
-
-    update_player_state_and_physics(pEnt);
-
-    check_tile_collision(pEnt);
-
+    // 2. Plattform-Kollision prüfen (setzt solid_vx/vy)
+    player->solid_vx = player->solid_vy = F16_0;
     handle_platform_collision(pEnt);
 
+    // 3. Player State & Physics (berechnet finale vx/vy mit solid_vx/vy)
+    update_player_state_and_physics(pEnt);
+
+    fix32 val = player->ent.x_f32;
+    int pixel = F32_toInt(val);
+    int sub = F32_toInt(F32_mul(val - FIX32(pixel), FIX32(100)));
+    debug_set(0, pixel);
+    debug_set(1, sub);
+
+
+    // 4. Position aus Velocity berechnen
+    apply_velocity_to_position(player);
+
+    val = player->ent.x_f32;
+    pixel = F32_toInt(val);
+    sub = F32_toInt(F32_mul(val - FIX32(pixel), FIX32(100)));
+    debug_set(2, pixel);
+    debug_set(3, sub);
+
+    // 5. Tile-Kollision (korrigiert Position bei Kollision)
+    check_tile_collision(pEnt);
+
+    // 6. Area update
     update_area(pEnt);
 }
