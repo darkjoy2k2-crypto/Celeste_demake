@@ -9,7 +9,7 @@
 #define TILE_SIZE_PX 8
 #define MAP_WIDTH_TILES MAP_W   
 #define MAP_HEIGHT_TILES MAP_H  
-#define HELPING_HOP FIX16(-3)
+#define HELPING_HOP FIX16(-2.4)
 #define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))
 
 static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, CollisionSide side) {

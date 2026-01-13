@@ -6,19 +6,22 @@
 #include "fade.h"
 #include "globals.h"
 
-#define JUMP_VELOCITY_START FIX16(3)
-#define JUMP_VELOCITY_START_GC FIX16(2.8)
-#define EDGE_JUMP_START     FIX16(2.5)
-#define HORIZONTAL_ACCEL    FIX16(0.8) 
-#define RUN_SPEED_MAX       FIX16(9) 
-#define FALL_SPEED_MAX      FIX16(10)
-#define GRAVITY_JUMP        FIX16(0.15)
-#define GRAVITY_FALL        FIX16(0.3)
-#define CLIMB_SPEED         FIX16(1)
-#define FLY_SPEED           FIX16(4)
-#define FLY_SPEED_NORMED    F16_mul(FLY_SPEED, FIX16(0.707))
-#define GROUND_FRICTION     FIX16(0.7) 
-#define GRACE_PERIOD_FRAMES 5  
+#define JUMP_VELOCITY_START     FIX16(3)
+#define JUMP_VELOCITY_START_GC  FIX16(2.8)
+#define EDGE_JUMP_START         FIX16(5)
+#define HORIZONTAL_ACCEL        FIX16(0.8) 
+#define AIR_ACCEL               FIX16(0.8)
+#define RUN_SPEED_MAX           FIX16(9) 
+#define FALL_SPEED_MAX          FIX16(10)
+#define GRAVITY_JUMP            FIX16(0.15)
+#define GRAVITY_FALL            FIX16(0.3)
+#define CLIMB_SPEED             FIX16(1)
+#define FLY_SPEED               FIX16(4)
+#define FLY_SPEED_NORMED        F16_mul(FLY_SPEED, FIX16(0.707))
+#define GROUND_FRICTION         FIX16(0.7) 
+#define AIR_FRICTION            FIX16(0.7)
+#define MOMENTUM_FACTOR         FIX16(2)
+#define GRACE_PERIOD_FRAMES     5  
 
 static void buffered_jump(Player* player);
 static void grace_jump(Player* player);
@@ -37,9 +40,7 @@ static void check_fly_controls(Player* player, u16 joy_state);
 static void buffered_jump(Player* player){
     if (player->state == P_GROUNDED && player->state_old == P_FALLING && player->timer_buffer > 0)
     {
-        player->state = P_JUMPING;
-        player->ent.vy = -JUMP_VELOCITY_START; 
-        player->timer_buffer = 0;
+        jump(player, FIX16(1));
     }
 }
 
@@ -51,11 +52,18 @@ static void grace_jump(Player* player){
 }
 
 static void joy_check_directions(Player* player, u16 joy_state){
+    fix16 accel = (player->state == P_GROUNDED) ? HORIZONTAL_ACCEL : AIR_ACCEL;
+
     if (joy_state & BUTTON_LEFT) {
-        player->ent.vx = player->ent.vx - HORIZONTAL_ACCEL;
+        if (player->ent.vx > -RUN_SPEED_MAX) {
+            player->ent.vx -= accel;
+        }
     } else if (joy_state & BUTTON_RIGHT) {
-        player->ent.vx = player->ent.vx + HORIZONTAL_ACCEL;
+        if (player->ent.vx < RUN_SPEED_MAX) {
+            player->ent.vx += accel;
+        }
     }
+    // Wenn nichts gedrückt wird, fassen wir vx hier nicht an!
 }
 
 static void joy_check_falling(Player* player, u16 joy_state){
@@ -63,12 +71,7 @@ static void joy_check_falling(Player* player, u16 joy_state){
         player->state = P_FLYING;
         return;
     }
-
-    if (joy_state & BUTTON_LEFT) {
-        player->ent.vx -= HORIZONTAL_ACCEL;
-    } else if (joy_state & BUTTON_RIGHT) {
-        player->ent.vx = player->ent.vx + HORIZONTAL_ACCEL;
-    }
+    joy_check_directions(player, joy_state);
     if ((joy_state & BUTTON_A) && !(player->state_old_joy & BUTTON_A)){
         if (player->timer_grace > 0){
             jump(player, FIX16(1));
@@ -82,7 +85,7 @@ static void joy_check_grab_directions(Player* player, u16 joy_state){
 }
 
 static void check_grace_jump(Player* player){
-    if (player->timer_grace > 0) jump(player, FIX16(1)); 
+    if (player->timer_grace > 0 && (player->state == P_JUMPING || player->state == P_FALLING)) jump(player, FIX16(1)); 
 }
 
 static void check_normal_jump(Player* player, u16 joy_state){
@@ -99,7 +102,12 @@ static void jump(Player* player, fix16 intensity){
     player->timer_edgegrab = 10;
     player->state = P_JUMPING;
     player->timer_buffer = 0;
+    player->timer_grace = 0;
     player->ent.vy = F16_mul(-JUMP_VELOCITY_START, intensity); 
+
+    if (player->solid_vx != 0) {
+        player->ent.vx += F16_mul(player->solid_vx, MOMENTUM_FACTOR);
+    }
 }
 
 static void check_is_on_wall(Player* player, u16 joy_state){
@@ -110,6 +118,35 @@ static void check_is_on_wall(Player* player, u16 joy_state){
         player->state = P_ON_WALL;
     } 
 }
+
+static void apply_air_physic(Player* player, u16 joy_state) {
+    bool is_braking = (player->ent.vx > FIX16(0.1) && (joy_state & BUTTON_LEFT)) || 
+                      (player->ent.vx < FIX16(-0.1) && (joy_state & BUTTON_RIGHT));
+    
+    bool is_pushing = (player->ent.vx > FIX16(0.1) && (joy_state & BUTTON_RIGHT)) || 
+                      (player->ent.vx < FIX16(-0.1) && (joy_state & BUTTON_LEFT));
+
+    if (abs16(player->ent.vx) > RUN_SPEED_MAX) {
+        if (is_braking) {
+            // Wenn wir gegen die Flugrichtung drücken, bremsen wir schneller ab
+            player->ent.vx = F16_mul(player->ent.vx, AIR_FRICTION);
+        } else if (is_pushing) {
+            // Wenn wir in Flugrichtung drücken, erhalten wir das Momentum (Gleiten)
+            player->ent.vx = F16_mul(player->ent.vx, FIX16(0.92));
+        } else {
+            // Ohne Eingabe lassen wir den Ball ganz leicht austrudeln
+            player->ent.vx = F16_mul(player->ent.vx, FIX16(0.92));
+        }
+    } else {
+        // Normaler Flugbereich: Hier greift die normale Steuerung
+        if (!(joy_state & BUTTON_LEFT) && !(joy_state & BUTTON_RIGHT)) {
+            player->ent.vx = F16_mul(player->ent.vx, FIX16(0.92));
+        } else {
+            player->ent.vx = F16_mul(player->ent.vx, AIR_FRICTION);
+        }
+    }
+}
+
 
 static void wall_move(Player* player, u16 joy_state)
 {  
@@ -211,58 +248,81 @@ void update_player_state_and_physics(Entity* entity) {
     switch (player->state) {
         case P_IDLE:
         case P_RUNNING:
-        case P_GROUNDED:
-            // Nur minimale Y-Velocity wenn keine Plattform
-            if (player->solid_vy == F16_0 && player->ent.vy < FIX16(0.5)) 
-                player->ent.vy = FIX16(0.5);
-                
-            player->timer_stamina = 300;
-            check_for_shot(player, joy_state);
-            if (player->trampolin) {
-                jump(player, FIX16(1.2));
-                player->state = P_JUMPING;
-                player->dontbreakjump = true;
-                break;
-            } else {
-                player->dontbreakjump = false;
-            }
-            buffered_jump(player);
-            joy_check_directions(player, joy_state);
-            check_normal_jump(player, joy_state);
-            check_grace_jump(player);
+case P_GROUNDED:
+    if (player->solid_vy == F16_0 && player->ent.vy < FIX16(0.5)) 
+        player->ent.vy = FIX16(0.5);
+        
+    player->timer_stamina = 300;
+    check_for_shot(player, joy_state);
+    
+    if (player->trampolin) {
+        jump(player, FIX16(1.2));
+        break;
+    } else {
+        player->dontbreakjump = false;
+    }
+    
+    buffered_jump(player);
+    joy_check_directions(player, joy_state);
+    check_normal_jump(player, joy_state); // Hier wird der State evtl. zu P_JUMPING
+    check_grace_jump(player);
 
-            player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
+    // WICHTIG: Nur Reibung anwenden, wenn wir NOCH am Boden sind
+    if (player->state == P_GROUNDED) {
+        player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
+        if (abs16(player->ent.vx) < FIX16(0.1)) player->ent.vx = F16_0;
+    } 
 
-            if (player->ent.vy > FIX16(1)) player->state = P_FALLING;
-            break;
+    if (player->ent.vy > FIX16(1)) player->state = P_FALLING;
+    break;
 
-        case P_JUMPING:
-            joy_check_directions(player, joy_state);
-            player->ent.vy += GRAVITY_JUMP; 
-            if (!(joy_state & BUTTON_A) && !player->dontbreakjump) player->ent.vy = GRAVITY_FALL; 
-            if (player->ent.vy > F16_0) player->state = P_FALLING;
-            player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
-            check_for_shot(player, joy_state);
-            check_is_on_wall(player, joy_state);
-            break;
+case P_JUMPING:
+    // 1. Horizontale Eingabe verarbeiten (VX ändern)
+    joy_check_directions(player, joy_state);
+    
+    // 2. Vertikale Physik
+    player->ent.vy += GRAVITY_JUMP; 
+    
+    // Variable Sprunghöhe (nur VY)
+    if (!(joy_state & BUTTON_A) && !player->dontbreakjump) {
+        player->ent.vy = GRAVITY_FALL; 
+    }
+    
+    // Wechsel zu Falling, wenn Scheitelpunkt erreicht
+    if (player->ent.vy > F16_0) player->state = P_FALLING;
+    
+    // 3. Luftwiderstand/Momentum auf VX anwenden
+    apply_air_physic(player, joy_state);
+    
+    // Restliche Checks
+    check_for_shot(player, joy_state);
+    check_is_on_wall(player, joy_state);
+    break;
+case P_FALLING:
+    if (player->trampolin) {
+        jump(player, FIX16(1.2));
+        break;
+    } else {
+        player->dontbreakjump = false;
+    }
+    joy_check_directions(player, joy_state);
+    joy_check_falling(player, joy_state);
+    grace_jump(player);
+    player->ent.vy += GRAVITY_FALL;
 
-        case P_FALLING:
-            if (player->trampolin) {
-                jump(player, FIX16(1.2));
-                player->state = P_JUMPING;
-                player->dontbreakjump = true;
-                break;
-            } else {
-                player->dontbreakjump = false;
-            }
-            joy_check_directions(player, joy_state);
-            joy_check_falling(player, joy_state);
-            grace_jump(player);
-            player->ent.vy += GRAVITY_FALL;
-            player->ent.vx = F16_mul(player->ent.vx, GROUND_FRICTION);
-            check_for_shot(player, joy_state);
-            check_is_on_wall(player, joy_state);
-            break;
+    // --- NEU: Momentum-Schutz ---
+    bool is_braking_f = (player->ent.vx > FIX16(0.1) && (joy_state & BUTTON_LEFT)) || 
+                        (player->ent.vx < FIX16(-0.1) && (joy_state & BUTTON_RIGHT));
+
+    if (abs16(player->ent.vx) > RUN_SPEED_MAX && !is_braking_f) {
+        player->ent.vx = F16_mul(player->ent.vx, FIX16(0.99));
+    } else {
+        apply_air_physic(player, joy_state);    }
+    // ----------------------------
+
+    check_for_shot(player, joy_state);
+    check_is_on_wall(player, joy_state);
+    break;
 
         case P_ON_WALL:
             wall_move(player, joy_state);
@@ -288,11 +348,16 @@ void update_player_state_and_physics(Entity* entity) {
         default: break;
     }
 
-    if (player->ent.vx > RUN_SPEED_MAX) player->ent.vx = RUN_SPEED_MAX;
-    if (player->ent.vx < -RUN_SPEED_MAX) player->ent.vx = -RUN_SPEED_MAX;
     if (player->ent.vy > FALL_SPEED_MAX) player->ent.vy = FALL_SPEED_MAX;
-   
 
+    if (player->state == P_GROUNDED || player->state == P_ON_WALL) {
+        player->ent.x_f32 += FIX32(F16_toInt(player->solid_vx));
+        player->ent.y_f32 += FIX32(F16_toInt(player->solid_vy));
+    }
+
+    player->solid_vx = 0;
+    player->solid_vy = 0;
+    player->is_on_wall = false;
 
     player->state_old_joy = joy_state;
     player->state_old = player->state;

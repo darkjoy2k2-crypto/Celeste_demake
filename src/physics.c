@@ -39,18 +39,18 @@ void handle_all_entities()
     {
         if (entity_used[i] == 1 && entities[i]->type == ENTITY_PLATFORM)
         {
+
+            update_moving_platform(entities[i], 156 + 16 * i, 16, 48);
+            /*
             entities[i]->x_f32 += F16_toFix32(entities[i]->vx);
             entities[i]->x = F32_toInt(entities[i]->x_f32);            
             entities[i]->y_f32 += F16_toFix32(entities[i]->vy);
-            entities[i]->y = F32_toInt(entities[i]->y_f32);
+            entities[i]->y = F32_toInt(entities[i]->y_f32);*/
         }
     }
 
-    // 2. Plattform-Kollision prüfen (setzt solid_vx/vy)
-    player->solid_vx = player->solid_vy = F16_0;
     handle_platform_collision(pEnt);
 
-    // 3. Player State & Physics (berechnet finale vx/vy mit solid_vx/vy)
     update_player_state_and_physics(pEnt);
 
     fix32 val = player->ent.x_f32;
@@ -74,4 +74,23 @@ void handle_all_entities()
 
     // 6. Area update
     update_area(pEnt);
+}
+
+
+
+void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitude)
+{
+    fix32 old_pos = plat->x_f32;
+
+    // Wir holen uns den hochpräzisen fix32 Offset
+    fix32 offset_f32 = getSinusValueF32(vtimer, speed, amplitude);
+    
+    // Neue Subpixel-Position setzen
+    plat->x_f32 = FIX32(start_pos) + offset_f32;
+
+    // Delta berechnen (wichtig für die Mitnahme des Balls)
+    plat->vx = F32_toFix16(plat->x_f32 - old_pos);
+
+    // Ganzzahl für Logik und Sprite-Hardware (ohne Rundung für Konsistenz)
+    plat->x = F32_toInt(plat->x_f32);
 }

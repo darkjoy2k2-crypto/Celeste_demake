@@ -2,6 +2,7 @@
 #include "genesis.h"
 #include "globals.h"
 
+
 u16 ind = TILE_USER_INDEX;
 u16 hud_tile_base = 0;
 s16 player_id = -1;
@@ -38,4 +39,13 @@ bool RectVsRect_f32(const Rect_f32 *r1, const Rect_f32 *r2)
     return true;
 }
 
-
+fix32 getSinusValueF32(u16 time, u16 speed, u16 amplitude) 
+{
+    u16 angle = (time * speed) % 1024;
+    
+    // sinFix32 liefert -1.0 bis 1.0 als fix32
+    fix32 sin_val = sinFix32(angle);
+    
+    // Multiplikation mit der Amplitude (als fix32)
+    return F32_mul(sin_val, FIX32(amplitude));
+}
