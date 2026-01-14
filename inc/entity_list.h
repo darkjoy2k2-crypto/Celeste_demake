@@ -55,6 +55,7 @@ typedef struct {
     s16 timer_edgegrab;  
     
     s16 facing;
+    bool is_on_ground;
     bool is_on_wall;
     bool trampolin;
     bool is_dying;

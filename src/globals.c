@@ -2,10 +2,21 @@
 #include "genesis.h"
 #include "globals.h"
 
+Map* level_1_map = NULL;
 
 u16 ind = TILE_USER_INDEX;
 u16 hud_tile_base = 0;
 s16 player_id = -1;
+
+u16 BTN_UP      = BUTTON_UP;
+u16 BTN_DOWN    = BUTTON_DOWN;
+u16 BTN_LEFT    = BUTTON_LEFT;
+u16 BTN_RIGHT   = BUTTON_RIGHT;
+u16 BTN_JUMP    = BUTTON_A;
+u16 BTN_DASH    = BUTTON_B;
+u16 BTN_ACTION  = BUTTON_C;
+u16 BTN_START   = BUTTON_START;
+u16 BTN_MODE    = BUTTON_MODE;
 
 bool PointVsRect_f32(const Vect2D_f32 *p, const Rect_f32 *r)
 {

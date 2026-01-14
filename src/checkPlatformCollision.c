@@ -10,6 +10,7 @@
 void handle_platform_collision(Entity *entity){
 
     Player* p = (entity->type == ENTITY_PLAYER) ? (Player*)entity : NULL;
+    
     p->solid_vx = p->solid_vy = F16_0;
 
     for (int i = 0; i < MAX_ENTITIES; i++){
@@ -69,7 +70,7 @@ if (p->state != P_GROUNDED && abs_dy < (h_ph + h_eh - 1))
     // --- 2. Y-SWEEP ---
     if (abs_dx < (h_pw + h_ew - 2)) 
     {
-        s16 fall_margin = (p->ent.vy > F16_0) ? F16_toInt(p->ent.vy) + 2 : 4;
+        s16 fall_margin = (p->ent.vy > F16_0) ? F16_toInt(p->ent.vy) + 3 : 4;
         
         if (abs_dy < (h_ph + h_eh + fall_margin)) 
         {
@@ -89,7 +90,7 @@ if (p->state != P_GROUNDED && abs_dy < (h_ph + h_eh - 1))
                 if (p->state == P_GROUNDED) 
                 {
                     // Nur korrigieren, wenn die Abweichung zu gross wird (Hysterese)
-                    if (abs16(p_y - target_y) > 2) 
+                    if (abs16(p_y - target_y) > 0) 
                     {
                         p_y = target_y;
                         pos_changed_y = true;
@@ -104,6 +105,7 @@ if (p->state != P_GROUNDED && abs_dy < (h_ph + h_eh - 1))
 
                 if (p->state == P_GROUNDED)
                 {
+                    p->is_on_ground = true;   
                     p->ent.vy = F16_0;
                     p->solid_vx = (plat->vx != 0) ? plat->vx : 0;
                     p->solid_vy = (plat->vy != 0) ? plat->vy : 0;

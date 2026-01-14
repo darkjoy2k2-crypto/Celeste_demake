@@ -18,5 +18,5 @@ void FADE_in(u16 num_frames) {
 }
 
 void FADE_out(u16 num_frames) {
-    PAL_fadeTo(0, 63, palette_black, num_frames, FALSE);
+    PAL_fadeTo(0, 63, palette_black, num_frames, TRUE);
 }

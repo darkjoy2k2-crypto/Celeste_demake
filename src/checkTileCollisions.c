@@ -9,7 +9,7 @@
 #define TILE_SIZE_PX 8
 #define MAP_WIDTH_TILES MAP_W   
 #define MAP_HEIGHT_TILES MAP_H  
-#define HELPING_HOP FIX16(-2.4)
+#define HELPING_HOP FIX16(-3)
 #define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))
 
 static bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, CollisionSide side) {
@@ -52,9 +52,6 @@ void check_tile_collision(Entity *entity)
     Player* p = (entity->type == ENTITY_PLAYER) ? (Player*)entity : NULL;
 
     if (p) p->is_on_wall = false;
-    bool isOnGround = false;
-    bool blocked_horizontally = false;
-    bool blocked_vertically = false;
     if (p) p->trampolin = false;
 
     fix16 saved_vx = entity->vx;
@@ -79,11 +76,11 @@ void check_tile_collision(Entity *entity)
             s16 tile_col_x = (check_x >> 3);
             current_x = (dir > 0) ? (tile_col_x << 3) - half_w : (tile_col_x << 3) + 8 + half_w;
             entity->vx = F16_0;
-            blocked_horizontally = true;
+            entity->x_f32 = FIX32(current_x);
         }
     }
 
-    if (p && p->state == P_GROUNDED && blocked_horizontally && saved_vx != F16_0)
+    if (p && p->state == P_GROUNDED && entity->vx == F16_0 && saved_vx != F16_0)
         apply_step_up(entity, saved_vx, current_x, current_y);
 
     if (entity->vy != F16_0 || (p && p->solid_vy != F16_0))
@@ -122,13 +119,13 @@ void check_tile_collision(Entity *entity)
             s16 tile_col_y = (check_y >> 3);
             if (dir > 0) { 
                 current_y = (tile_col_y << 3) - half_h; 
-                isOnGround = true; 
+                if (p) p->is_on_ground = true; 
             }
             else { 
                 current_y = (tile_col_y << 3) + 8 + half_h; 
             }
             entity->vy = F16_0;
-            blocked_vertically = true;
+            entity->y_f32 = FIX32(current_y);
         }
     }
 
@@ -137,22 +134,12 @@ no_y_collision:
     entity->x = current_x;
     entity->y = current_y;
 
-    if (blocked_horizontally) {
-        entity->x_f32 = FIX32(current_x);
-    }
-    if (blocked_vertically) {
-        entity->y_f32 = FIX32(current_y);
-    }
-
     s16 right_x = current_x + half_w;
     if (isTileSolid(entity, right_x, current_y - half_h + 1, SIDE_PEEK) ||
         isTileSolid(entity, right_x, current_y, SIDE_PEEK) ||
         isTileSolid(entity, right_x, current_y + half_h - 1, SIDE_PEEK))
     {
-        if (p) {
-            p->is_on_wall = true;
-            p->facing = 1;
-        }
+        if (p) { p->is_on_wall = true; p->facing = 1; }
     }
     else 
     {
@@ -161,34 +148,35 @@ no_y_collision:
             isTileSolid(entity, left_x, current_y, SIDE_PEEK) ||
             isTileSolid(entity, left_x, current_y + half_h - 1, SIDE_PEEK))
         {
-            if (p) {
-                p->is_on_wall = true;
-                p->facing = -1;
-            }
+            if (p) { p->is_on_wall = true; p->facing = -1; }
         }
     }
 
-    if (p && p->state == P_FLYING) return;
-
     if (p) {
-        if (isOnGround && (entity->vy >= F16_0 || p->solid_vy >= F16_0)) {
+        if (p->state == P_FLYING) return;
+
+        if (p->is_on_ground) {
             p->state = P_GROUNDED;
             entity->vy = F16_0;
         } else {
             if (p->state != P_SHOT_JUMP && p->state != P_ON_WALL && 
                 p->state != P_JUMPING && p->state != P_EDGE_GRAB && 
-                p->state != P_FLYING) 
+                p->state != P_FLYING && p->state != P_DASHING) 
             {
                 if (entity->vy < F16_0) {
                     p->state = P_FALLING;
                 } else {
                     s16 check_y_ground = entity->y + half_h + 1;
-                    bool has_ground = isTileSolid(entity, current_x - half_w + 3, check_y_ground, SIDE_BOTTOM) ||
-                                      isTileSolid(entity, current_x, check_y_ground, SIDE_BOTTOM) ||
-                                      isTileSolid(entity, current_x + half_w - 3, check_y_ground, SIDE_BOTTOM);
+                    bool has_tile_ground = isTileSolid(entity, current_x - half_w + 3, check_y_ground, SIDE_BOTTOM) ||
+                                           isTileSolid(entity, current_x, check_y_ground, SIDE_BOTTOM) ||
+                                           isTileSolid(entity, current_x + half_w - 3, check_y_ground, SIDE_BOTTOM);
                     
-                    if (!has_ground) p->state = P_FALLING;
-                    else { p->state = P_GROUNDED; entity->vy = F16_0; }
+                    if (!has_tile_ground) p->state = P_FALLING;
+                    else {
+                        p->state = P_GROUNDED;
+                        entity->vy = F16_0;
+                        p->is_on_ground = true;
+                    }
                 }
             }
         }

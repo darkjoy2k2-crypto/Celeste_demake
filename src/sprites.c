@@ -17,8 +17,8 @@ void update_animation(Entity* e){
         int dx = e->x_old - e->x; 
         e->anim_index += dx; 
 
-        if (e->anim_index < 0) e->anim_index += 50;
-        if (e->anim_index > 49) e->anim_index -= 50;
+        if (e->anim_index < 0) e->anim_index += 60;
+        if (e->anim_index > 59) e->anim_index -= 60;
 
         SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
         break;

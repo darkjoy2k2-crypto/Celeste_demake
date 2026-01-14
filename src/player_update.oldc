@@ -1,7 +1,7 @@
 #include <genesis.h>
 #include "area.h"
 #include "entity_list.h"
-#include "player_update.h" 
+#include "player_update.oldh" 
 #include "debug.h"
 #include "fade.h"
 #include "globals.h"

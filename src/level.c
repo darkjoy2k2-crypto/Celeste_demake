@@ -89,7 +89,7 @@ const Area level_1_areas[] = {
     { // 0
         .min = {0, 0},
         .max = {816, 584},
-        .spawn = {17, 21},
+        .spawn = {22, 18},
         .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {0, 0},
         .cam_max = {816, 584},

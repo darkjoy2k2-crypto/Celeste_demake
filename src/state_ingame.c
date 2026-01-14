@@ -7,11 +7,11 @@
 #include "title.h"
 #include "camera.h"
 #include "hud.h"
+#include "player_controls.h"
 
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
-Map* level_1_map;
 
 
 static void enter() {
@@ -69,6 +69,7 @@ static void enter() {
     SYS_doVBlankProcess();
 
     FADE_in(15);
+    JOY_init();
 }
 
 

@@ -41,6 +41,9 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
     s16 px = p->ent.x;
     s16 py = p->ent.y;
 
+    const s16 DEADZONE_X = 32; 
+    const s16 DEADZONE_Y = 24;
+
     const Area* a;
     if (instant) {
         int area_id = get_current_area_id(px, py);
@@ -53,8 +56,29 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
     if (a == NULL) return;
 
     Vect2D_s16 target;
-    target.x = px - (SCREEN_W / 2);
-    target.y = py - CENTER_Y_OFFSET;
+
+    if (a->cam_mode == CAM_MODE_FOLLOW) {
+        target = camera_position;
+
+        s16 screen_px = px - camera_position.x;
+        s16 screen_py = py - camera_position.y;
+
+        if (screen_px < (SCREEN_W / 2) - DEADZONE_X) {
+            target.x = px - ((SCREEN_W / 2) - DEADZONE_X);
+        } else if (screen_px > (SCREEN_W / 2) + DEADZONE_X) {
+            target.x = px - ((SCREEN_W / 2) + DEADZONE_X);
+        }
+
+        if (screen_py < CENTER_Y_OFFSET - DEADZONE_Y) {
+            target.y = py - (CENTER_Y_OFFSET - DEADZONE_Y);
+        } else if (screen_py > CENTER_Y_OFFSET + DEADZONE_Y) {
+            target.y = py - (CENTER_Y_OFFSET + DEADZONE_Y);
+        }
+    } 
+    else {
+        target.x = a->cam.x;
+        target.y = a->cam.y;
+    }
 
     s16 min_x = a->cam_min.x;
     s16 max_x = a->cam_max.x - SCREEN_W;
