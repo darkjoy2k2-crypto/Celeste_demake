@@ -2,10 +2,17 @@
 
 #include <genesis.h>
 
+extern const u16 COL_BALL_WHITE[3];
+extern const u16 COL_BALL_YELLOW[3];
+extern const u16 COL_BALL_ORANGE[3];
+extern const u16 COL_BALL_RED[3];
+extern const u16 COL_BALL_BLUE[3];
+
 #define F16_0 FIX16(0)
 #define F16_01 FIX16(0.1)
 #define abs16(x) ((x) < 0 ? -(x) : (x))
 
+#define HELPING_HOP FIX16(-3)
 #define JUMP_FORCE          FIX16(-4)
 #define JUMP_FORCE_WALL_V   FIX16(-4.0)
 #define JUMP_FORCE_WALL_H   FIX16(3.0)
@@ -19,6 +26,10 @@
 #define GRAVITY_GROUNDED        FIX16(0.5)
 #define FRICTION                FIX16(0.9)
 #define FRICTION_AIR            FIX16(0.98)
+
+#define SHOT_JUMP_SPEED        FIX16(4)
+#define SHOT_JUMP_SPEED_DIAG   FIX16(2.8) // (4.5 * 0.707)
+#define TIMER_SHOT_JUMP_MAX    15
 
 #define TIMER_GRACE_MAX    6
 #define TIMER_BUFFER_MAX   6

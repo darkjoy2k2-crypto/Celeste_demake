@@ -20,3 +20,17 @@ void FADE_in(u16 num_frames) {
 void FADE_out(u16 num_frames) {
     PAL_fadeTo(0, 63, palette_black, num_frames, TRUE);
 }
+
+void PAL_set_colors(u16 pal_num, u16 start_index, const u16* colors, u16 count) {
+    u16 base = (pal_num << 4) + start_index;
+    for (u16 i = 0; i < count; i++) {
+        PAL_setColor(base + i, colors[i]);
+    }
+}
+
+void PAL_restore_direct(u16 pal_num, u16 start_index, u16 count) {
+    u16 base = (pal_num << 4) + start_index;
+    for (u16 i = 0; i < count; i++) {
+        PAL_setColor(base + i, target_palettes[base + i]);
+    }
+}

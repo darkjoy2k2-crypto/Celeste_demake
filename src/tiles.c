@@ -20,25 +20,25 @@ bool is_tile_solid_only(u16 tile_index, Entity* entity, s16 world_x, s16 world_y
             return false;
 
         case TILE_DEATH_B:
-            if (side == SIDE_BOTTOM && local_y > 4) {
+            if (side == SIDE_BOTTOM && local_y > 1) {
                 p->is_dying = true;
             }
             return false;
 
         case TILE_DEATH_T:
-            if (side == SIDE_TOP && local_y < 5) {
+            if (side == SIDE_TOP && local_y < 6) {
                 p->is_dying = true;
             }
             return false;
 
         case TILE_DEATH_L:
-            if (side == SIDE_RIGHT && local_x > 4) {
+            if (side == SIDE_RIGHT && local_x > 1) {
                 p->is_dying = true;
             }
             return false;
 
         case TILE_DEATH_R:
-            if (side == SIDE_LEFT && local_x < 5) {
+            if (side == SIDE_LEFT && local_x < 6) {
                 p->is_dying = true;
             }
             return false;

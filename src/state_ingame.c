@@ -42,6 +42,7 @@ static void enter() {
             pl->timer_grace = 0;
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
+            pl->count_shot_jump = 0;
         }
 
         camera_position.x = spawn_x - 160;

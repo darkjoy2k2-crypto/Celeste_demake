@@ -8,9 +8,9 @@
 #include "debug.h"
 
 
-void reset_physics(Player* player){
-    player->is_on_ground = false; 
-    player->is_on_wall   = false;
+void reset_physics(Player* p){
+    p->is_on_ground = false; 
+    p->is_on_wall   = false;
 }
 
 void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitude)
@@ -32,15 +32,15 @@ move_platforms(){
 
 void handle_all_entities()
 {
-    Entity* pEnt = entities[player_id];
-    Player* player = (Player*) pEnt;
+    Entity* e = entities[player_id];
+    Player* p = (Player*) e;
 
-    reset_physics(player);
+    reset_physics(p);
     move_platforms();
-    handle_player_input(player);
-    handle_platform_collision(pEnt); 
-    check_tile_collision(pEnt);
-    update_player_state_and_physics(pEnt);
-    update_area(pEnt);
+    handle_platform_collision(e); 
+    check_tile_collision(e);
+    handle_player_input(p);
+    update_player_state_and_physics(e);
+    update_area(e);
 }
 

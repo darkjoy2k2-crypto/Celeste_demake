@@ -2,6 +2,12 @@
 #include "genesis.h"
 #include "globals.h"
 
+const u16 COL_BALL_WHITE[]  = { 0x0EEE, 0x0AAA, 0x0666 };
+const u16 COL_BALL_YELLOW[] = { 0x00AA, 0x0066, 0x00EE };
+const u16 COL_BALL_ORANGE[] = { 0x004A, 0x0026,0x026E };
+const u16 COL_BALL_RED[]    = { 0x000E, 0x000A, 0x0006 };
+const u16 COL_BALL_BLUE[]   = { 0x0E00, 0x0A00, 0x0600 };
+
 Map* level_1_map = NULL;
 
 u16 ind = TILE_USER_INDEX;

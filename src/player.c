@@ -1,5 +1,4 @@
 #include "player.h"
-#include "entity_list.h"
 #include "genesis.h"
 #include "globals.h"
 #include "debug.h"
@@ -7,93 +6,111 @@
 #include "area.h"
 #include "fade.h"
 
-void kill_player(Player* player) {
-    player->timer_death = 60;
+static void update_player_stamina_visuals(Player* p) {
+    if (p->timer_stamina <= 0) {
+        PAL_set_colors(PAL1, 1, COL_BALL_ORANGE, 3);
+        return;
+    }
 
-    player->ent.vy = FIX16(-6);
+    if (p->timer_stamina < 200) {
+        u16 interval = (p->timer_stamina < 100) ? 14 : 30;
+        
+        if ((vtimer % interval) < (interval / 2)) {
+            PAL_set_colors(PAL1, 1, COL_BALL_ORANGE, 3);
+        } else {
+            PAL_restore_direct(PAL1, 1, 3);
+        }
+    }
+}
 
+static void apply_ground_physics(Player* p) {
+    p->timer_grace = TIMER_GRACE_MAX;
+    if (p->count_shot_jump != 2 || p->timer_stamina < 300) {
+        p->count_shot_jump = 2;
+        p->timer_stamina = 300;
+        PAL_restore_direct(PAL1, 1, 3);
+    } 
+
+    p->ent.vy += GRAVITY_GROUNDED;
+    p->ent.vx = F16_mul(p->ent.vx, FRICTION);
+    if (abs16(p->ent.vx) < FIX16(0.2)) p->ent.vx = F16_0;
+}
+
+static void apply_air_physics(Player* p) {
+    p->ent.vy += (p->state == P_JUMPING) ? GRAVITY_JUMP : GRAVITY_FALL;
+    p->ent.vx = F16_mul(p->ent.vx, FRICTION_AIR);
+    if (p->ent.vy > 0 && p->state == P_JUMPING) p->state = P_FALLING;
+}
+
+static void apply_wall_physics(Player* p) {
+    update_player_stamina_visuals(p);
+    p->count_shot_jump = 2;
+    p->ent.vx = F16_0; 
+}
+
+void kill_player(Player* p) {
+    PAL_set_colors(PAL1, 1, COL_BALL_RED, 3);
+
+    p->timer_death = 60;
+    p->ent.vy = FIX16(-6);
     do {
-        player->ent.vy += GRAVITY_FALL;
-        player->ent.y_f32 += F16_toFix32(player->ent.vy); 
-        player->ent.y = F32_toInt(player->ent.y_f32);
-
+        p->ent.vy += GRAVITY_FALL;
+        p->ent.y_f32 += F16_toFix32(p->ent.vy); 
+        p->ent.y = F32_toInt(p->ent.y_f32);
+        
         debug_draw();
         handle_all_animations();
         update_camera(entities[player_id], level_1_map, true);
         SPR_update(); 
-        SYS_doVBlankProcess();    player->timer_death--;
+        SYS_doVBlankProcess();    
+        
+        p->timer_death--;
+        if (p->timer_death == 45) FADE_out(30);
+    } while (p->timer_death > 0);
 
-        if (player->timer_death == 45) FADE_out(30);
-
-
-    } while ( player->timer_death > 0);
-
-    player->ent.x = player->current_area->spawn.x << 3;
-    player->ent.y = player->current_area->spawn.y << 3;
-    player->ent.x_f32 = FIX32(player->ent.x);
-    player->ent.y_f32 = FIX32(player->ent.y);
-    player->ent.vx = F16_0;
-    player->ent.vy = F16_0;
-    player->state = P_FALLING;
-    player->trampolin = false;
+    p->ent.x = p->current_area->spawn.x << 3;
+    p->ent.y = p->current_area->spawn.y << 3;
+    p->ent.x_f32 = FIX32(p->ent.x);
+    p->ent.y_f32 = FIX32(p->ent.y);
+    p->ent.vx = F16_0;
+    p->ent.vy = F16_0;
+    p->state = P_FALLING;
+    p->count_shot_jump = 2; 
+    p->timer_shot_jump = 0;
     FADE_in(30);
-    player->is_dying = false;
+    p->is_dying = false;
 }
 
-void update_player_state_and_physics(Entity* entity) {
-    Player* player = (Player*) entity;
-    const Area* a = player->current_area;
+void update_player_state_and_physics(Entity* e) {
+    Player* p = (Player*) e;
+    const Area* a = p->current_area;
 
-    if (a != NULL) 
-        if (entity->y > a->max.y) 
-            player->is_dying = true;
+    if (a != NULL && e->y > a->max.y) p->is_dying = true;
+    if (p->is_dying) { kill_player(p); return; }
 
-    if (player->is_dying) kill_player(player);
+    e->x_old_f32 = e->x_f32; e->y_old_f32 = e->y_f32;
+    e->x_old = F32_toInt(e->x_old_f32); e->y_old = F32_toInt(e->y_old_f32);
 
-    entity->x_old_f32 = entity->x_f32;
-    entity->y_old_f32 = entity->y_f32;
-    entity->x_old = F32_toInt(entity->x_old_f32);
-    entity->y_old = F32_toInt(entity->y_old_f32);
+    if (p->timer_grace > 0) p->timer_grace--;
+    if (p->timer_buffer > 0) p->timer_buffer--;
 
-    if (player->timer_grace > 0) player->timer_grace--;
-    if (player->timer_buffer > 0) player->timer_buffer--;
-
-    switch(player->state)
-    {
-        case P_ON_WALL:
-            // Hier keine Schwerkraft auf vy anwenden
-            break;
-
+    switch(p->state) {
         case P_GROUNDED:
-            player->timer_grace = TIMER_GRACE_MAX;
-            entity->vy += GRAVITY_GROUNDED;
-            entity->vx = F16_mul(entity->vx, FRICTION);
-            if (abs16(entity->vx) < FIX16(0.2)) entity->vx = F16_0;
-            break;
-
+        case P_IDLE:
+        case P_RUNNING:   apply_ground_physics(p); break;
+        case P_ON_WALL:    apply_wall_physics(p);   break;
         case P_JUMPING:
-            player->timer_grace = 0;
-            entity->vy += GRAVITY_JUMP;
-            entity->vx = F16_mul(entity->vx, FRICTION_AIR);
-            if (entity->vy > 0) player->state = P_FALLING;
-            break;
-
-        case P_FALLING:
-            entity->vy += GRAVITY_FALL;
-            entity->vx = F16_mul(entity->vx, FRICTION_AIR);
-            break;
-
-        default: break;
+        case P_FALLING:   apply_air_physics(p);    break;
+        case P_SHOT_JUMP: break;
+        default: break; 
     }
 
-    entity->x_f32 += F16_toFix32(entity->vx);
-    entity->y_f32 += F16_toFix32(entity->vy);
-    entity->x_f32 += F16_toFix32(player->solid_vx);
-    entity->y_f32 += F16_toFix32(player->solid_vy);
+    if (e->vy > FIX16(5)) e->vy = FIX16(5);
 
-    entity->x = F32_toInt(entity->x_f32);
-    entity->y = F32_toInt(entity->y_f32);
+    e->x_f32 += F16_toFix32(e->vx + p->solid_vx);
+    e->y_f32 += F16_toFix32(e->vy + p->solid_vy);
+    e->x = F32_toInt(e->x_f32); e->y = F32_toInt(e->y_f32);
 
-    player->state_old = player->state;
-    player->is_on_wall = false; // Reset für Kollisions-Check im nächsten Frame
+    p->state_old = p->state;
+    p->is_on_wall = false; p->solid_vx = 0; p->solid_vy = 0;
 }

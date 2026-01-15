@@ -47,6 +47,7 @@ typedef struct {
     
     fix16 solid_vx, solid_vy;
     u16 state_old_joy;
+    u16 count_shot_jump;
     s16 timer_grace;
     s16 timer_buffer;
     s16 timer_stamina;
