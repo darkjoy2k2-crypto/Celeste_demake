@@ -50,8 +50,10 @@ void check_tile_collision(Entity *entity)
 {
     Player* p = (entity->type == ENTITY_PLAYER) ? (Player*)entity : NULL;
 
-    if (p) p->is_on_wall = false;
-    if (p) p->trampolin = false;
+    if (p) {
+        CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+        CLEAR_P_FLAG(p->physics_state, P_FLAG_TRAMPOLINE);
+    }
 
     fix16 saved_vx = entity->vx;
 
@@ -62,8 +64,13 @@ void check_tile_collision(Entity *entity)
 
     if (entity->vx != F16_0 || (p && p->solid_vx != F16_0))
     {
-        s16 dir = (entity->vx + (p ? p->solid_vx : 0) > 0) ? 1 : -1;
-        if (p) p->facing = dir;
+        s16 vel_x = entity->vx + (p ? p->solid_vx : 0);
+        s16 dir = (vel_x > 0) ? 1 : -1;
+        
+        if (p) {
+            if (dir > 0) CLEAR_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
+            else SET_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
+        }
 
         s16 check_x = (dir > 0) ? (current_x + half_w - 1) : (current_x - half_w);
         CollisionSide side = (dir > 0) ? SIDE_RIGHT : SIDE_LEFT;
@@ -118,7 +125,7 @@ void check_tile_collision(Entity *entity)
             s16 tile_col_y = (check_y >> 3);
             if (dir > 0) { 
                 current_y = (tile_col_y << 3) - half_h; 
-                if (p) p->is_on_ground = true; 
+                if (p) SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND); 
             }
             else { 
                 current_y = (tile_col_y << 3) + 8 + half_h; 
@@ -138,7 +145,10 @@ no_y_collision:
         isTileSolid(entity, right_x, current_y, SIDE_PEEK) ||
         isTileSolid(entity, right_x, current_y + half_h - 1, SIDE_PEEK))
     {
-        if (p) { p->is_on_wall = true; p->facing = 1; }
+        if (p) { 
+            SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL); 
+            CLEAR_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
+        }
     }
     else 
     {
@@ -147,14 +157,17 @@ no_y_collision:
             isTileSolid(entity, left_x, current_y, SIDE_PEEK) ||
             isTileSolid(entity, left_x, current_y + half_h - 1, SIDE_PEEK))
         {
-            if (p) { p->is_on_wall = true; p->facing = -1; }
+            if (p) { 
+                SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL); 
+                SET_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
+            }
         }
     }
 
     if (p) {
         if (p->state == P_FLYING) return;
 
-        if (p->is_on_ground) {
+        if (CHECK_P_FLAG(p->physics_state, P_FLAG_ON_GROUND)) {
             p->state = P_GROUNDED;
             entity->vy = F16_0;
         } else {
@@ -174,7 +187,7 @@ no_y_collision:
                     else {
                         p->state = P_GROUNDED;
                         entity->vy = F16_0;
-                        p->is_on_ground = true;
+                        SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
                     }
                 }
             }

@@ -7,12 +7,18 @@
 #include "area.h"
 #include "debug.h"
 
-
+/* =============================================================================
+   PHYSIK-RESET (Pro Frame)
+   ============================================================================= */
 void reset_physics(Player* p){
-    p->is_on_ground = false; 
-    p->is_on_wall   = false;
+    /* Neutralisiert Boden- und Wand-Flags vor der neuen Kollisionsprüfung */
+    CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_GROUND); 
+    CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
 }
 
+/* =============================================================================
+   PLATTFORM-BEWEGUNG
+   ============================================================================= */
 void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitude)
 {
     fix32 old_pos = plat->x_f32;
@@ -22,7 +28,7 @@ void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitud
     plat->x = F32_toInt(plat->x_f32);
 }
 
-move_platforms(){
+void move_platforms(){
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 1 && entities[i]->type == ENTITY_PLATFORM) {
             update_moving_platform(entities[i], 156 + 16 * i, 16, 48);
@@ -30,11 +36,15 @@ move_platforms(){
     }
 }
 
+/* =============================================================================
+   ZENTRALE ENTITY-VERARBEITUNG
+   ============================================================================= */
 void handle_all_entities()
 {
     Entity* e = entities[player_id];
     Player* p = (Player*) e;
 
+    /* Reihenfolge strikt beibehalten */
     reset_physics(p);
     move_platforms();
     handle_platform_collision(e); 
@@ -43,4 +53,3 @@ void handle_all_entities()
     update_player_state_and_physics(e);
     update_area(e);
 }
-

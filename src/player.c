@@ -31,12 +31,15 @@ static void apply_ground_physics(Player* p) {
         PAL_restore_direct(PAL1, 1, 3);
     } 
 
+    SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
+
     p->ent.vy += GRAVITY_GROUNDED;
     p->ent.vx = F16_mul(p->ent.vx, FRICTION);
     if (abs16(p->ent.vx) < FIX16(0.2)) p->ent.vx = F16_0;
 }
 
 static void apply_air_physics(Player* p) {
+    CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
     p->ent.vy += (p->state == P_JUMPING) ? GRAVITY_JUMP : GRAVITY_FALL;
     p->ent.vx = F16_mul(p->ent.vx, FRICTION_AIR);
     if (p->ent.vy > 0 && p->state == P_JUMPING) p->state = P_FALLING;
@@ -77,16 +80,24 @@ void kill_player(Player* p) {
     p->state = P_FALLING;
     p->count_shot_jump = 2; 
     p->timer_shot_jump = 0;
+    
+    p->physics_state = 0;
+    
     FADE_in(30);
-    p->is_dying = false;
 }
 
 void update_player_state_and_physics(Entity* e) {
     Player* p = (Player*) e;
     const Area* a = p->current_area;
 
-    if (a != NULL && e->y > a->max.y) p->is_dying = true;
-    if (p->is_dying) { kill_player(p); return; }
+    if (a != NULL && e->y > a->max.y) {
+        SET_P_FLAG(p->physics_state, P_FLAG_DYING);
+    }
+
+    if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING)) {
+        kill_player(p); 
+        return; 
+    }
 
     e->x_old_f32 = e->x_f32; e->y_old_f32 = e->y_f32;
     e->x_old = F32_toInt(e->x_old_f32); e->y_old = F32_toInt(e->y_old_f32);
@@ -112,5 +123,8 @@ void update_player_state_and_physics(Entity* e) {
     e->x = F32_toInt(e->x_f32); e->y = F32_toInt(e->y_f32);
 
     p->state_old = p->state;
-    p->is_on_wall = false; p->solid_vx = 0; p->solid_vy = 0;
+    
+    CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+    p->solid_vx = 0; 
+    p->solid_vy = 0;
 }

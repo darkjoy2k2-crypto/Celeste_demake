@@ -12,8 +12,6 @@
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
-
-
 static void enter() {
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     setup_hud();
@@ -36,9 +34,12 @@ static void enter() {
             Player* pl = (Player*) entities[player_id];
             pl->state = P_FALLING;
             pl->state_old = P_FALLING;
+            
+            /* Initialisierung der neuen Struktur */
+            pl->physics_state = 0; 
+            CLEAR_P_FLAG(pl->physics_state, P_FLAG_FACING_LEFT);
+            
             pl->timer_stamina = 100;
-            pl->facing = 0;
-            pl->is_dying = false;
             pl->timer_grace = 0;
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
@@ -49,20 +50,19 @@ static void enter() {
         camera_position.y = spawn_y - 112;
     }
 
-    create_entity(16 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0),ENTITY_PLATFORM);
+    create_entity(16 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
     create_entity(32 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
 
-        VDP_loadTileSet(&our_tileset, ind, DMA);
-        level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
-        ind += our_tileset.numTile;
+    VDP_loadTileSet(&our_tileset, ind, DMA);
+    level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
+    ind += our_tileset.numTile;
                 
-        if (player_id != -1) {
-            update_camera(entities[player_id], level_1_map, true);
-        }
+    if (player_id != -1) {
+        update_camera(entities[player_id], level_1_map, true);
+    }
 
     if (player_id != -1) {
         Entity* e = entities[player_id];
-        // Zugriff wieder ohne .ent
         SPR_setPosition(e->sprite, e->x - camera_position.x - 8, e->y - camera_position.y - 8);
     }
 
@@ -73,27 +73,23 @@ static void enter() {
     JOY_init();
 }
 
-
-
 static void update() {
-        handle_all_entities(); 
+    handle_all_entities(); 
 
-        if (player_id != -1) {
-            Entity* e = entities[player_id];
-            update_camera(e, level_1_map, false);
-        }
+    if (player_id != -1) {
+        Entity* e = entities[player_id];
+        update_camera(e, level_1_map, false);
+    }
 
+    debug_draw();
+    handle_all_animations();
 
-        debug_draw();
-        handle_all_animations();
-
-        SPR_update(); 
-        SYS_doVBlankProcess();
+    SPR_update(); 
+    SYS_doVBlankProcess();
 }
 
 static void exit() {
-    SPR_reset(); // Alles aufräumen für den nächsten State
-    //MEM_free(); // Optional: Falls du dynamischen Speicher nutzt
+    SPR_reset();
 }
 
 const GameState State_InGame = { enter, update, exit };

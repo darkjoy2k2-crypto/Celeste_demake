@@ -7,7 +7,9 @@ typedef struct Area Area;
 
 #define MAX_ENTITIES 10
 
-
+/* =============================================================================
+   ENTITY TYPEN & PLAYER STATES
+   ============================================================================= */
 typedef enum {
     ENTITY_NONE,
     ENTITY_PLAYER,
@@ -28,6 +30,9 @@ typedef enum {
     P_SHOT_JUMP
 } PlayerState;
 
+/* =============================================================================
+   BASIS ENTITY STRUKTUR
+   ============================================================================= */
 typedef struct Entity {
     EntityType type;
     s16 x, y;
@@ -40,13 +45,21 @@ typedef struct Entity {
     int anim_index;
 } Entity;
 
+/* =============================================================================
+   PLAYER STRUKTUR (Erweitert die Entity)
+   ============================================================================= */
 typedef struct {
     Entity ent; 
     PlayerState state;     
     PlayerState state_old;
     
     fix16 solid_vx, solid_vy;
+    
+    /* Input & Physik Flags (u16 Bitmaske statt einzelner Bools) */
     u16 state_old_joy;
+    u16 physics_state;   /* Hier liegen P_FLAG_ON_GROUND, P_FLAG_FACING_LEFT etc. */
+    
+    /* Ressourcen & Timer */
     u16 count_shot_jump;
     s16 timer_grace;
     s16 timer_buffer;
@@ -55,16 +68,13 @@ typedef struct {
     s16 timer_death;
     s16 timer_edgegrab;  
     
-    s16 facing;
-    bool is_on_ground;
-    bool is_on_wall;
-    bool trampolin;
-    bool is_dying;
-    bool dontbreakjump;
-    
+    /* Welt-Bezug */
     Area* current_area;
 } Player;
 
+/* =============================================================================
+   SPEICHER-MANAGEMENT
+   ============================================================================= */
 typedef union {
     Entity entity;
     Player player;
@@ -75,4 +85,3 @@ extern u8 entity_used[MAX_ENTITIES];
 
 void init_entities();
 int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type);
-
