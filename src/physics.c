@@ -39,7 +39,7 @@ void move_platforms(){
 /* =============================================================================
    ZENTRALE ENTITY-VERARBEITUNG
    ============================================================================= */
-void handle_all_entities()
+void handle_player_entity()
 {
     Entity* e = entities[player_id];
     Player* p = (Player*) e;
@@ -47,8 +47,10 @@ void handle_all_entities()
     /* Reihenfolge strikt beibehalten */
     reset_physics(p);
     move_platforms();
+
     handle_platform_collision(e); 
     check_tile_collision(e);
+
     handle_player_input(p);
     update_player_state_and_physics(e);
     update_area(e);

@@ -6,7 +6,6 @@
 #include "globals.h"
 #include "debug.h"
 
-#define TILE_SIZE_PX 8
 #define MAP_WIDTH_TILES MAP_W   
 #define MAP_HEIGHT_TILES MAP_H  
 #define FIX32_TO_S16(f) ((s16)F32_toRoundedInt(f))

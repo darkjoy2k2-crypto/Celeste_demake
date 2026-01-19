@@ -1,9 +1,13 @@
 #include <genesis.h>
 #include "globals.h"
 #include "area.h"
+#include "debug.h"
+#include "fade.h"
 #include "states.h"
+#include "sprites.h"
 #include "level.h"
 #include "entity_list.h"
+#include "physics.h"
 #include "title.h"
 #include "camera.h"
 #include "hud.h"
@@ -71,10 +75,11 @@ static void enter() {
 
     FADE_in(15);
     JOY_init();
+    debug_set_ram();
 }
 
 static void update() {
-    handle_all_entities(); 
+    handle_player_entity(); 
 
     if (player_id != -1) {
         Entity* e = entities[player_id];
