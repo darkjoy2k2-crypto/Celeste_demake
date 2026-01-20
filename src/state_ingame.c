@@ -17,16 +17,24 @@ extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
 static void enter() {
+    /* Wichtig: Alles auf Null setzen, um Müll im RAM zu vermeiden */
+    memset(&state_ctx, 0, sizeof(state_ctx));
+    
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     setup_hud();
     init_entities();
     init_camera();
 
+    /* Hintergrund laden */
     VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
     ind += layer_bg.tileset->numTile;
 
-    load_areas(level_1_areas, level_1_area_count);
+    /* Areas registrieren */
+    state_ctx.ingame.active_areas = level_1_areas;
+    state_ctx.ingame.active_count = level_1_area_count;
+    load_areas(state_ctx.ingame.active_areas, state_ctx.ingame.active_count);
 
+    /* Player Erstellung basierend auf Area 0 */
     const Area* start_area = get_area(0);
     if (start_area) {
         s16 spawn_x = start_area->spawn.x << 3; 
@@ -39,7 +47,7 @@ static void enter() {
             pl->state = P_FALLING;
             pl->state_old = P_FALLING;
             
-            /* Initialisierung der neuen Struktur */
+            /* Initialisierung der Bits */
             pl->physics_state = 0; 
             CLEAR_P_FLAG(pl->physics_state, P_FLAG_FACING_LEFT);
             
@@ -48,26 +56,28 @@ static void enter() {
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
             pl->count_shot_jump = 0;
+            
+            /* Area Pointer im Player setzen */
+            pl->current_area = (Area*)start_area;
         }
 
+        /* Kamera grob vorpositionieren */
         camera_position.x = spawn_x - 160;
         camera_position.y = spawn_y - 112;
     }
 
+    /* Plattformen erzeugen */
     create_entity(16 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
     create_entity(32 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
 
+    /* Level Map laden und in Union speichern */
     VDP_loadTileSet(&our_tileset, ind, DMA);
-    level_1_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
+    state_ctx.ingame.current_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
     ind += our_tileset.numTile;
                 
     if (player_id != -1) {
-        update_camera(entities[player_id], level_1_map, true);
-    }
-
-    if (player_id != -1) {
-        Entity* e = entities[player_id];
-        SPR_setPosition(e->sprite, e->x - camera_position.x - 8, e->y - camera_position.y - 8);
+        /* Nutzt jetzt den Map-Pointer aus der Union */
+        update_camera(entities[player_id], state_ctx.ingame.current_map, true);
     }
 
     SPR_update();
@@ -79,13 +89,17 @@ static void enter() {
 }
 
 static void update() {
+
+    Entity* e = entities[player_id];    
+    
     handle_player_entity(); 
 
     if (player_id != -1) {
-        Entity* e = entities[player_id];
-        update_camera(e, level_1_map, false);
+        /* WICHTIG: Nutzt state_ctx.ingame.current_map */
+        update_camera(e, state_ctx.ingame.current_map, false);
     }
 
+    
     debug_draw();
     handle_all_animations();
 
@@ -94,6 +108,10 @@ static void update() {
 }
 
 static void exit() {
+    if (state_ctx.ingame.current_map) {
+        MEM_free(state_ctx.ingame.current_map);
+        state_ctx.ingame.current_map = NULL;
+    }
     SPR_reset();
 }
 

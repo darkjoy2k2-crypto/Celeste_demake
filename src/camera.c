@@ -1,5 +1,7 @@
 #include "camera.h"
 #include "entity_list.h"
+#include "globals.h"
+#include "debug.h"
 
 Vect2D_s16 camera_position = {0, 0};
 
@@ -13,22 +15,20 @@ void init_camera() {
     camera_position.y = 0;
 }
 
-
 void update_all_entities_sprites() {
     for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entity_used[i] == 1 && entities[i] != NULL) {
-            Entity* e = entities[i];
-            if (e->sprite != NULL) {
-                s16 x = e->x - camera_position.x - 8;
-                s16 y = e->y - camera_position.y - 8;
+        Entity* e = entities[i];
+        if (e != NULL && e->sprite != NULL) {
+            s16 ex = e->x;
+            s16 ey = e->y;
+            s16 x = ex - camera_position.x - 8;
+            s16 y = ey - camera_position.y - 8;
 
-                if (x < -16 || x > SCREEN_W || y < -16 || y > SCREEN_H) {
-                    SPR_setVisibility(e->sprite, HIDDEN);;
-                }
-                else {
-                    SPR_setVisibility(e->sprite, VISIBLE);
-                    SPR_setPosition(e->sprite, x, y);
-                }
+            if (x < -64 || x > 384 || y < -64 || y > 288) {
+                SPR_setVisibility(e->sprite, HIDDEN);
+            } else {
+                SPR_setVisibility(e->sprite, VISIBLE);
+                SPR_setPosition(e->sprite, x, y);
             }
         }
     }
@@ -36,46 +36,30 @@ void update_all_entities_sprites() {
 
 void update_camera(Entity* player, Map* level_map, bool instant) {
     if (player == NULL) return;
-
     Player* p = (Player*) player;
+
+    if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING)) {
+        update_all_entities_sprites();
+        return;
+    }
+
     s16 px = p->ent.x;
     s16 py = p->ent.y;
 
-    const s16 DEADZONE_X = 32; 
-    const s16 DEADZONE_Y = 24;
 
-    const Area* a;
-    if (instant) {
-        int area_id = get_current_area_id(px, py);
-        if (area_id == -1) return;
-        a = get_area(area_id);
-    } else {
-        a = p->current_area;
-    }
-
+    const Area* a = p->current_area;
     if (a == NULL) return;
 
     Vect2D_s16 target;
-
     if (a->cam_mode == CAM_MODE_FOLLOW) {
         target = camera_position;
-
         s16 screen_px = px - camera_position.x;
         s16 screen_py = py - camera_position.y;
-
-        if (screen_px < (SCREEN_W / 2) - DEADZONE_X) {
-            target.x = px - ((SCREEN_W / 2) - DEADZONE_X);
-        } else if (screen_px > (SCREEN_W / 2) + DEADZONE_X) {
-            target.x = px - ((SCREEN_W / 2) + DEADZONE_X);
-        }
-
-        if (screen_py < CENTER_Y_OFFSET - DEADZONE_Y) {
-            target.y = py - (CENTER_Y_OFFSET - DEADZONE_Y);
-        } else if (screen_py > CENTER_Y_OFFSET + DEADZONE_Y) {
-            target.y = py - (CENTER_Y_OFFSET + DEADZONE_Y);
-        }
-    } 
-    else {
+        if (screen_px < (SCREEN_W / 2) - 32) target.x = px - ((SCREEN_W / 2) - 32);
+        else if (screen_px > (SCREEN_W / 2) + 32) target.x = px - ((SCREEN_W / 2) + 32);
+        if (screen_py < CENTER_Y_OFFSET - 24) target.y = py - (CENTER_Y_OFFSET - 24);
+        else if (screen_py > CENTER_Y_OFFSET + 24) target.y = py - (CENTER_Y_OFFSET + 24);
+    } else {
         target.x = a->cam.x;
         target.y = a->cam.y;
     }
@@ -87,10 +71,8 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
 
     if (max_x < min_x) max_x = min_x;
     if (max_y < min_y) max_y = min_y;
-
     if (target.x < min_x) target.x = min_x;
     else if (target.x > max_x) target.x = max_x;
-
     if (target.y < min_y) target.y = min_y;
     else if (target.y > max_y) target.y = max_y;
 
@@ -100,13 +82,11 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
     } else {
         s16 step_x = (target.x - camera_position.x);
         s16 step_y = (target.y - camera_position.y);
-
         if (step_x != 0) {
             s16 move_x = step_x >> 3;
             if (move_x == 0) move_x = (step_x > 0) ? 1 : -1;
             camera_position.x += move_x;
         }
-
         if (step_y != 0) {
             s16 move_y = step_y >> 3;
             if (move_y == 0) move_y = (step_y > 0) ? 1 : -1;
@@ -120,6 +100,5 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
 
     VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
     VDP_setVerticalScroll(BG_B, (camera_position.y >> 3) - 128);
-
     update_all_entities_sprites();    
 }

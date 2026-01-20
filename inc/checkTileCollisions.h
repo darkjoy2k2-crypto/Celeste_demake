@@ -17,5 +17,5 @@ typedef enum {
     EDGE_RIGHT = 1
 } EdgeGrabSide;
 
-void check_collision(Entity* entity);
-
+/* Name an die .c Datei anpassen */
+void check_tile_collision(Entity* entity);

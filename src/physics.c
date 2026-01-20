@@ -7,20 +7,12 @@
 #include "area.h"
 #include "debug.h"
 
-/* =============================================================================
-   PHYSIK-RESET (Pro Frame)
-   ============================================================================= */
-void reset_physics(Player* p){
-    /* Neutralisiert Boden- und Wand-Flags vor der neuen Kollisionsprüfung */
+void reset_physics(Player* p) {
     CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_GROUND); 
     CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
 }
 
-/* =============================================================================
-   PLATTFORM-BEWEGUNG
-   ============================================================================= */
-void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitude)
-{
+void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitude) {
     fix32 old_pos = plat->x_f32;
     fix32 offset_f32 = getSinusValueF32(vtimer, speed, amplitude);
     plat->x_f32 = FIX32(start_pos) + offset_f32;
@@ -28,23 +20,24 @@ void update_moving_platform(Entity *plat, s16 start_pos, u16 speed, u16 amplitud
     plat->x = F32_toInt(plat->x_f32);
 }
 
-void move_platforms(){
+void move_platforms() {
     for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entity_used[i] == 1 && entities[i]->type == ENTITY_PLATFORM) {
+        /* Statt entity_used prüfen wir direkt auf != NULL */
+        if (entities[i] != NULL && entities[i]->type == ENTITY_PLATFORM) {
             update_moving_platform(entities[i], 156 + 16 * i, 16, 48);
         }
     }
 }
 
-/* =============================================================================
-   ZENTRALE ENTITY-VERARBEITUNG
-   ============================================================================= */
-void handle_player_entity()
-{
+void handle_player_entity() {
+    if (player_id == -1) return;
+
+    /* Pointer-Caching: Adressen einmalig ermitteln */
     Entity* e = entities[player_id];
     Player* p = (Player*) e;
 
-    /* Reihenfolge strikt beibehalten */
+    /* Weitergabe der Pointer an Unterfunktionen */
+    update_area(e);
     reset_physics(p);
     move_platforms();
 
@@ -53,5 +46,6 @@ void handle_player_entity()
 
     handle_player_input(p);
     update_player_state_and_physics(e);
-    update_area(e);
+    
+    /* Übergabe an das Area-System */
 }

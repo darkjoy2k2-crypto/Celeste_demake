@@ -92,10 +92,10 @@ const Area level_1_areas[] = {
         .spawn = {22, 18},
         .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {0, 0},
-        .cam_max = {816, 584},
+        .cam_max = {816, 552},
         .type = 0,
-        .id = 0
-
+        .id = 0,
+        .die_on_bottom = false
     },
     { // 1
         .min = {0, 348},
@@ -104,9 +104,11 @@ const Area level_1_areas[] = {
         .cam = {0, 316},
         .cam_mode = CAM_MODE_FIXED,
         .cam_min = {0, 344},
-        .cam_max = {320, 584},
+        .cam_max = {320, 548},
         .type = 0,
-        .id = 1
+        .id = 1,
+        .die_on_bottom = true
+
     },
     { // 2
         .min = {253, 188},
@@ -117,7 +119,9 @@ const Area level_1_areas[] = {
         .cam_min = {232, 176},
         .cam_max = {552, 384},
         .type = 0,
-        .id = 2
+        .id = 2,
+                .die_on_bottom = true
+
     },    
     { // 3
         .min = {496, 20},
@@ -128,7 +132,9 @@ const Area level_1_areas[] = {
         .cam_min = {496, 16},
         .cam_max = {816, 224},
         .type = 0,
-        .id = 3
+        .id = 3,
+        .die_on_bottom = true
+
     }    
 
 };

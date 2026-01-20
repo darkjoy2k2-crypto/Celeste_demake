@@ -1,31 +1,47 @@
 #include <genesis.h>
 #include "entity_list.h"
+#include "globals.h"
 
-void handle_all_animations(){
-    for (int i = 0; i < MAX_ENTITIES; i++){
-        if (entity_used[i] == 1 && entities[i] != NULL){
-            update_animation(entities[i]);
+static inline void update_animation(Entity* e) {
+    switch (e->type)
+    {
+        case ENTITY_PLAYER:
+        {
+            /* Caching des Player-Pointers für Zustandsabfragen */
+            Player* p = (Player*)e;
+            
+            /* Einfache Lauf-Animation basierend auf X-Differenz */
+            s16 dx = e->x_old - e->x; 
+            e->anim_index += abs16(dx); 
+
+            if (e->anim_index > 59) e->anim_index -= 60;
+
+            /* Sprite-Update */
+            SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
+            
+            /* Flip-Handling über das Facing-Flag */
+            if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
+                SPR_setHFlip(e->sprite, TRUE);
+            } else {
+                SPR_setHFlip(e->sprite, FALSE);
+            }
         }
+        break;
+
+        case ENTITY_PLATFORM:
+            SPR_setAnimAndFrame(e->sprite, 0, 0);
+            break;
+
+        default:
+            break;
     }
 }
 
-void update_animation(Entity* e){
-    switch (e->type)
-    {
-    case ENTITY_PLAYER:
-        // Hier greifen wir direkt auf x zu, da 'ent.' nicht existiert
-        int dx = e->x_old - e->x; 
-        e->anim_index += dx; 
-
-        if (e->anim_index < 0) e->anim_index += 60;
-        if (e->anim_index > 59) e->anim_index -= 60;
-
-        SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
-        break;
-    case ENTITY_PLATFORM:
-        SPR_setAnimAndFrame(e->sprite, 0, 0);
-        break;
-    default:
-        break;
+void handle_all_animations() {
+    for (int i = 0; i < MAX_ENTITIES; i++) {
+        /* entity_used entfernt, direkter Check auf NULL */
+        if (entities[i] != NULL) {
+            update_animation(entities[i]);
+        }
     }
 }

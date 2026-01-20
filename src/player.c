@@ -51,48 +51,54 @@ static void apply_wall_physics(Player* p) {
     p->ent.vx = F16_0; 
 }
 
+
+
 void kill_player(Player* p) {
     PAL_set_colors(PAL1, 1, COL_BALL_RED, 3);
-
+    const Area* death_area = p->current_area;
     p->timer_death = 60;
     p->ent.vy = FIX16(-6);
+    
     do {
         p->ent.vy += GRAVITY_FALL;
         p->ent.y_f32 += F16_toFix32(p->ent.vy); 
         p->ent.y = F32_toInt(p->ent.y_f32);
-        
         debug_draw();
         handle_all_animations();
         update_camera(entities[player_id], level_1_map, true);
         SPR_update(); 
         SYS_doVBlankProcess();    
-        
         p->timer_death--;
         if (p->timer_death == 45) FADE_out(30);
     } while (p->timer_death > 0);
 
-    p->ent.x = p->current_area->spawn.x << 3;
-    p->ent.y = p->current_area->spawn.y << 3;
-    p->ent.x_f32 = FIX32(p->ent.x);
-    p->ent.y_f32 = FIX32(p->ent.y);
+    /* HIER: Den Spieler zum Spawn der Area teleportieren */
+    if (death_area != NULL) {
+        p->ent.x = death_area->spawn.x << 3;
+        p->ent.y = death_area->spawn.y << 3;
+        p->ent.x_f32 = FIX32(p->ent.x);
+        p->ent.y_f32 = FIX32(p->ent.y);
+    } 
+
     p->ent.vx = F16_0;
     p->ent.vy = F16_0;
     p->state = P_FALLING;
     p->count_shot_jump = 2; 
     p->timer_shot_jump = 0;
-    
-    p->physics_state = 0;
-    
+    p->physics_state = 0; // Löscht auch P_FLAG_DYING automatisch
+
+    update_camera(entities[player_id], level_1_map, true);
     FADE_in(30);
 }
 
 void update_player_state_and_physics(Entity* e) {
     Player* p = (Player*) e;
-    const Area* a = p->current_area;
 
-    if (a != NULL && e->y > a->max.y) {
+    if (p->current_area != NULL && e->y > p->current_area->cam_max.y) {
         SET_P_FLAG(p->physics_state, P_FLAG_DYING);
     }
+    
+
 
     if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING)) {
         kill_player(p); 
