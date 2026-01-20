@@ -15,6 +15,8 @@
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
+static u16 tick;
+
 static void enter() {
     /* Wichtig: Alles auf Null setzen, um Müll im RAM zu vermeiden */
     memset(&state_ctx, 0, sizeof(state_ctx));
@@ -82,9 +84,11 @@ static void enter() {
     SPR_update();
     SYS_doVBlankProcess();
 
-    FADE_in(15);
+    FADE_in(15, true);
     JOY_init();
     debug_set_ram();
+
+    tick = 0;
 }
 
 static void update() {
@@ -104,14 +108,40 @@ static void update() {
 
     SPR_update(); 
     SYS_doVBlankProcess();
+
+    if (tick > 240){
+        STATE_set(&State_Title);
+    }
+    tick++;
 }
 
 static void exit() {
+    /* 1. VRAM-Management der Map freigeben (WICHTIG!) */
     if (state_ctx.ingame.current_map) {
+        MAP_release(state_ctx.ingame.current_map);
         MEM_free(state_ctx.ingame.current_map);
         state_ctx.ingame.current_map = NULL;
     }
+
+    /* 2. Sprites entladen */
     SPR_reset();
+
+    /* 3. VRAM-Index zurücksetzen */
+    /* Wir setzen 'ind' zurück auf den Punkt NACH dem Font */
+    /* In deiner main.c war das TILE_USER_INDEX (meist 16 oder höher) */
+    ind = TILE_USER_INDEX;
+
+    /* 4. Planes sauber machen, damit beim nächsten Start keine Reste da sind */
+    VDP_setTextPlane(BG_A); 
+    VDP_setWindowOff();
+    
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    
+    VDP_clearPlane(BG_A, TRUE);
+    VDP_clearPlane(BG_B, TRUE);
+    
+    tick = 0;
 }
 
 const GameState State_InGame = { enter, update, exit };

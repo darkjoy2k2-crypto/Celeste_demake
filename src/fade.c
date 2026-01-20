@@ -13,12 +13,12 @@ void FADE_init() {
     PAL_setColors(0, palette_black, 64, DMA);
 }
 
-void FADE_in(u16 num_frames) {
-    PAL_fadeTo(0, 63, target_palettes, num_frames, TRUE);
+void FADE_in(u16 num_frames, bool sync) {
+    PAL_fadeTo(0, 63, target_palettes, num_frames, sync);
 }
 
-void FADE_out(u16 num_frames) {
-    PAL_fadeTo(0, 63, palette_black, num_frames, TRUE);
+void FADE_out(u16 num_frames, bool sync) {
+    PAL_fadeTo(0, 63, palette_black, num_frames, sync);
 }
 
 void PAL_set_colors(u16 pal_num, u16 start_index, const u16* colors, u16 count) {

@@ -69,7 +69,7 @@ void kill_player(Player* p) {
         SPR_update(); 
         SYS_doVBlankProcess();    
         p->timer_death--;
-        if (p->timer_death == 45) FADE_out(30);
+        if (p->timer_death == 45) FADE_out(30, true);
     } while (p->timer_death > 0);
 
     /* HIER: Den Spieler zum Spawn der Area teleportieren */
@@ -88,7 +88,7 @@ void kill_player(Player* p) {
     p->physics_state = 0; // Löscht auch P_FLAG_DYING automatisch
 
     update_camera(entities[player_id], level_1_map, true);
-    FADE_in(30);
+    FADE_in(30, true);
 }
 
 void update_player_state_and_physics(Entity* e) {

@@ -21,7 +21,7 @@ int main() {
     SYS_showFrameLoad(true);
 
 
-    STATE_set(&State_InGame);
+    STATE_set(&State_Title);
 
     while(1) {
 

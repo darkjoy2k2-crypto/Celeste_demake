@@ -6,5 +6,5 @@ typedef struct {
     void (*exit)();  
 } GameState;
 
-extern const GameState State_Menu;
+extern const GameState State_Title;
 extern const GameState State_InGame;
