@@ -1,4 +1,4 @@
-#include "player_controls.h"
+#include "entities/player/player_controls.h"
 #include "genesis.h"
 #include "globals.h"
 #include "fade.h"

@@ -1,5 +1,5 @@
 #include "area.h"
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 #include "globals.h"
 
 void update_area(Entity* e) {

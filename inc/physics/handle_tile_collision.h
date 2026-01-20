@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 
 typedef enum {
     SIDE_NONE,

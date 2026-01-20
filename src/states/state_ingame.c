@@ -3,15 +3,14 @@
 #include "area.h"
 #include "debug.h"
 #include "fade.h"
-#include "states.h"
-#include "sprites.h"
+#include "states/states.h"
+#include "entities/sprites.h"
 #include "level.h"
-#include "entity_list.h"
-#include "physics.h"
+#include "entities/handle_entities.h"
 #include "title.h"
-#include "camera.h"
+#include "entities/update_camera.h"
 #include "hud.h"
-#include "player_controls.h"
+#include "entities/player/player_controls.h"
 
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
@@ -89,16 +88,16 @@ static void enter() {
 }
 
 static void update() {
-
-    Entity* e = entities[player_id];    
-    
-    handle_player_entity(); 
-
-    if (player_id != -1) {
-        /* WICHTIG: Nutzt state_ctx.ingame.current_map */
-        update_camera(e, state_ctx.ingame.current_map, false);
+    for (int i = 0; i < MAX_ENTITIES; i++) {
+        if (entities[i] != NULL && i != player_id) {
+            if (entities[i]->update) {
+                entities[i]->update(entities[i]);
+            }
+        }
     }
 
+    entities[player_id]->update(entities[player_id]);
+    update_camera(entities[player_id], state_ctx.ingame.current_map, false);
     
     debug_draw();
     handle_all_animations();

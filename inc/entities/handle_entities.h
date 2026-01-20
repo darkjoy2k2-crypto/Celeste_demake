@@ -28,8 +28,7 @@ typedef struct Entity {
     u8 width, height;
     Sprite* sprite;
     int anim_index;
-} Entity;
-
+    void (*update)(struct Entity* self);} Entity;
 typedef struct {
     Entity ent; 
     PlayerState state;     

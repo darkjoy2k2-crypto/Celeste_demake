@@ -1,6 +1,8 @@
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 #include "globals.h"
 #include "title.h"
+#include "entities/player/update_player.h"
+#include "entities/update_platform.h"
 
 EntitySlot entity_pool[MAX_ENTITIES];
 Entity* entities[MAX_ENTITIES];
@@ -22,17 +24,28 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
             
             Entity* e = entities[i];
             e->type = type;
+
             e->x = x;
             e->y = y;
-            e->vx = vx;
-            e->vy = vy;
             e->x_f32 = FIX32(x);
             e->y_f32 = FIX32(y);
+
+            e->vx = vx;
+            e->vy = vy;
+
+            e->x_old = x;
+            e->y_old = y;
+            e->x_old_f32 = e->x_f32;
+            e->y_old_f32 = e->y_f32;
+
             e->width = w;
             e->height = h;
             
             if (type == ENTITY_PLAYER) {
                 Player* p = (Player*)e;
+                
+                /* Funktionszeiger zuweisen */
+                e->update = ENTITY_UPDATE_player;
                 
                 p->physics_state = 0; 
                 CLEAR_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
@@ -40,11 +53,19 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
                 p->timer_stamina = 300;
                 p->count_shot_jump = 2;
                 e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+                
+                player_id = i;
             }
-
-            if (type == ENTITY_PLATFORM) {
+            else if (type == ENTITY_PLATFORM) {
+                /* Funktionszeiger zuweisen */
+                e->update = ENTITY_UPDATE_platform;
+                
                 e->sprite = SPR_addSprite(&stone_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
                 SPR_setPriority(e->sprite, 0);
+            }
+            else {
+                /* Fallback für unbekannte Typen */
+                e->update = NULL;
             }
             
             return i;
@@ -52,7 +73,6 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
     }
     return -1;
 }
-
 void destroy_entity(int index) {
     if (index >= 0 && index < MAX_ENTITIES) {
         if (entity_used[index]) {

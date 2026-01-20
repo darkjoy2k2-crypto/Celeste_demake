@@ -1,8 +1,8 @@
 #pragma once
 
 #include <genesis.h>
-#include "entity_list.h"
-#include "checkTileCollisions.h"
+#include "entities/handle_entities.h"
+#include "physics/handle_tile_collision.h"
 
 #define TILE_EMPTY      0
 #define TILE_ONEWAY     6

@@ -1,7 +1,7 @@
 #include <genesis.h>
 #include "debug.h"
 #include "globals.h"
-#include "states.h"
+#include "states/states.h"
 #include "title.h"
 
 int i = 0;

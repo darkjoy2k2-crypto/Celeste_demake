@@ -1,7 +1,7 @@
 #pragma once
 
 #include <genesis.h>
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 #include "area.h"
 
 extern Vect2D_s16 camera_position;

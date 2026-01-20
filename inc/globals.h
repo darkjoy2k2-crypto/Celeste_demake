@@ -3,7 +3,7 @@
 
 #include <genesis.h>
 #include "area.h"
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 
 #define P_FLAG_ON_GROUND      (1 << 0)
 #define P_FLAG_ON_WALL        (1 << 1)

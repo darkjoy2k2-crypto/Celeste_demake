@@ -1,5 +1,5 @@
-#include "camera.h"
-#include "entity_list.h"
+#include "entities/update_camera.h"
+#include "entities/handle_entities.h"
 #include "globals.h"
 #include "debug.h"
 

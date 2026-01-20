@@ -1,7 +1,7 @@
 #include <genesis.h>
-#include "checkTileCollisions.h"
-#include "tiles.h"
-#include "entity_list.h" 
+#include "physics/handle_tile_collision.h"
+#include "physics/tile_properties.h"
+#include "entities/handle_entities.h" 
 #include "level.h"
 #include "debug.h"
 #include "globals.h"

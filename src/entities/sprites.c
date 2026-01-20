@@ -1,5 +1,7 @@
+#include "entities/sprites.h"
+
 #include <genesis.h>
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 #include "globals.h"
 
 static inline void update_animation(Entity* e) {

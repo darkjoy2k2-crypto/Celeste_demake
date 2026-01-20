@@ -1,6 +1,6 @@
 #pragma once
 #include "genesis.h"
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 
 
 void handle_player_input(Player* p);

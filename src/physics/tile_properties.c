@@ -1,10 +1,10 @@
-#include "tiles.h"
+#include "physics/tile_properties.h"
 #include "fade.h"
 #include "area.h"
 #include "genesis.h"
 #include "level.h"
 #include "debug.h"
-#include "checkTileCollisions.h"
+#include "physics/handle_tile_collision.h"
 #include "globals.h"
 
 /* =============================================================================

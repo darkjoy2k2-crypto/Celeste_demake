@@ -1,5 +1,5 @@
 #include <genesis.h>
-#include "states.h"
+#include "states/states.h"
 
 static const GameState* currentState = NULL;
 

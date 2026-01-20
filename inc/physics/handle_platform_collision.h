@@ -1,5 +1,5 @@
 #pragma once
 
-#include "entity_list.h"
+#include "entities/handle_entities.h"
 
 void handle_platform_collision(Entity *entity);
