@@ -49,6 +49,14 @@ static void apply_wall_physics(Player* p) {
     update_player_stamina_visuals(p);
     p->count_shot_jump = 2;
     p->ent.vx = F16_0; 
+
+    /* Reibung wirkt auf den Betrag von vy, egal ob hoch oder runter */
+    if (p->ent.vy != F16_0) {
+        p->ent.vy = F16_mul(p->ent.vy, WALL_FRICTION);
+        
+        /* Stop-Schwelle gegen unendliches Kalkulieren kleiner Werte */
+        if (abs16(p->ent.vy) < FIX16(0.1)) p->ent.vy = F16_0;
+    }
 }
 
 
@@ -85,6 +93,7 @@ void kill_player(Player* p) {
     p->state = P_FALLING;
     p->count_shot_jump = 2; 
     p->timer_shot_jump = 0;
+    LIVES--;
     p->physics_state = 0; // Löscht auch P_FLAG_DYING automatisch
 
     update_camera(entities[player_id], level_1_map, true);
@@ -97,8 +106,6 @@ void update_player_state_and_physics(Entity* e) {
     if (p->current_area != NULL && e->y > p->current_area->cam_max.y) {
         SET_P_FLAG(p->physics_state, P_FLAG_DYING);
     }
-    
-
 
     if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING)) {
         kill_player(p); 
@@ -111,26 +118,48 @@ void update_player_state_and_physics(Entity* e) {
     if (p->timer_grace > 0) p->timer_grace--;
     if (p->timer_buffer > 0) p->timer_buffer--;
 
-    switch(p->state) {
-        case P_GROUNDED:
-        case P_IDLE:
-        case P_RUNNING:   apply_ground_physics(p); break;
-        case P_ON_WALL:    apply_wall_physics(p);   break;
-        case P_JUMPING:
-        case P_FALLING:   apply_air_physics(p);    break;
-        case P_SHOT_JUMP: break;
-        default: break; 
+    // Physik nur anwenden, wenn wir NICHT im Step-up Modus sind
+    if (!CHECK_P_FLAG(p->physics_state, P_FLAG_STEPPING)) 
+    {
+        switch(p->state) {
+            case P_GROUNDED:
+                apply_ground_physics(p); 
+                break;
+            case P_ON_WALL:    
+                apply_wall_physics(p);   
+                break;
+            case P_JUMPING:
+            case P_FALLING:   
+                apply_air_physics(p);    
+                break;
+            case P_SHOT_JUMP: 
+                // Shot-Jump hat meist eigene Bewegungslogik
+                break;
+            default: 
+                break; 
+        }
+    }
+    else 
+    {
+        // Im STEPPING Modus lassen wir VX/VY unverändert (keine Gravitation)
+        // Die TC löscht das Flag, sobald wir oben ankommen oder vy >= 0 wird.
     }
 
+    // Globales Speed-Limit (optional)
     if (e->vy > FIX16(5)) e->vy = FIX16(5);
 
+    // Bewegung integrieren
     e->x_f32 += F16_toFix32(e->vx + p->solid_vx);
     e->y_f32 += F16_toFix32(e->vy + p->solid_vy);
-    e->x = F32_toInt(e->x_f32); e->y = F32_toInt(e->y_f32);
+    
+
+    
+    e->x = F32_toInt(e->x_f32); 
+    e->y = F32_toInt(e->y_f32);
 
     p->state_old = p->state;
     
-    CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
-    p->solid_vx = 0; 
-    p->solid_vy = 0;
+    // Solid momentum für den nächsten Frame zurücksetzen
+    p->solid_vx = F16_0; 
+    p->solid_vy = F16_0;
 }

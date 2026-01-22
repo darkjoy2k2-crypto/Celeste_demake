@@ -15,7 +15,6 @@
 extern const Area level_1_areas[];
 extern const u16 level_1_area_count;
 
-static u16 tick;
 
 static void enter() {
     /* Wichtig: Alles auf Null setzen, um Müll im RAM zu vermeiden */
@@ -68,8 +67,8 @@ static void enter() {
     }
 
     /* Plattformen erzeugen */
-    create_entity(16 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
-    create_entity(32 + 8, 160 + 8, 16, 16, FIX16(0.1), FIX16(0), ENTITY_PLATFORM);
+    create_platform(22, 22, FIX16(10) ,PB_SINUS);
+    create_platform(30, 22, FIX16(0.5)  ,PB_LINEAR);
 
     /* Level Map laden und in Union speichern */
     VDP_loadTileSet(&our_tileset, ind, DMA);
@@ -88,19 +87,23 @@ static void enter() {
     JOY_init();
     debug_set_ram();
 
-    tick = 0;
 }
 
 static void update() {
     for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entities[i] != NULL && i != player_id) {
+        // Jetzt ist entity_used hier bekannt
+        if (entity_used[i] && i != player_id) {
             if (entities[i]->update) {
                 entities[i]->update(entities[i]);
             }
         }
     }
 
-    entities[player_id]->update(entities[player_id]);
+    // Player separat (wie gehabt)
+    if (player_id != -1 && entity_used[player_id]) {
+        entities[player_id]->update(entities[player_id]);
+    }
+
     update_camera(entities[player_id], state_ctx.ingame.current_map, false);
     
     debug_draw();
@@ -109,10 +112,9 @@ static void update() {
     SPR_update(); 
     SYS_doVBlankProcess();
 
-    if (tick > 240){
-        STATE_set(&State_Title);
+    if (LIVES < 1){
+        STATE_set(&State_GameOver);
     }
-    tick++;
 }
 
 static void exit() {
@@ -140,8 +142,11 @@ static void exit() {
     
     VDP_clearPlane(BG_A, TRUE);
     VDP_clearPlane(BG_B, TRUE);
-    
-    tick = 0;
+    SPR_reset();
+    VDP_resetSprites();
+SPR_update();
+
+
 }
 
 const GameState State_InGame = { enter, update, exit };

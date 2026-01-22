@@ -18,6 +18,10 @@ typedef enum {
     P_ON_WALL, P_EDGE_GRAB, P_DASHING, P_FLYING, P_SHOT_JUMP
 } PlayerState;
 
+typedef enum {
+    PB_LINEAR, PB_SINUS
+} PlatformBehavior;
+
 typedef struct Entity {
     EntityType type;
     s16 x, y;
@@ -29,6 +33,7 @@ typedef struct Entity {
     Sprite* sprite;
     int anim_index;
     void (*update)(struct Entity* self);} Entity;
+
 typedef struct {
     Entity ent; 
     PlayerState state;     
@@ -46,13 +51,25 @@ typedef struct {
     struct Area* current_area;
 } Player;
 
+typedef struct {
+    Entity ent;
+    fix16 speed;
+    u16 platform_state;
+    s16 origin_x, origin_y;
+    s16 wait_timer;    
+    PlatformBehavior behavior;
+} Platform;
+
 typedef union {
     Entity entity;
     Player player;
+    Platform platform;
 } EntitySlot;
 
 extern Entity* entities[MAX_ENTITIES];
 extern EntitySlot entity_pool[MAX_ENTITIES]; 
+extern u8 entity_used[MAX_ENTITIES]; // Deklaration: "Existiert irgendwo"
 
 void init_entities();
 int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type);
+Platform* create_platform(s16 _originX, s16 _originY, fix16 _speed, PlatformBehavior _platformBehavior);

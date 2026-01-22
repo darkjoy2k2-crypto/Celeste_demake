@@ -8,3 +8,4 @@ typedef struct {
 
 extern const GameState State_Title;
 extern const GameState State_InGame;
+extern const GameState State_GameOver;

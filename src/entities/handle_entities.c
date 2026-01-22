@@ -85,3 +85,48 @@ void destroy_entity(int index) {
         }
     }
 }
+
+Platform* create_platform(
+    s16 _originX, s16 _originY, fix16 _speed, PlatformBehavior _platformBehavior) {
+
+    for (int i = 0; i < MAX_ENTITIES; i++) {
+        if (entity_used[i] == 0) {
+            entity_used[i] = 1;
+
+                Entity* e = entities[i];
+                Platform* self = (Platform*)e;
+
+                self->ent.type = ENTITY_PLATFORM;
+
+                self->origin_x = _originX;
+                self->ent.x = self->ent.x_old = _originX << 3;
+
+                self->origin_y = _originY;
+                self->ent.y = self->ent.y_old = _originY << 3;
+
+                self->ent.x_old_f32 = self->ent.x_f32 = FIX32(self->ent.x);
+                self->ent.y_old_f32 = self->ent.y_f32 = FIX32(self->ent.y);
+
+                self->ent.width = 16;
+                self->ent.height = 16;
+
+
+                self->ent.type = ENTITY_PLATFORM;
+                self->speed = _speed;
+                self->behavior = _platformBehavior;
+                self->platform_state = 0;
+                self->wait_timer = 0;
+
+                self->ent.update = (void (*)(Entity*))ENTITY_UPDATE_platform;
+
+                entities[i] = (Entity*)self;
+                
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
+                SPR_setPriority(self->ent.sprite, 0);
+
+                return self;
+            
+        }
+    }
+    return NULL;
+}

@@ -50,8 +50,8 @@ static inline void check_platform_collision(Player *p, Entity *plat)
                 pos_changed_x = true;
             }
 
-            if (plat->vy != 0) p->solid_vy = plat->vy;
-            if (plat->vx != 0) p->solid_vx = plat->vx;
+            p->solid_vy = plat->vy;
+            p->solid_vx = plat->vx;
         }
     }
 
@@ -94,8 +94,8 @@ static inline void check_platform_collision(Player *p, Entity *plat)
                 {
                     SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
                     e->vy = F16_0;
-                    p->solid_vx = (plat->vx != 0) ? plat->vx : 0;
-                    p->solid_vy = (plat->vy != 0) ? plat->vy : 0;
+                    p->solid_vx = plat->vx;
+                    p->solid_vy = plat->vy;
                 }
             }
         }
@@ -131,9 +131,6 @@ void handle_platform_collision(Entity *entity)
     if (entity->type != ENTITY_PLAYER) return;
 
     Player *p = (Player*)entity;
-
-    p->solid_vx = F16_0;
-    p->solid_vy = F16_0;
 
     for (int i = 0; i < MAX_ENTITIES; i++)
     {

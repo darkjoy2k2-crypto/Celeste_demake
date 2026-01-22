@@ -8,6 +8,8 @@
 static void reset_physics_internal(Player* p) {
     CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_GROUND); 
     CLEAR_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+    CLEAR_P_FLAG(p->physics_state, P_FLAG_STEPPING);
+    
 }
 
 void ENTITY_UPDATE_player(Entity* self) {

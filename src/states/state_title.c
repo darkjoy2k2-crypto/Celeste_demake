@@ -53,6 +53,7 @@ static void exit() {
     VDP_clearPlane(BG_B, TRUE);
 
     SPR_reset();
+    LIVES = MAX_LIVES;
 }
 
 const GameState State_Title = { enter, update, exit };

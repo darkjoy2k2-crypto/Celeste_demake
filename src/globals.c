@@ -7,6 +7,8 @@ const u16 COL_BALL_ORANGE[] = { 0x004A, 0x0026, 0x026E };
 const u16 COL_BALL_RED[]    = { 0x000E, 0x000A, 0x0006 };
 const u16 COL_BALL_BLUE[]   = { 0x0E00, 0x0A00, 0x0600 };
 
+u16 LIVES = MAX_LIVES;
+
 u16 button_map[ACTION_MAX] = {
     [ACTION_UP]    = BUTTON_UP,
     [ACTION_DOWN]  = BUTTON_DOWN,
@@ -44,7 +46,7 @@ bool RectVsRect_f32(const Rect_f32 *r1, const Rect_f32 *r2) {
     return true;
 }
 
-fix32 getSinusValueF32(u16 time, u16 speed, u16 amplitude) {
+fix32 getSinusValueF32(u16 time, s16 speed, u16 amplitude) {
     u16 angle = (time * speed) % 1024;
     fix32 sin_val = sinFix32(angle);
     return F32_mul(sin_val, FIX32(amplitude));

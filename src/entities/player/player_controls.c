@@ -2,6 +2,7 @@
 #include "genesis.h"
 #include "globals.h"
 #include "fade.h"
+#include "debug.h"
 
 /* =============================================================================
    SHOT JUMP INPUT (Rückstoß-Mechanik)
@@ -71,12 +72,18 @@ static void handle_jump_input(Player* p, u16 joy, u16 joy_old) {
         /* Normaler Sprung oder Coyote Time */
         if (p->state == P_GROUNDED || p->timer_grace > 0) {
             p->ent.vy = JUMP_FORCE;
-            p->ent.vx += p->solid_vx;
-            p->ent.vy += p->solid_vy;
+
+
+            p->ent.vx += F16_mul(p->solid_vx, FIX16(2));
+            p->ent.vy += F16_mul(p->solid_vy, FIX16(2));
+            
+
+               CLEAR_P_FLAG(p->physics_state, P_FLAG_DONT_BREAK);
+
+
             p->state = P_JUMPING;
             p->timer_buffer = 0; 
             p->timer_grace = 0;
-            CLEAR_P_FLAG(p->physics_state, P_FLAG_DONT_BREAK);
         } 
         /* Walljump Logik */
         else if (p->state == P_ON_WALL) {
@@ -102,6 +109,9 @@ static void handle_jump_input(Player* p, u16 joy, u16 joy_old) {
    HORIZONTAL MOVE
    ============================================================================= */
 static void handle_horizontal_move(Player* p, u16 joy) {
+    // Wenn wir steppen, darf diese Logik VX NICHT überschreiben!
+    if (CHECK_P_FLAG(p->physics_state, P_FLAG_STEPPING)) return;
+
     if (p->state != P_ON_WALL && p->state != P_SHOT_JUMP) {
         if (joy & button_map[ACTION_LEFT]) {
             if (p->ent.vx > -MOVE_SPEED_MAX) p->ent.vx -= MOVE_SPEED;
@@ -110,6 +120,12 @@ static void handle_horizontal_move(Player* p, u16 joy) {
         else if (joy & button_map[ACTION_RIGHT]) {
             if (p->ent.vx < MOVE_SPEED_MAX) p->ent.vx += MOVE_SPEED;
             CLEAR_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
+        }
+        else {
+            // Diese Reibung hat dein VX = 3 bisher sofort auf 0 gesetzt:
+            fix16 friction = (p->state == P_GROUNDED) ? FRICTION_AIR : FRICTION;
+            p->ent.vx = F16_mul(p->ent.vx, friction);
+            if (abs16(p->ent.vx) < FIX16(0.1)) p->ent.vx = F16_0;
         }
     }
 }
@@ -131,36 +147,62 @@ void handle_player_input(Player* p) {
     u8 state_before_jump = p->state;
     handle_jump_input(p, joy, joy_old);
     
+    // Falls ein Walljump stattgefunden hat, hier abbrechen
     if (state_before_jump == P_ON_WALL && p->state == P_JUMPING) {
         p->state_old_joy = joy;
         return;
     }
 
-    handle_horizontal_move(p, joy);
-    
-    /* CLIMB LOGIK (Klettern an der Wand) */
-    if (CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL) && (joy & button_map[ACTION_DASH]) && p->timer_stamina > 0) {
+    bool is_at_wall = CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+    bool is_holding_dash = (joy & button_map[ACTION_DASH]);
+
+    if (is_at_wall && is_holding_dash && p->timer_stamina > 0) {
         p->state = P_ON_WALL;
         p->timer_stamina--;
-        if (joy & button_map[ACTION_UP]) p->ent.vy = -CLIMB_SPEED;
-        else if (joy & button_map[ACTION_DOWN]) p->ent.vy = CLIMB_SPEED;
-        else p->ent.vy = F16_0; 
-    }
 
-    /* HELPING HOP (Automatischer Hop über die Kante) */
-    if (!CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL) && p->state == P_ON_WALL && (joy & button_map[ACTION_UP])) {
-        p->ent.vy = HELPING_HOP;
-        p->ent.vx = (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) ? FIX16(-1) : FIX16(1);
-        p->state = P_FALLING;
+        if (joy & button_map[ACTION_UP]) {
+            if (p->ent.vy > -CLIMB_SPEED) p->ent.vy -= FIX16(0.5);
+            if (p->ent.vy < -MOVE_SPEED_MAX) p->ent.vy = -MOVE_SPEED_MAX;
+        }
+        else if (joy & button_map[ACTION_DOWN]) {
+            if (p->ent.vy < CLIMB_SPEED) p->ent.vy += FIX16(0.5);
+        }
+        else {
+            if (p->ent.vy < F16_0)
+                p->ent.vy = F16_mul(p->ent.vy, WALL_FRICTION);
+
+            if (abs16(p->ent.vy) <= FIX16(0.1)) p->ent.vy = F16_0;
+        }
+        p->ent.vx = F16_0;
+        p->ent.vy += FIX16(0.15); 
+    }
+    else {
+        // State-Wechsel von Wall zu Air abfangen
+        if (p->state == P_ON_WALL) p->state = P_FALLING;
+
+        // EXKLUSIVER LEDGE-HOP CHECK
+        if (p->state_old == P_ON_WALL && p->state == P_FALLING 
+            && is_holding_dash && (joy & button_map[ACTION_UP])) {
+
+            p->ent.y = p->ent.y - 4; // Impuls nach oben
+            p->ent.y_f32 = FIX32(p->ent.y); // Impuls nach oben
+            p->ent.y_old = p->ent.y;
+            p->ent.y_old_f32 = p->ent.y_f32;
+
+            p->ent.vx += CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT) ? FIX16(-3) : FIX16(3);
+            
+            p->state = P_FALLING;
+            SET_P_FLAG(p->physics_state, P_FLAG_STEPPING);
+        }
+        
+        // Horizontal Move wird innerhalb der Funktion durch das Flag geschützt
+        handle_horizontal_move(p, joy);
     }
     
-    /* ABBRUCH CLIMB (Input losgelassen oder Ausdauer leer) */
-    if (p->state == P_ON_WALL && (!(joy & button_map[ACTION_DASH]) || !CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL) || p->timer_stamina <= 0)) {
-        p->state = P_FALLING;
-    }
-
-    /* VARIABLE SPRUNGHÖHE (Sprung abbrechen bei Loslassen) */
-    if (!(joy & button_map[ACTION_JUMP]) && (p->state == P_JUMPING) && !CHECK_P_FLAG(p->physics_state, P_FLAG_DONT_BREAK)) {
+    // Jump-Release Logik (nur wenn kein Stepping aktiv ist, um den Hop nicht zu kappen)
+    if (!(joy & button_map[ACTION_JUMP]) && (p->state == P_JUMPING) && 
+        !CHECK_P_FLAG(p->physics_state, P_FLAG_DONT_BREAK) &&
+        !CHECK_P_FLAG(p->physics_state, P_FLAG_STEPPING)) {
         if (p->ent.vy < JUMP_RELEASE_LIMIT) p->ent.vy = JUMP_RELEASE_LIMIT;
     }
 
