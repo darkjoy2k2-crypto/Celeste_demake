@@ -67,8 +67,8 @@ static void enter() {
     }
 
     /* Plattformen erzeugen */
-    create_platform(22, 22, FIX16(10) ,PB_SINUS);
-    create_platform(30, 22, FIX16(0.5)  ,PB_LINEAR);
+    create_platform(21, 19, FIX16(2) ,PB_SINUS_WIDE_X);
+    create_platform(21, 13, FIX16(3)  ,PB_SINUS_WIDE_Y);
 
     /* Level Map laden und in Union speichern */
     VDP_loadTileSet(&our_tileset, ind, DMA);

@@ -10,5 +10,6 @@ PALETTE pal_font "my_font.png"
 
 SPRITE player_sprite "ball.png" 2 2 FAST 0
 SPRITE stone_sprite "stone.png" 2 2 FAST 0
+SPRITE stone2_sprite "stone2.png" 4 2 FAST 0
 
 TILESET my_font_tiles "my_font.png" 0

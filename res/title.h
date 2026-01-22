@@ -12,6 +12,7 @@ extern const Palette pal_layer_1;
 extern const Palette pal_font;
 extern const SpriteDefinition player_sprite;
 extern const SpriteDefinition stone_sprite;
+extern const SpriteDefinition stone2_sprite;
 extern const TileSet my_font_tiles;
 
 #endif // _RES_TITLE_H_

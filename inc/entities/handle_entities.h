@@ -19,7 +19,7 @@ typedef enum {
 } PlayerState;
 
 typedef enum {
-    PB_LINEAR, PB_SINUS
+    PB_LINEAR, PB_SINUS_WIDE_X, PB_SINUS_WIDE_Y, PB_SINUS_X,PB_SINUS_Y
 } PlatformBehavior;
 
 typedef struct Entity {

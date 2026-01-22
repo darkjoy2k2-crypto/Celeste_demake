@@ -56,13 +56,6 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
                 
                 player_id = i;
             }
-            else if (type == ENTITY_PLATFORM) {
-                /* Funktionszeiger zuweisen */
-                e->update = ENTITY_UPDATE_platform;
-                
-                e->sprite = SPR_addSprite(&stone_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
-                SPR_setPriority(e->sprite, 0);
-            }
             else {
                 /* Fallback für unbekannte Typen */
                 e->update = NULL;
@@ -107,13 +100,18 @@ Platform* create_platform(
                 self->ent.x_old_f32 = self->ent.x_f32 = FIX32(self->ent.x);
                 self->ent.y_old_f32 = self->ent.y_f32 = FIX32(self->ent.y);
 
-                self->ent.width = 16;
+                self->behavior = _platformBehavior;
+                
+                if (self->behavior == PB_SINUS_WIDE_X || PB_SINUS_WIDE_Y)
+                    self->ent.width = 32;
+                else
+                    self->ent.width = 16;
+
                 self->ent.height = 16;
 
 
                 self->ent.type = ENTITY_PLATFORM;
                 self->speed = _speed;
-                self->behavior = _platformBehavior;
                 self->platform_state = 0;
                 self->wait_timer = 0;
 
@@ -121,8 +119,12 @@ Platform* create_platform(
 
                 entities[i] = (Entity*)self;
                 
-                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
-                SPR_setPriority(self->ent.sprite, 0);
+                if (self->behavior == PB_SINUS_WIDE_X || PB_SINUS_WIDE_Y )
+                    self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
+                else
+                    self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
+
+                    SPR_setPriority(self->ent.sprite, 0);
 
                 return self;
             

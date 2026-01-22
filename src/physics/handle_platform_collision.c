@@ -7,27 +7,35 @@
 #include "globals.h"
 
 /* =============================================================================
-   EINZEL-KOLLISIONSPRÜFUNG (funktionsgleich zum ALT-Code)
+   EINZEL-KOLLISIONSPRÜFUNG
+   Arbeitet jetzt mit Player* und Platform* und nutzt die echten Mittelpunkte.
    ============================================================================= */
-static inline void check_platform_collision(Player *p, Entity *plat)
+/* =============================================================================
+   EINZEL-KOLLISIONSPRÜFUNG
+   ============================================================================= */
+static inline void check_platform_collision(Player *p, Platform *plat)
 {
     Entity *e = &p->ent;
+    Entity *pl = &plat->ent;
+
+    /* 1. GANZ OBEN: Wir merken uns den Ursprungswert des Players */
+    fix32 original_x_f32 = e->x_f32;
 
     /* Halbe Breiten/Höhen */
     u8 h_pw = e->width >> 1;
     u8 h_ph = e->height >> 1;
-    u8 h_ew = plat->width >> 1;
-    u8 h_eh = plat->height >> 1;
+    u8 h_ew = pl->width >> 1;
+    u8 h_eh = pl->height >> 1;
 
     /* Integer-Positionen */
     s16 p_x  = F32_toInt(e->x_f32);
     s16 p_y  = F32_toInt(e->y_f32);
-    s16 pl_x = F32_toInt(plat->x_f32);
-    s16 pl_y = F32_toInt(plat->y_f32);
+    s16 pl_x = F32_toInt(pl->x_f32);
+    s16 pl_y = F32_toInt(pl->y_f32);
 
-    /* Distanzen */
-    s16 dx = p_x - pl_x;
-    s16 dy = p_y - pl_y;
+    /* Distanzen basierend auf MITTEN */
+    s16 dx = (p_x + h_pw) - (pl_x + h_ew); 
+    s16 dy = (p_y + h_ph) - (pl_y + h_eh);
     s16 abs_dx = (dx < 0) ? -dx : dx;
     s16 abs_dy = (dy < 0) ? -dy : dy;
 
@@ -38,20 +46,19 @@ static inline void check_platform_collision(Player *p, Entity *plat)
     if (p->state != P_GROUNDED && abs_dy < (h_ph + h_eh - 1))
     {
         s16 gapX = abs_dx - (h_pw + h_ew);
+        s16 stick_tolerance = (p->state == P_ON_WALL) ? 3 : 1;
 
-        if (gapX <= 1)
+        if (gapX <= stick_tolerance)
         {
             SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
-
             if (gapX < 0)
             {
-                if (dx > 0) p_x = pl_x + h_ew + h_pw;
-                else        p_x = pl_x - h_ew - h_pw;
+                if (dx > 0) p_x = pl_x + pl->width; 
+                else        p_x = pl_x - e->width;
                 pos_changed_x = true;
             }
-
-            p->solid_vy = plat->vy;
-            p->solid_vx = plat->vx;
+            p->solid_vy = pl->vy;
+            p->solid_vx = pl->vx;
         }
     }
 
@@ -62,67 +69,51 @@ static inline void check_platform_collision(Player *p, Entity *plat)
 
         if (abs_dy < (h_ph + h_eh + fall_margin))
         {
-            if (dy > 0)
+            if (dy > 0) // Kopfstoß
             {
-                if (e->vy < F16_0 && dy < (h_ph + h_eh))
+                if (e->vy < F16_0 && abs_dy < (h_ph + h_eh))
                 {
-                    p_y = pl_y + h_eh + h_ph;
+                    p_y = pl_y + pl->height;
                     e->vy = 0;
                     pos_changed_y = true;
-                }
-            }
-            else
-            {
-                s16 target_y = pl_y - h_eh - h_ph;
 
-                if (p->state == P_GROUNDED)
-                {
-                    if (abs16(p_y - target_y) > 0)
+                    /* 2. HARD RESET AUF X: Wenn kein Wandkontakt, scheiß auf den X-Sweep */
+                    if (!CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL))
                     {
-                        p_y = target_y;
-                        pos_changed_y = true;
+                        e->x_f32 = original_x_f32; // Zurück auf Ursprungsposition
+                        p_x = F32_toInt(original_x_f32);
+                        pos_changed_x = true;
                     }
                 }
-                else if (e->vy >= F16_0)
+            }
+            else // Landen
+            {
+                s16 target_y = pl_y - e->height;
+                if (p->state == P_GROUNDED || e->vy >= F16_0)
                 {
                     p_y = target_y;
                     pos_changed_y = true;
                     p->state = P_GROUNDED;
-                }
-
-                if (p->state == P_GROUNDED)
-                {
                     SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
                     e->vy = F16_0;
-                    p->solid_vx = plat->vx;
-                    p->solid_vy = plat->vy;
+                    p->solid_vx = pl->vx;
+                    p->solid_vy = pl->vy;
                 }
             }
         }
     }
 
-    /* --- FINALE ÜBERNAHME (identisch zum ALT-Verhalten) --- */
-    if (pos_changed_x)
-    {
+    /* --- FINALE ÜBERNAHME --- */
+    if (pos_changed_x) {
         e->x = p_x;
-        e->x_f32 = FIX32(p_x);
+        /* Falls kein Hard-Reset stattfand, synchen wir hier normal */
+        if (e->x_f32 != original_x_f32) e->x_f32 = FIX32(p_x);
     }
-    else
-    {
-        e->x = F32_toInt(e->x_f32);
-    }
-
-    if (pos_changed_y)
-    {
+    if (pos_changed_y) {
         e->y = p_y;
         e->y_f32 = FIX32(p_y);
     }
-    else
-    {
-        e->y = F32_toInt(e->y_f32);
-    }
 }
-
 /* =============================================================================
    PLATTFORM-HANDLER
    ============================================================================= */
@@ -136,7 +127,8 @@ void handle_platform_collision(Entity *entity)
     {
         if (entities[i] != NULL && entities[i]->type == ENTITY_PLATFORM)
         {
-            check_platform_collision(p, entities[i]);
+            /* Cast von Entity* zu Platform* für die neue Funktionssignatur */
+            check_platform_collision(p, (Platform*)entities[i]);
         }
     }
 }

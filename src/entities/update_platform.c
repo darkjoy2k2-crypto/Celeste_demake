@@ -10,7 +10,19 @@ void ENTITY_UPDATE_platform(Entity* _e) {
     self->ent.y_old = self->ent.y;
 
     switch (self->behavior) {
-        case PB_SINUS:
+        case PB_SINUS_WIDE_Y:
+        case PB_SINUS_Y:
+        {
+            s16 speed_val = F16_toInt(self->speed);
+            fix32 offset_f32 = getSinusValueF32(vtimer, speed_val, 48);
+            
+            self->ent.y_f32 = FIX32(self->origin_y << 3) + offset_f32;
+            self->ent.x_f32 = FIX32(self->origin_x << 3);
+        }
+        break;
+
+        case PB_SINUS_WIDE_X:
+        case PB_SINUS_X:
         {
             s16 speed_val = F16_toInt(self->speed);
             fix32 offset_f32 = getSinusValueF32(vtimer, speed_val, 48);
