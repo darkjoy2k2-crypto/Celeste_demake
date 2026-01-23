@@ -17,6 +17,7 @@
 #define SET_P_FLAG(mask, flag)   ((mask) |= (flag))
 #define CLEAR_P_FLAG(mask, flag) ((mask) &= ~(flag))
 #define CHECK_P_FLAG(mask, flag) ((mask) & (flag))
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 typedef enum {
     ACTION_UP, ACTION_DOWN, ACTION_LEFT, ACTION_RIGHT,

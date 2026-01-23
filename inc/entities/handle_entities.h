@@ -1,6 +1,7 @@
 #pragma once
 
 #include <genesis.h>
+#include "level.h"
 
 struct Area;
 
@@ -58,6 +59,8 @@ typedef struct {
     s16 origin_x, origin_y;
     s16 wait_timer;    
     PlatformBehavior behavior;
+    bool enabled;
+    bool touched;
 } Platform;
 
 typedef union {
@@ -73,3 +76,6 @@ extern u8 entity_used[MAX_ENTITIES]; // Deklaration: "Existiert irgendwo"
 void init_entities();
 int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type);
 Platform* create_platform(s16 _originX, s16 _originY, fix16 _speed, PlatformBehavior _platformBehavior);
+void spawn_player(u16 spawn_in_area);
+void spawn_platforms(const LevelDefinition* lv);
+

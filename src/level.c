@@ -1,6 +1,8 @@
 #include "level.h"
 #include "area.h"
 #include "title.h"
+#include "globals.h"
+#include "entities/handle_entities.h"
 
 // Hier definierst du deine Karte
 // (aus main.c hierher verschieben!)
@@ -140,14 +142,23 @@ const Area level_1_areas[] = {
 
 };
 
+const PlatformDef level_1_platforms[] = {
+    { 21, 19, FIX16(2), PB_SINUS_WIDE_X },
+    { 21, 13, FIX16(3), PB_SINUS_WIDE_Y }
+};
+
 const LevelDefinition levels[] = {
     {
         .areas = level_1_areas,
-        .area_count = 4,
+        .area_count = ARRAY_SIZE(level_1_areas),
         .map_def = &our_level_map,
         .tileset = &our_tileset,
         .background = &layer_bg,
-        .collision_data = level_1_collision_data
+        .collision_data = level_1_collision_data,
+        .width_tiles = 102,  // Example: level 1 is 103 tiles wide
+        .height_tiles = 73,   // Example: level 1 is 72 tiles high
+        .platforms = level_1_platforms,
+        .platform_count = ARRAY_SIZE(level_1_platforms)           // Total number of platforms
     }
     // Add Level 2 here:
     // { .areas = level_2_areas, ... }
@@ -155,4 +166,3 @@ const LevelDefinition levels[] = {
 
 u16 current_level_index = 0;
 
-const u16 level_1_area_count = 4;

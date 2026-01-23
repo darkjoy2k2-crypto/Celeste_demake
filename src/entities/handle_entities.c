@@ -3,6 +3,9 @@
 #include "title.h"
 #include "entities/player/update_player.h"
 #include "entities/update_platform.h"
+#include "level.h"
+#include "area.h"
+#include "entities/update_camera.h"
 
 EntitySlot entity_pool[MAX_ENTITIES];
 Entity* entities[MAX_ENTITIES];
@@ -102,7 +105,7 @@ Platform* create_platform(
 
                 self->behavior = _platformBehavior;
                 
-                if (self->behavior == PB_SINUS_WIDE_X || PB_SINUS_WIDE_Y)
+                if (self->behavior == PB_SINUS_WIDE_X || self->behavior == PB_SINUS_WIDE_Y)
                     self->ent.width = 32;
                 else
                     self->ent.width = 16;
@@ -119,7 +122,7 @@ Platform* create_platform(
 
                 entities[i] = (Entity*)self;
                 
-                if (self->behavior == PB_SINUS_WIDE_X || PB_SINUS_WIDE_Y )
+                if (self->behavior == PB_SINUS_WIDE_X || self->behavior == PB_SINUS_WIDE_Y )
                     self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
                 else
                     self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
@@ -131,4 +134,48 @@ Platform* create_platform(
         }
     }
     return NULL;
+}
+
+
+void spawn_player(u16 spawn_in_area) {
+
+    const Area* start_area = get_area(spawn_in_area);
+
+    if (start_area) {
+        s16 spawn_x = start_area->spawn.x << 3; 
+        s16 spawn_y = start_area->spawn.y << 3;
+
+        player_id = create_entity(spawn_x, spawn_y, 13, 13, F16_0, F16_0, ENTITY_PLAYER);
+    
+        if (player_id != -1) {
+            Player* pl = (Player*) entities[player_id];
+            pl->state = P_FALLING;
+            pl->state_old = P_FALLING;
+            pl->physics_state = 0; 
+            CLEAR_P_FLAG(pl->physics_state, P_FLAG_FACING_LEFT);
+            
+            // Critical: Reset gameplay timers
+            pl->timer_stamina = 100;
+            pl->timer_grace = 0;
+            pl->timer_buffer = 0;
+            pl->timer_shot_jump = 0;
+            pl->count_shot_jump = 0;
+            pl->current_area = (Area*)start_area;
+        }
+        camera_position.x = spawn_x - 160;
+        camera_position.y = spawn_y - 112;
+    }
+}
+
+
+
+
+void spawn_platforms(const LevelDefinition* lv) {
+    for (u16 i = 0; i < lv->platform_count; i++) {
+        const PlatformDef* p = &lv->platforms[i];
+        Platform* plat = create_platform(p->x, p->y, p->speed, p->behavior);
+        plat->touched = false;
+        plat->enabled = true;
+        plat->wait_timer = 0;
+    }
 }

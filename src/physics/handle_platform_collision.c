@@ -51,6 +51,7 @@ static inline void check_platform_collision(Player *p, Platform *plat)
         if (gapX <= stick_tolerance)
         {
             SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+            plat->touched = true;
             if (gapX < 0)
             {
                 if (dx > 0) p_x = pl_x + pl->width; 
@@ -95,6 +96,7 @@ static inline void check_platform_collision(Player *p, Platform *plat)
                     pos_changed_y = true;
                     p->state = P_GROUNDED;
                     SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
+                    plat->touched = true;
                     e->vy = F16_0;
                     p->solid_vx = pl->vx;
                     p->solid_vy = pl->vy;
@@ -128,7 +130,10 @@ void handle_platform_collision(Entity *entity)
         if (entities[i] != NULL && entities[i]->type == ENTITY_PLATFORM)
         {
             /* Cast von Entity* zu Platform* für die neue Funktionssignatur */
-            check_platform_collision(p, (Platform*)entities[i]);
+            Platform* plat = (Platform*) entities[i];
+
+            if (plat->enabled)
+                check_platform_collision(p, plat);
         }
     }
 }

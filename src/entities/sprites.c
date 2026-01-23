@@ -31,7 +31,14 @@ static inline void update_animation(Entity* e) {
         break;
 
         case ENTITY_PLATFORM:
-            SPR_setAnimAndFrame(e->sprite, 0, 0);
+            Platform* plat = (Platform*)e;
+            
+            // Wenn berührt, nimm Animation 1 (Zeile 2), sonst Animation 0 (Zeile 1)
+            if (plat->enabled) {
+                SPR_setAnim(e->sprite, 0);
+            } else {
+                SPR_setAnim(e->sprite, 1);
+            }            
             break;
 
         default:
