@@ -95,6 +95,8 @@ typedef union {
 extern StateContext state_ctx;
 extern Map* level_1_map;
 extern s16 player_id;
+extern Player* player_one;
+
 extern u16 ind; 
 extern u16 hud_tile_base;
 

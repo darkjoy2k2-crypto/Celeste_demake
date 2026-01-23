@@ -25,6 +25,7 @@ Map* level_1_map = NULL;
 u16 ind = TILE_USER_INDEX;
 u16 hud_tile_base = 0;
 s16 player_id = -1;
+Player* player_one = NULL;
 
 bool PointVsRect_s16(Vect2D_s16 p, Rect_s16 r) {
     if (p.x < r.pos.x || p.x >= r.pos.x + r.size.x) return false;

@@ -9,20 +9,22 @@
 #define MAP_WIDTH_TILES MAP_W
 #define MAP_HEIGHT_TILES MAP_H
 
-static inline bool isTileSolid(Entity* entity, s16 world_x, s16 world_y, CollisionSide side)
+
+static inline bool isTileSolid(Entity* entity, const u16* _currentCollisionMap, s16 world_x, s16 world_y, CollisionSide side)
 {
+
     s16 tile_x = world_x >> 3;
     s16 tile_y = world_y >> 3;
 
     if (tile_x < 0 || tile_y < 0 || tile_x >= MAP_WIDTH_TILES || tile_y >= MAP_HEIGHT_TILES)
         return true;
 
-    u16 tile_index = map_collision_data[tile_y * MAP_WIDTH_TILES + tile_x];
+    u16 tile_index = _currentCollisionMap[tile_y * MAP_WIDTH_TILES + tile_x];
 
     return is_tile_solid_only(tile_index, entity, world_x, world_y, side);
 }
 
-static inline void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, s16 current_y)
+static inline void apply_step_up(Entity *entity,const u16* _currentCollisionMap, fix16 saved_vx, s16 current_x, s16 current_y)
 {
     if (saved_vx == F16_0) return;
 
@@ -36,9 +38,9 @@ static inline void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, 
     s16 head_y  = current_y - half_h - 4;   // Direkt über der Stufe
     s16 sky_y   = current_y - half_h - 12;  // Platz für den Kopf
 
-    bool foot_blocked = isTileSolid(entity, check_x, foot_y, SIDE_PEEK);
-    bool head_free    = !isTileSolid(entity, check_x, head_y, SIDE_PEEK);
-    bool sky_free     = !isTileSolid(entity, check_x, sky_y, SIDE_PEEK);
+    bool foot_blocked = isTileSolid(entity, _currentCollisionMap, check_x, foot_y, SIDE_PEEK);
+    bool head_free    = !isTileSolid(entity, _currentCollisionMap, check_x, head_y, SIDE_PEEK);
+    bool sky_free     = !isTileSolid(entity, _currentCollisionMap, check_x, sky_y, SIDE_PEEK);
 
     if (foot_blocked && head_free && sky_free)
     {
@@ -53,6 +55,7 @@ static inline void apply_step_up(Entity *entity, fix16 saved_vx, s16 current_x, 
 void check_tile_collision(Entity *entity)
 {
     Player* p = (Player*)entity;
+    const u16* currentCollisionMap = levels[current_level_index].collision_data;
 
 
     fix16 saved_vx = entity->vx;
@@ -75,9 +78,9 @@ void check_tile_collision(Entity *entity)
             s16 check_x = (dir > 0) ? (current_x + half_w - 1) : (current_x - half_w);
             CollisionSide side = (dir > 0) ? SIDE_RIGHT : SIDE_LEFT;
 
-            if (isTileSolid(entity, check_x, current_y - half_h + 1, side) ||
-                isTileSolid(entity, check_x, current_y, side) ||
-                isTileSolid(entity, check_x, current_y + half_h - 1, side))
+            if (isTileSolid(entity, currentCollisionMap, check_x, current_y - half_h + 1, side) ||
+                isTileSolid(entity, currentCollisionMap, check_x, current_y, side) ||
+                isTileSolid(entity, currentCollisionMap, check_x, current_y + half_h - 1, side))
             {
                 s16 tile_col_x = (check_x >> 3);
                 current_x = (dir > 0) ? (tile_col_x << 3) - half_w
@@ -92,7 +95,7 @@ void check_tile_collision(Entity *entity)
     // Step-up Check: Wenn wir am Boden gestoppt wurden, aber VX eigentlich laufen will
     if (p->state == P_GROUNDED && entity->vx == F16_0 && saved_vx != F16_0)
     {
-        apply_step_up(entity, saved_vx, current_x, current_y);
+        apply_step_up(entity, currentCollisionMap, saved_vx, current_x, current_y);
     }
 
     // Vertikale Kollision
@@ -102,9 +105,9 @@ void check_tile_collision(Entity *entity)
         s16 check_y = (dir > 0) ? (current_y + half_h) : (current_y - half_h);
         CollisionSide side = (dir > 0) ? SIDE_BOTTOM : SIDE_TOP;
 
-        bool hitLeft  = isTileSolid(entity, current_x - half_w + 5, check_y, side);
-        bool hitRight = isTileSolid(entity, current_x + half_w - 5, check_y, side);
-        bool hitMid   = isTileSolid(entity, current_x, check_y, side);
+        bool hitLeft  = isTileSolid(entity, currentCollisionMap, current_x - half_w + 5, check_y, side);
+        bool hitRight = isTileSolid(entity, currentCollisionMap, current_x + half_w - 5, check_y, side);
+        bool hitMid   = isTileSolid(entity, currentCollisionMap, current_x, check_y, side);
 
         if (hitLeft || hitMid || hitRight)
         {
@@ -125,8 +128,8 @@ void check_tile_collision(Entity *entity)
 
     // Wand-Flags setzen (Peek)
     s16 peek_dist = half_w;
-    if (isTileSolid(entity, current_x + peek_dist, current_y, SIDE_PEEK) ||
-        isTileSolid(entity, current_x - peek_dist - 1, current_y, SIDE_PEEK))
+    if (isTileSolid(entity, currentCollisionMap, current_x + peek_dist, current_y, SIDE_PEEK) ||
+        isTileSolid(entity, currentCollisionMap, current_x - peek_dist - 1, current_y, SIDE_PEEK))
     {
         SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
     }

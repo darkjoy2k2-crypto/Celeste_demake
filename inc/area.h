@@ -18,6 +18,8 @@ typedef struct Area {
     u16 cam_mode;
     u16 type;
     bool die_on_bottom;
+    bool exit_on_left;
+    bool exit_on_right;
 } Area;
 
 void update_area(Entity* e);

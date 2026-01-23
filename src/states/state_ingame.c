@@ -17,24 +17,28 @@ extern const u16 level_1_area_count;
 
 
 static void enter() {
-    /* Wichtig: Alles auf Null setzen, um Müll im RAM zu vermeiden */
+    /* 1. Reset Context & System States */
     memset(&state_ctx, 0, sizeof(state_ctx));
     
+    // Get current level data from the table
+    const LevelDefinition* lv = &levels[current_level_index];
+
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     setup_hud();
     init_entities();
     init_camera();
 
-    /* Hintergrund laden */
-    VDP_drawImageEx(BG_B, &layer_bg, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
-    ind += layer_bg.tileset->numTile;
+    /* 2. Load Background (Plane B) */
+    // Using the dynamic pointer from our level table
+    VDP_drawImageEx(BG_B, lv->background, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
+    ind += lv->background->tileset->numTile;
 
-    /* Areas registrieren */
-    state_ctx.ingame.active_areas = level_1_areas;
-    state_ctx.ingame.active_count = level_1_area_count;
+    /* 3. Register Level Data */
+    state_ctx.ingame.active_areas = lv->areas;
+    state_ctx.ingame.active_count = lv->area_count;
     load_areas(state_ctx.ingame.active_areas, state_ctx.ingame.active_count);
 
-    /* Player Erstellung basierend auf Area 0 */
+    /* 4. Player Initialization */
     const Area* start_area = get_area(0);
     if (start_area) {
         s16 spawn_x = start_area->spawn.x << 3; 
@@ -46,37 +50,36 @@ static void enter() {
             Player* pl = (Player*) entities[player_id];
             pl->state = P_FALLING;
             pl->state_old = P_FALLING;
-            
-            /* Initialisierung der Bits */
             pl->physics_state = 0; 
             CLEAR_P_FLAG(pl->physics_state, P_FLAG_FACING_LEFT);
             
+            // Critical: Reset gameplay timers
             pl->timer_stamina = 100;
             pl->timer_grace = 0;
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
             pl->count_shot_jump = 0;
-            
-            /* Area Pointer im Player setzen */
             pl->current_area = (Area*)start_area;
         }
 
-        /* Kamera grob vorpositionieren */
         camera_position.x = spawn_x - 160;
         camera_position.y = spawn_y - 112;
     }
 
-    /* Plattformen erzeugen */
+    /* 5. Dynamic Object Spawning */
+    // If you add a function pointer to your LevelDefinition, call it here:
+    // if (lv->load_objects) lv->load_objects(); 
+    // Otherwise, keep your hardcoded platforms for now:
     create_platform(21, 19, FIX16(2) ,PB_SINUS_WIDE_X);
     create_platform(21, 13, FIX16(3)  ,PB_SINUS_WIDE_Y);
 
-    /* Level Map laden und in Union speichern */
-    VDP_loadTileSet(&our_tileset, ind, DMA);
-    state_ctx.ingame.current_map = MAP_create(&our_level_map, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
-    ind += our_tileset.numTile;
+    /* 6. Load Foreground Map (Plane A) */
+    VDP_loadTileSet(lv->tileset, ind, DMA);
+    state_ctx.ingame.current_map = MAP_create(lv->map_def, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
+    ind += lv->tileset->numTile;
                 
+    /* 7. Final View Sync */
     if (player_id != -1) {
-        /* Nutzt jetzt den Map-Pointer aus der Union */
         update_camera(entities[player_id], state_ctx.ingame.current_map, true);
     }
 
@@ -86,7 +89,6 @@ static void enter() {
     FADE_in(15, true);
     JOY_init();
     debug_set_ram();
-
 }
 
 static void update() {
