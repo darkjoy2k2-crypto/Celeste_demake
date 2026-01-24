@@ -2,6 +2,7 @@
 
 #include <genesis.h>
 
+
 void FADE_init();
 void FADE_in(u16 num_frames,bool sync);
 void FADE_out(u16 num_frames,bool sync);

@@ -142,9 +142,89 @@ const Area level_1_areas[] = {
 
 };
 
+/**
+ * PLATFORM DEFINITION GUIDE
+ * -------------------------
+ * { x, y, speed, flags, amplitude, range, timer_a, timer_b }
+ *
+ * 1. x, y:      Startposition in Tiles (wird intern x8 gerechnet).
+ *
+ * 2. speed:     Geschwindigkeit der Bewegung (FIX16). 
+ * 0 = Statisch. Höhere Werte = Schnellerer Takt/Fahrt.
+ *
+ * 3. flags:     Kombinierbare Eigenschaften (mit | verbinden).
+ * PLAT_FLAG_X / _Y:      Achse(n) der Bewegung.
+ * PLAT_FLAG_SINUS:       Sinus-Kurve (sanft). Aus = Linear (Ping-Pong).
+ * PLAT_FLAG_TOUCH_START: Wartet auf Spieler-Kontakt, bevor sie losfährt.
+ * PLAT_FLAG_ONCE:        Fährt nur ein Mal bis zum Ziel (range) und stoppt.
+ * PLAT_FLAG_INVISIBLE:   Startet unsichtbar, erscheint erst bei Kontakt.
+ * PLAT_FLAG_BREAKABLE:   Zerbricht nach Kontakt (Dauer: timer_a).
+ * PLAT_FLAG_RESPAWN:     Erscheint nach dem Zerbrechen wieder (Dauer: timer_b).
+ * PLAT_FLAG_STOMP_BREAK: Wird nur durch Shot-Jump permanent zerstört.
+ *
+ * 4. amplitude: Nur bei SINUS: Bestimmt die "Bauchigkeit" bzw. den Takt der Welle.
+ * Höhere Werte machen die Kurve bei gleicher Range "runder".
+ *
+ * 5. range:     Die Reichweite der Bewegung in Pixeln.
+ * Bei Linear: Die exakte Distanz vom Startpunkt zum Zielpunkt.
+ * Bei Sinus:  Der maximale Ausschlag (Radius) der Schwingung.
+ *
+ * 6. timer_a:   "Die Zündschnur" (in Frames).
+ * Zeit vom ersten Kontakt bis zum Zerbrechen (bei BREAKABLE).
+ *
+ * 7. timer_b:   "Die Abklingzeit" (in Frames).
+ * Zeit vom Verschwinden bis zum Wiederauftauchen (bei RESPAWN).
+ */
+
+
+/**
+ * @brief Platform-Parcours Definition
+ * Struktur: { x, y, speed, flags, amplitude, range, timer_a, timer_b }
+ * Flags: X(1), Y(2), SINUS(4), INVIS(8), TOUCH(16), ONCE(32), BREAK(64), RESPAWN(256), STOMP(512)
+ */
+/**
+ * @brief Level 1 Plattform-Definitionen
+ * Parcours-Design für eine Welt von 960px (3 Screens) Breite.
+ */
 const PlatformDef level_1_platforms[] = {
-    { 21, 19, FIX16(2), PB_SINUS_WIDE_X },
-    { 21, 13, FIX16(3), PB_SINUS_WIDE_Y }
+    
+    // --- BILDSCHIRM 1: EINFÜHRUNG & MECHANIKEN ---
+
+    // Ein sanfter Einstieg: Bewegt sich horizontal, um den ersten Abgrund zu überwinden.
+    { .x = 15, .y = 18, .speed = FIX16(1), .flags = PLAT_FLAG_X | PLAT_FLAG_SINUS, .amplitude = 48, .range = 64, .timer_a = 0,  .timer_b = 0   },
+
+    // Lehrt Vorsicht: Zerbricht nach kurzem Kontakt, kommt aber nach 2 Sekunden wieder.
+    { .x = 28, .y = 14, .speed = FIX16(0.0), .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+
+    // Belohnt Entdecker: Ein unsichtbarer Trittstein, der erst erscheint, wenn man dagegen springt.
+    { .x = 35, .y =  8, .speed = FIX16(0.0), .flags = PLAT_FLAG_INVISIBLE, .amplitude = 0, .range = 0, .timer_a = 0,  .timer_b = 0   },
+
+
+    // --- BILDSCHIRM 2: TIMING & KOORDINATION ---
+
+    // Der manuelle Lift: Fährt erst hoch, wenn der Spieler draufsteht, und bleibt oben.
+    { .x = 45, .y = 22, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y | PLAT_FLAG_TOUCH_START | PLAT_FLAG_ONCE, .amplitude = 0, .range = 80, .timer_a = 0, .timer_b = 0 },
+
+    // Die Herausforderung: Bewegt sich diagonal (X & Y kombiniert) in einer weichen Sinuskurve.
+    { .x = 55, .y = 15, .speed = FIX16(3.0), .flags = PLAT_FLAG_X | PLAT_FLAG_Y | PLAT_FLAG_SINUS, .amplitude = 32, .range = 48, .timer_a = 0,  .timer_b = 0   },
+
+    // Speed-Check: Eine schnelle, linear pendelnde Plattform für präzises Absprung-Timing.
+    { .x = 70, .y = 12, .speed = FIX16(4.0), .flags = PLAT_FLAG_X, .amplitude = 0, .range = 64, .timer_a = 0,  .timer_b = 0   },
+
+
+    // --- BILDSCHIRM 3: REAKTION & SKILL-FINALE ---
+
+    // Die Barriere: Blockiert den Weg und kann nur mit dem Shot-Jump (Stomp) zerstört werden.
+    { .x = 85, .y = 18, .speed = FIX16(0.0), .flags = PLAT_FLAG_STOMP_BREAK, .amplitude = 0, .range = 0, .timer_a = 1,  .timer_b = 0   },
+
+    // Die Hinterhalt-Falle: Unsichtbar und schießt bei Kontakt sofort wie ein Katapult nach oben.
+    { .x = 95, .y = 22, .speed = FIX16(6.0), .flags = PLAT_FLAG_Y | PLAT_FLAG_INVISIBLE | PLAT_FLAG_TOUCH_START | PLAT_FLAG_ONCE, .amplitude = 0, .range = 96, .timer_a = 0, .timer_b = 0 },
+
+    // Nervositätstest: Vibriert sehr schnell auf und ab mit geringer Reichweite.
+    { .x = 105, .y = 10, .speed = FIX16(8.0), .flags = PLAT_FLAG_Y | PLAT_FLAG_SINUS, .amplitude = 16, .range = 12, .timer_a = 0,  .timer_b = 0   },
+
+    // Letzte Hürde: Ein klassischer vertikaler Aufzug vor dem Levelende.
+    { .x = 115, .y = 16, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y, .amplitude = 0, .range = 48, .timer_a = 0,  .timer_b = 0   }
 };
 
 const LevelDefinition levels[] = {

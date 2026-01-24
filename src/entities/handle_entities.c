@@ -82,55 +82,54 @@ void destroy_entity(int index) {
     }
 }
 
-Platform* create_platform(
-    s16 _originX, s16 _originY, fix16 _speed, PlatformBehavior _platformBehavior) {
-
+Platform* create_platform(const PlatformDef* def) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 0) {
             entity_used[i] = 1;
+            Platform* self = &entity_pool[i].platform;
 
-                Entity* e = entities[i];
-                Platform* self = (Platform*)e;
+            // Speicher sicher nullen
+            memset(self, 0, sizeof(Platform));
 
-                self->ent.type = ENTITY_PLATFORM;
+            // Basis-Entity Setup
+            self->ent.type = ENTITY_PLATFORM;
+            self->ent.update = (void (*)(Entity*))ENTITY_UPDATE_platform;
 
-                self->origin_x = _originX;
-                self->ent.x = self->ent.x_old = _originX << 3;
+            // Positionierung (Tile-Koordinaten -> Pixel)
+            self->origin_x = def->x;
+            self->origin_y = def->y;
+            self->ent.x = def->x << 3;
+            self->ent.y = def->y << 3;
+            self->ent.x_f32 = self->ent.x_old_f32 = FIX32(self->ent.x);
+            self->ent.y_f32 = self->ent.y_old_f32 = FIX32(self->ent.y);
 
-                self->origin_y = _originY;
-                self->ent.y = self->ent.y_old = _originY << 3;
+            // Baukasten-Parameter
+            self->flags     = def->flags;
+            self->speed     = def->speed;
+            self->amplitude = def->amplitude;
+            self->range     = def->range;
+            self->timer_a   = def->timer_a;
+            self->timer_b   = def->timer_b;
 
-                self->ent.x_old_f32 = self->ent.x_f32 = FIX32(self->ent.x);
-                self->ent.y_old_f32 = self->ent.y_f32 = FIX32(self->ent.y);
+            // Initialer Zustand
+            self->state     = PLAT_IDLE;
+            self->enabled   = true;
+            self->ent.width = (CHECK_P_FLAG(self->flags, PLAT_FLAG_X) && CHECK_P_FLAG(self->flags, PLAT_FLAG_SINUS)) ? 32 : 16;
+            self->ent.height = 16;
 
-                self->behavior = _platformBehavior;
-                
-                if (self->behavior == PB_SINUS_WIDE_X || self->behavior == PB_SINUS_WIDE_Y)
-                    self->ent.width = 32;
-                else
-                    self->ent.width = 16;
+            // Sprite Zuweisung (Beispiel mit zwei Steintypen)
+            if (self->ent.width > 16) {
+                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+            } else {
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+            }
 
-                self->ent.height = 16;
+            if (CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE)) {
+                SPR_setVisibility(self->ent.sprite, HIDDEN);
+            }
 
-
-                self->ent.type = ENTITY_PLATFORM;
-                self->speed = _speed;
-                self->platform_state = 0;
-                self->wait_timer = 0;
-
-                self->ent.update = (void (*)(Entity*))ENTITY_UPDATE_platform;
-
-                entities[i] = (Entity*)self;
-                
-                if (self->behavior == PB_SINUS_WIDE_X || self->behavior == PB_SINUS_WIDE_Y )
-                    self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
-                else
-                    self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE)); 
-
-                    SPR_setPriority(self->ent.sprite, 0);
-
-                return self;
-            
+            entities[i] = (Entity*)self;
+            return self;
         }
     }
     return NULL;
@@ -172,10 +171,8 @@ void spawn_player(u16 spawn_in_area) {
 
 void spawn_platforms(const LevelDefinition* lv) {
     for (u16 i = 0; i < lv->platform_count; i++) {
-        const PlatformDef* p = &lv->platforms[i];
-        Platform* plat = create_platform(p->x, p->y, p->speed, p->behavior);
-        plat->touched = false;
-        plat->enabled = true;
-        plat->wait_timer = 0;
-    }
+        // Wir geben einfach die Adresse der Definition weiter
+        create_platform(&lv->platforms[i]);
+    }        
+    
 }

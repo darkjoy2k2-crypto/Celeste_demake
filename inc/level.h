@@ -13,14 +13,19 @@
 #define cam_max_y 176
 
 
+
 // Die Map selbst (extern, damit nur eine Instanz existiert)
 extern const fix32 OFFSET;
 
 typedef struct {
-    s16 x;
-    s16 y;
-    fix16 speed;
-    u16 behavior;
+    s16 x;              /**< Startposition X (Tiles) */
+    s16 y;              /**< Startposition Y (Tiles) */
+    fix16 speed;        /**< Tempo (FIX16). 0 = Statisch */
+    u16 flags;          /**< Verhalten (PLAT_FLAG_X, _SINUS, _BREAKABLE...) */
+    s16 amplitude;      /**< SINUS: Taktung/Bauchigkeit der Welle */
+    s16 range;          /**< Reichweite in Pixeln (Linear oder Sinus-Radius) */
+    s16 timer_a;        /**< Zeit bis Zerbrechen (Frames) */
+    s16 timer_b;        /**< Zeit bis Respawn (Frames) */
 } PlatformDef;
 
 typedef struct {

@@ -18,7 +18,7 @@ int main() {
     
 
     debug_init();
-    //SYS_showFrameLoad(true);
+    SYS_showFrameLoad(true);
 
 
     STATE_set(&State_Title);

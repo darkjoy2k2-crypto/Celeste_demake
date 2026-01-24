@@ -1,17 +1,34 @@
-#include <genesis.h>
 #include "states/states.h"
+#include "globals.h"
 
-static const GameState* currentState = NULL;
+// Leere Funktionen für den Sicherheits-State
+static void doNothing() { }
+
+static const GameState EmptyState = {
+    .enter  = doNothing,
+    .update = doNothing,
+    .exit   = doNothing
+};
+
+// 'static' sorgt dafür, dass nur dieses Skript die Zeiger ändern kann
+static const GameState* currentState = &EmptyState;
 static const GameState* currentSubState = NULL;
 
 void STATE_set(const GameState* nextState) {
-    // Standard state swap: Exit old, Enter new
-    if (currentState && currentState->exit) currentState->exit();
+    // Exit alten State
+    if (currentState->exit) {
+        GameSync = false;
+        currentState->exit();
+    }
     
-    currentState = nextState;
-    currentSubState = NULL; // Clear substate when changing main states
+    // Wechsel (Sicherheits-Check auf NULL)
+    currentState = nextState ? nextState : &EmptyState;
+    currentSubState = NULL; 
 
-    if (currentState && currentState->enter) currentState->enter();
+    // Enter neuen State
+    if (currentState->enter) {
+        currentState->enter();
+    }
 }
 
 void STATE_setSubState(const GameState* nextSub) {
@@ -29,11 +46,13 @@ void STATE_exitSubState() {
 }
 
 void STATE_update() {
-    // If a substate exists, only update that. 
-    // Otherwise, update the main state.
-    if (currentSubState && currentSubState->update) {
-        currentSubState->update();
-    } else if (currentState && currentState->update) {
-        currentState->update();
+    GameSync = true;
+    
+    // Substate hat Vorrang (z.B. Pause-Menü)
+    if (currentSubState) {
+        if (currentSubState->update) currentSubState->update();
+    } else {
+        // Dank EmptyState ist currentState niemals NULL
+        if (currentState->update) currentState->update();
     }
 }

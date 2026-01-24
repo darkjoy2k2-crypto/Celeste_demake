@@ -5,19 +5,7 @@
 #include "area.h"
 #include "entities/handle_entities.h"
 
-#define P_FLAG_ON_GROUND      (1 << 0)
-#define P_FLAG_ON_WALL        (1 << 1)
-#define P_FLAG_TRAMPOLINE     (1 << 2)
-#define P_FLAG_DYING          (1 << 3)
-#define P_FLAG_DONT_BREAK     (1 << 4)
-#define P_FLAG_FACING_LEFT   (1 << 5)
-#define P_FLAG_EDGE_GRAB     (1 << 6)
-#define P_FLAG_STEPPING      (1 << 7)
 
-#define SET_P_FLAG(mask, flag)   ((mask) |= (flag))
-#define CLEAR_P_FLAG(mask, flag) ((mask) &= ~(flag))
-#define CHECK_P_FLAG(mask, flag) ((mask) & (flag))
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 typedef enum {
     ACTION_UP, ACTION_DOWN, ACTION_LEFT, ACTION_RIGHT,
@@ -66,6 +54,7 @@ extern const u16 COL_BALL_YELLOW[3];
 extern const u16 COL_BALL_ORANGE[3];
 extern const u16 COL_BALL_RED[3];
 extern const u16 COL_BALL_BLUE[3];
+extern bool GameSync;
 
 typedef struct Rect_s16 { Vect2D_s16 pos; Vect2D_s16 size; } Rect_s16;
 typedef struct Rect_f32 { Vect2D_f32 pos; Vect2D_f32 size; } Rect_f32;
