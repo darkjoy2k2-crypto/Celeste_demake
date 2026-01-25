@@ -4,6 +4,7 @@
 !/res/
 !/vscode/
 !/py/
+!/ldtk/
 !Celeste_demake.code-workspace
 !.gitignore
 !README.md
@@ -11,3 +12,4 @@
 !/out/
 /out/*
 !/out/rom.bin
+res/title.h

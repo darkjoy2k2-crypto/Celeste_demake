@@ -1,0 +1,17 @@
+{
+	"identifier": "Level_x_y2",
+	"uniqueIdentifer": "888fc650-d380-11f0-928e-7bc0013731b8",
+	"x": -1,
+	"y": -1,
+	"width": 256,
+	"height": 256,
+	"bgColor": "#000000",
+	"neighbourLevels": [],
+	"customFields": {
+		"biome": null
+	},
+	"layers": [
+		"IntGrid.png"
+	],
+	"entities" : {}
+}
