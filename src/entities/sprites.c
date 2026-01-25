@@ -30,16 +30,24 @@ static inline void update_animation(Entity* e) {
         }
         break;
 
-        case ENTITY_PLATFORM:
+case ENTITY_PLATFORM:
+        {
             Platform* plat = (Platform*)e;
             
-            // Wenn berührt, nimm Animation 1 (Zeile 2), sonst Animation 0 (Zeile 1)
-            if (plat->enabled) {
-                SPR_setAnim(e->sprite, 0);
-            } else {
+            if (!plat->enabled) {
+                // Wenn kaputt/deaktiviert: Animation 1 (oder verstecken)
                 SPR_setAnim(e->sprite, 1);
-            }            
-            break;
+            } 
+            else if (CHECK_P_FLAG(plat->flags, PLAT_FLAG_INVISIBLE)) {
+                // Wenn noch nicht entdeckt: Animation 1 (Geisterbild/Umrandung)
+                SPR_setAnim(e->sprite, 1);
+            }
+            else {
+                // Aktiv und entdeckt: Animation 0 (Voll gezeichnet)
+                SPR_setAnim(e->sprite, 0);
+            }
+        }
+        break;
 
         default:
             break;

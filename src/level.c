@@ -191,31 +191,31 @@ const PlatformDef level_1_platforms[] = {
     // --- BILDSCHIRM 1: EINFÜHRUNG & MECHANIKEN ---
 
     // Ein sanfter Einstieg: Bewegt sich horizontal, um den ersten Abgrund zu überwinden.
-    { .x = 15, .y = 18, .speed = FIX16(1), .flags = PLAT_FLAG_X | PLAT_FLAG_SINUS, .amplitude = 48, .range = 64, .timer_a = 0,  .timer_b = 0   },
+    { .x = 5, .y = 18, .speed = FIX16(1), .flags = PLAT_FLAG_X | PLAT_FLAG_SINUS, .amplitude = 48, .range = 64, .timer_a = 0,  .timer_b = 0   },
 
     // Lehrt Vorsicht: Zerbricht nach kurzem Kontakt, kommt aber nach 2 Sekunden wieder.
-    { .x = 28, .y = 14, .speed = FIX16(0.0), .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 10, .y = 14, .speed = FIX16(0.0), .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
 
     // Belohnt Entdecker: Ein unsichtbarer Trittstein, der erst erscheint, wenn man dagegen springt.
-    { .x = 35, .y =  8, .speed = FIX16(0.0), .flags = PLAT_FLAG_INVISIBLE, .amplitude = 0, .range = 0, .timer_a = 0,  .timer_b = 0   },
+    { .x = 15, .y =  18, .speed = FIX16(0.0), .flags = PLAT_FLAG_INVISIBLE, .amplitude = 0, .range = 0, .timer_a = 0,  .timer_b = 0   },
 
 
     // --- BILDSCHIRM 2: TIMING & KOORDINATION ---
 
     // Der manuelle Lift: Fährt erst hoch, wenn der Spieler draufsteht, und bleibt oben.
-    { .x = 45, .y = 22, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y | PLAT_FLAG_TOUCH_START | PLAT_FLAG_ONCE, .amplitude = 0, .range = 80, .timer_a = 0, .timer_b = 0 },
+    { .x = 20, .y = 16, .speed = FIX16(1), .flags = PLAT_FLAG_Y | PLAT_FLAG_TOUCH_START | PLAT_FLAG_ONCE, .amplitude = 0, .range = 80, .timer_a = 0, .timer_b = 0 },
 
     // Die Herausforderung: Bewegt sich diagonal (X & Y kombiniert) in einer weichen Sinuskurve.
-    { .x = 55, .y = 15, .speed = FIX16(3.0), .flags = PLAT_FLAG_X | PLAT_FLAG_Y | PLAT_FLAG_SINUS, .amplitude = 32, .range = 48, .timer_a = 0,  .timer_b = 0   },
+    { .x = 25, .y = 14, .speed = FIX16(3.0), .flags = PLAT_FLAG_X | PLAT_FLAG_Y | PLAT_FLAG_SINUS, .amplitude = 32, .range = 48, .timer_a = 0,  .timer_b = 0   },
 
     // Speed-Check: Eine schnelle, linear pendelnde Plattform für präzises Absprung-Timing.
-    { .x = 70, .y = 12, .speed = FIX16(4.0), .flags = PLAT_FLAG_X, .amplitude = 0, .range = 64, .timer_a = 0,  .timer_b = 0   },
+    { .x = 30, .y = 16, .speed = FIX16(1.0), .flags = PLAT_FLAG_X, .amplitude = 0, .range = 64, .timer_a = 0,  .timer_b = 0   },
 
 
     // --- BILDSCHIRM 3: REAKTION & SKILL-FINALE ---
 
     // Die Barriere: Blockiert den Weg und kann nur mit dem Shot-Jump (Stomp) zerstört werden.
-    { .x = 85, .y = 18, .speed = FIX16(0.0), .flags = PLAT_FLAG_STOMP_BREAK, .amplitude = 0, .range = 0, .timer_a = 1,  .timer_b = 0   },
+    { .x = 35, .y = 10, .speed = FIX16(0.0), .flags = PLAT_FLAG_STOMP_BREAK, .amplitude = 0, .range = 0, .timer_a = 1,  .timer_b = 0   },
 
     // Die Hinterhalt-Falle: Unsichtbar und schießt bei Kontakt sofort wie ein Katapult nach oben.
     { .x = 95, .y = 22, .speed = FIX16(6.0), .flags = PLAT_FLAG_Y | PLAT_FLAG_INVISIBLE | PLAT_FLAG_TOUCH_START | PLAT_FLAG_ONCE, .amplitude = 0, .range = 96, .timer_a = 0, .timer_b = 0 },
