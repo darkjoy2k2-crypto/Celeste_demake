@@ -21,6 +21,10 @@ const GameState State_InGame = { enter, update, exit };
 /* --- Implementation --- */
 
 static void enter() {
+    
+
+    current_level_index = (random() >> 4) % 3;
+
     /* 1. System & Memory Reset */
     memset(&state_ctx, 0, sizeof(state_ctx));
     init_entities(); // Must happen before spawning anything

@@ -1,8 +1,15 @@
 IMAGE layer_bg "layer_bg.png" BEST ALL
 IMAGE img_message_sign "message_sign.png" BEST ALL
 
-TILESET our_tileset "level_0.png" BEST ALL
-MAP our_level_map "level_0.png" our_tileset  BEST 0
+TILESET level_0_tileset "level_0.png" BEST ALL
+MAP level_0_mapdefinition "level_0.png" level_0_tileset  BEST 0
+
+TILESET level_1_tileset "level_1.png" BEST ALL
+MAP level_1_mapdefinition "level_1.png" level_1_tileset  BEST 0
+
+TILESET level_2_tileset "level_2.png" BEST ALL
+MAP level_2_mapdefinition "level_2.png" level_2_tileset  BEST 0
+
 
 PALETTE pal_bg "layer_bg.png"
 PALETTE pal_layer_1 "level_0.png" 

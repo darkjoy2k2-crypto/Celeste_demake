@@ -83,7 +83,10 @@ typedef union {
 } StateContext;
 
 extern StateContext state_ctx;
+extern Map* level_0_map;
 extern Map* level_1_map;
+extern Map* level_2_map;
+
 extern s16 player_id;
 extern Player* player_one;
 

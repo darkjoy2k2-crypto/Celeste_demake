@@ -40,9 +40,11 @@ void debug_draw() {
     }
 
     // RAM und VRAM an unterschiedlichen Positionen zeichnen (Y=1 und Y=2)
-    VDP_drawText("RAM ", 25, 0);
-    VDP_drawText(ram_str, 30, 0);
+    VDP_clearText(22, 0, 10);
+    VDP_drawText("RAM ", 22, 0);
+    VDP_drawText(ram_str, 27, 0);
     
-    VDP_drawText("VRAM", 25, 1);
-    VDP_drawText(vram_str, 30, 1);
+    VDP_clearText(22, 1, 10);
+    VDP_drawText("VRAM", 22, 1);
+    VDP_drawText(vram_str, 27, 1);
 }

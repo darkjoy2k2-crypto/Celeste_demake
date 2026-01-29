@@ -19,7 +19,7 @@ int main() {
 
     debug_init();
     SYS_showFrameLoad(true);
-
+    VDP_setScreenWidth256();
 
     STATE_set(&State_Title);
 

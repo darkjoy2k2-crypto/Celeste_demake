@@ -6,6 +6,7 @@ bool GameSync = false;
 s16 player_id = -1;
 u16 ind = TILE_USER_INDEX;
 u16 hud_tile_base = 0;
+Map* level_0_map = NULL;
 Map* level_1_map = NULL;
 Player* player_one = NULL;
 StateContext state_ctx;
