@@ -10,6 +10,8 @@ MAP level_1_mapdefinition "level_1.png" level_1_tileset  BEST 0
 TILESET level_2_tileset "level_2.png" BEST ALL
 MAP level_2_mapdefinition "level_2.png" level_2_tileset  BEST 0
 
+TILESET level_3_tileset "level_3.png" BEST ALL
+MAP level_3_mapdefinition "level_3.png" level_3_tileset  BEST 0
 
 PALETTE pal_bg "layer_bg.png"
 PALETTE pal_layer_1 "level_0.png" 

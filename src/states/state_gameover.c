@@ -19,7 +19,7 @@ static void enter() {
 
 
     /* Text zentrieren */
-    VDP_drawText("GAME OVER", 15, 13);
+    VDP_drawText("GAME OVER", 10, 13);
     
     /* Synchroner Fade In */
     FADE_in(30, false); 

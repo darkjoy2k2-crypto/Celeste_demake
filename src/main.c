@@ -8,7 +8,6 @@ int i = 0;
 
 int main() {
     SPR_init(); 
-    VDP_setScreenWidth320();
     VDP_loadFont(&my_font_tiles , DMA);
 
 

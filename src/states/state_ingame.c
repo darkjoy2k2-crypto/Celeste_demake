@@ -23,7 +23,6 @@ const GameState State_InGame = { enter, update, exit };
 static void enter() {
     
 
-    current_level_index = (random() >> 4) % 3;
 
     /* 1. System & Memory Reset */
     memset(&state_ctx, 0, sizeof(state_ctx));

@@ -6,9 +6,9 @@
 Vect2D_s16 camera_position = {0, 0};
 
 static const s16 HUD_H = 16;
-static const s16 SCREEN_W = 320;
+static const s16 SCREEN_W = 256;
 static const s16 SCREEN_H = 224;
-static const s16 CENTER_Y_OFFSET = 120; 
+static const s16 CENTER_Y_OFFSET = 112; 
 
 void init_camera() {
     camera_position.x = 0;
