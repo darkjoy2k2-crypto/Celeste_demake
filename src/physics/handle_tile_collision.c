@@ -61,8 +61,8 @@ void check_tile_collision(Entity *entity)
     u16 mapH = lv->height_tiles;
 
     fix16 saved_vx = entity->vx;
-    s16 current_x = F32_toInt(entity->x_f32);
-    s16 current_y = F32_toInt(entity->y_f32);
+    s16 current_x = F32_toRoundedInt(entity->x_f32);
+    s16 current_y = F32_toRoundedInt(entity->y_f32);
     s16 half_w = entity->width >> 1;
     s16 half_h = entity->height >> 1;
 

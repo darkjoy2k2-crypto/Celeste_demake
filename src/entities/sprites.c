@@ -23,9 +23,9 @@ static inline void update_animation(Entity* e) {
             
             /* Flip-Handling über das Facing-Flag */
             if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
-                SPR_setHFlip(e->sprite, TRUE);
-            } else {
                 SPR_setHFlip(e->sprite, FALSE);
+            } else {
+                SPR_setHFlip(e->sprite, TRUE);
             }
         }
         break;

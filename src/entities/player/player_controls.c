@@ -114,7 +114,8 @@ static void handle_horizontal_move(Player* p, u16 joy) {
 
     if (p->state != P_ON_WALL && p->state != P_SHOT_JUMP) {
         if (joy & button_map[ACTION_LEFT]) {
-            if (p->ent.vx > -MOVE_SPEED_MAX) p->ent.vx -= MOVE_SPEED;
+            p->ent.vx -= MOVE_SPEED;
+            if (p->ent.vx < -MOVE_SPEED_MAX) p->ent.vx = -MOVE_SPEED_MAX;
             SET_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT);
         }
         else if (joy & button_map[ACTION_RIGHT]) {
@@ -123,9 +124,10 @@ static void handle_horizontal_move(Player* p, u16 joy) {
         }
         else {
             // Diese Reibung hat dein VX = 3 bisher sofort auf 0 gesetzt:
-            fix16 friction = (p->state == P_GROUNDED) ? FRICTION_AIR : FRICTION;
+            fix16 friction = (p->state == P_GROUNDED) ? FRICTION : FRICTION_AIR;
             p->ent.vx = F16_mul(p->ent.vx, friction);
-            if (abs16(p->ent.vx) < FIX16(0.1)) p->ent.vx = F16_0;
+            if (p->ent.vx < FIX16(0.2) && p->ent.vx > FIX16(-0.2) ) 
+                p->ent.vx = F16_0;
         }
     }
 }
@@ -158,7 +160,7 @@ void handle_player_input(Player* p) {
 
     if (is_at_wall && is_holding_dash && p->timer_stamina > 0) {
         p->state = P_ON_WALL;
-        p->timer_stamina--;
+        p->timer_stamina -= 5;
 
         if (joy & button_map[ACTION_UP]) {
             if (p->ent.vy > -CLIMB_SPEED) p->ent.vy -= FIX16(0.5);
@@ -174,7 +176,7 @@ void handle_player_input(Player* p) {
             if (abs16(p->ent.vy) <= FIX16(0.1)) p->ent.vy = F16_0;
         }
         p->ent.vx = F16_0;
-        p->ent.vy += FIX16(0.15); 
+        if (p->ent.vy < FIX16(0.5)) p->ent.vy += FIX16(0.15); 
     }
     else {
         // State-Wechsel von Wall zu Air abfangen

@@ -62,14 +62,14 @@ static void apply_wall_physics(Player* p) {
 void update_player_state_and_physics(Entity* e) {
     Player* p = (Player*) e;
 
-    if (p->current_area != NULL && e->y > p->current_area->cam_max.y) {
+    if (p->current_area != NULL && e->y > p->current_area->cam_max.y - 8) {
         SET_P_FLAG(p->physics_state, P_FLAG_DYING);
     }
 
 
 
     e->x_old_f32 = e->x_f32; e->y_old_f32 = e->y_f32;
-    e->x_old = F32_toInt(e->x_old_f32); e->y_old = F32_toInt(e->y_old_f32);
+    e->x_old = F32_toRoundedInt(e->x_old_f32); e->y_old = F32_toRoundedInt(e->y_old_f32);
 
     if (p->timer_grace > 0) p->timer_grace--;
     if (p->timer_buffer > 0) p->timer_buffer--;
@@ -110,12 +110,15 @@ void update_player_state_and_physics(Entity* e) {
     
 
     
-    e->x = F32_toInt(e->x_f32); 
-    e->y = F32_toInt(e->y_f32);
+    e->x = F32_toRoundedInt(e->x_f32); 
+    e->y = F32_toRoundedInt(e->y_f32);
 
     p->state_old = p->state;
     
     // Solid momentum für den nächsten Frame zurücksetzen
     p->solid_vx = F16_0; 
     p->solid_vy = F16_0;
+    debug_set(0, e->x);
+    debug_set(1, e->y);
+    
 }
