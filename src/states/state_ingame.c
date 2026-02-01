@@ -36,7 +36,7 @@ static void enter() {
 
     /* 2. Load Background (Plane B) - HEAVY OPERATION */
     // Drawing an image can be heavy, we do this first while screen is black
-    VDP_drawImageEx(BG_B, lv->background, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 5, false, true);
+    VDP_drawImageEx(BG_B, lv->background, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
     ind += lv->background->tileset->numTile;
     SYS_doVBlankProcess(); 
 

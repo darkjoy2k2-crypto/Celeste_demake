@@ -99,6 +99,6 @@ void update_camera(Entity* player, Map* level_map, bool instant) {
     }
 
     VDP_setHorizontalScroll(BG_B, -camera_position.x >> 2);
-    VDP_setVerticalScroll(BG_B, (camera_position.y >> 3) - 128);
+    VDP_setVerticalScroll(BG_B, 128);
     update_all_entities_sprites();    
 }
