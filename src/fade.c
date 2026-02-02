@@ -1,14 +1,16 @@
 #include "fade.h"
 #include "title.h"
 #include "level.h"
+#include "levels.h"
+#include "sprites.h"
 
 static u16 target_palettes[64];
 
 void FADE_init() {
     memcpy(&target_palettes[0], pal_bg.data, 16 * 2);
-    memcpy(&target_palettes[16], player_sprite.palette->data, 16 * 2);
-    memcpy(&target_palettes[32], pal_font.data, 16 * 2);
-    memcpy(&target_palettes[48], pal_layer_1.data, 16 * 2);
+    memcpy(&target_palettes[16], pal_layer_1.data, 16 * 2);
+    memcpy(&target_palettes[32], pal_player_hud.data, 16 * 2);
+    memcpy(&target_palettes[48], pal_entities.data, 16 * 2);
 
     PAL_setColors(0, palette_black, 64, DMA);
 }

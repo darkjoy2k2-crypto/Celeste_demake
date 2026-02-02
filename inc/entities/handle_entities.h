@@ -1,6 +1,7 @@
 #pragma once
 
 #include <genesis.h>
+#include "typedef.h"
 #include "level.h"
 
 struct Area;
@@ -34,27 +35,6 @@ struct Area;
 #define PLAT_FLAG_RESPAWN         (1 << 7)
 #define PLAT_FLAG_STOMP_BREAK     (1 << 8)
 
-// --- ENTITY TYPEN ---
-typedef enum {
-    ENTITY_NONE,
-    ENTITY_PLAYER,
-    ENTITY_PLATFORM,
-    ENTITY_ENEMY
-} EntityType;
-
-// --- PLAYER ZUSTÄNDE ---
-typedef enum {
-    P_IDLE, P_RUNNING, P_JUMPING, P_FALLING, P_GROUNDED,
-    P_ON_WALL, P_EDGE_GRAB, P_DASHING, P_FLYING, P_SHOT_JUMP
-} PlayerState;
-
-// --- PLATFORM LEBENSZYKLUS ---
-typedef enum {
-    PLAT_IDLE,      // Normalzustand (wartend oder bewegend)
-    PLAT_BREAKING,  // Timer A läuft (Zittern/Warnung)
-    PLAT_HIDDEN,    // Deaktiviert (wartet auf Respawn Timer B)
-    PLAT_DISABLED   // Permanent aus (nach ONCE oder STOMP)
-} PlatformState;
 
 // --- BASIS ENTITY STRUKTUR ---
 typedef struct Entity {
@@ -106,11 +86,19 @@ typedef struct {
     bool touched;           // Kontakt in diesem Frame?
 } Platform;
 
+typedef struct {
+    Entity ent;
+    PickupKind kind;  // Herz oder Ballon?
+    s16 float_sink; // Für einen schwebenden Effekt (Sinus-Animation)
+    bool collected;
+} Pickup;
+
 // --- POOL MANAGEMENT ---
 typedef union {
     Entity entity;
     Player player;
     Platform platform;
+    Pickup pickup;
 } EntitySlot;
 
 extern Entity* entities[MAX_ENTITIES];
@@ -128,3 +116,4 @@ void spawn_platforms(const LevelDefinition* lv);
 
 // Deklaration der Update-Funktion (damit create_platform sie kennt)
 void ENTITY_UPDATE_platform(Entity* _e);
+void ENTITY_UPDATE_pickup(Entity* self) ;

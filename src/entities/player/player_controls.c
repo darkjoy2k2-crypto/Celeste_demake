@@ -19,9 +19,9 @@ static void handle_shot_jump_input(Player* p, u16 joy, u16 joy_old) {
 
         /* Farb-Feedback basierend auf verbleibender Munition */
         if (p->count_shot_jump == 1)
-            PAL_set_colors(PAL1, 1, COL_BALL_YELLOW, 3);
+            PAL_set_colors(PAL2, 1, COL_BALL_YELLOW, 3);
         if (p->count_shot_jump == 0)
-            PAL_set_colors(PAL1, 1, COL_BALL_BLUE, 3);
+            PAL_set_colors(PAL2, 1, COL_BALL_BLUE, 3);
             
         p->state = P_SHOT_JUMP;
     }

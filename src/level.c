@@ -1,4 +1,5 @@
 #include "level.h"
+#include "levels.h"
 #include "area.h"
 #include "title.h"
 #include "globals.h"
@@ -372,15 +373,19 @@ const PlatformDef level_0_platforms[] = {
 };
 
 const PlatformDef level_1_platforms[] = {
-    { 0, 0, 0, 0 } 
+    { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
 
 const PlatformDef level_2_platforms[] = {
-    { 0, 0, 0, 0 } 
+    { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
 
 const PlatformDef level_3_platforms[] = {
-    { 0, 0, 0, 0 } 
+    { 0, 0, 0, 0, 0, 0, 0, 0 } 
+};
+
+const PickupDef dummy_pickups[] = {
+    {10,10, PICKUP_BALLOON}
 };
 
 const LevelDefinition levels[] = {
@@ -394,7 +399,10 @@ const LevelDefinition levels[] = {
         .width_tiles = 102,  // Example: level 1 is 103 tiles wide
         .height_tiles = 73,   // Example: level 1 is 72 tiles high
         .platforms = level_0_platforms,
-        .platform_count = ARRAY_SIZE(level_0_platforms)           // Total number of platforms
+        .platform_count = ARRAY_SIZE(level_0_platforms),           // Total number of platforms
+        .pickups = dummy_pickups,
+        .pickup_count = ARRAY_SIZE(dummy_pickups)
+
     },
     {
         .areas = level_1_areas,
@@ -406,7 +414,10 @@ const LevelDefinition levels[] = {
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = level_1_platforms,
-        .platform_count = ARRAY_SIZE(level_1_platforms)           // Total number of platforms
+        .platform_count = ARRAY_SIZE(level_1_platforms),           // Total number of platforms
+        .pickups = dummy_pickups,
+        .pickup_count = ARRAY_SIZE(dummy_pickups)
+
     },
     {
         .areas = level_2_areas,
@@ -418,7 +429,10 @@ const LevelDefinition levels[] = {
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = level_2_platforms,
-        .platform_count = ARRAY_SIZE(level_2_platforms)           // Total number of platforms
+        .platform_count = 0,
+        .pickups = dummy_pickups,
+        .pickup_count = ARRAY_SIZE(dummy_pickups)
+           // Total number of platforms
     },
     {
         .areas = level_3_areas,
@@ -430,7 +444,10 @@ const LevelDefinition levels[] = {
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = level_3_platforms,
-        .platform_count = ARRAY_SIZE(level_3_platforms)           // Total number of platforms
+        .platform_count = ARRAY_SIZE(level_3_platforms),
+        .pickups = dummy_pickups,
+        .pickup_count = ARRAY_SIZE(dummy_pickups)
+        // Total number of platforms
     }           
 
 

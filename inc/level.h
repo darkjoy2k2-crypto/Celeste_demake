@@ -1,6 +1,7 @@
 #pragma once
 
 #include <genesis.h>
+#include "typedef.h"
 #include "area.h"
 
 
@@ -29,6 +30,11 @@ typedef struct {
 } PlatformDef;
 
 typedef struct {
+    s16 x, y;
+    PickupKind kind;
+} PickupDef;
+
+typedef struct {
     // Group 1: 32-bit Pointers (4 bytes each)
     const Area* areas;
     const MapDefinition* map_def;
@@ -36,12 +42,15 @@ typedef struct {
     const Image* background;
     const u16* collision_data;
     const PlatformDef* platforms;
+    const PickupDef* pickups; // Neu
 
     // Group 2: 16-bit Integers (2 bytes each)
     u16 width_tiles;
     u16 height_tiles;
     u16 area_count;
     u16 platform_count;
+    u16 pickup_count;         // Neu
+
 } LevelDefinition;
 
 extern u16 current_level_index;

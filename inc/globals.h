@@ -1,5 +1,4 @@
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#pragma once
 
 #include <genesis.h>
 #include "area.h"
@@ -39,6 +38,9 @@ extern u16 button_map[ACTION_MAX];
 
 #define SHOT_JUMP_SPEED      FIX16(4)
 #define SHOT_JUMP_SPEED_DIAG FIX16(2.8)
+extern u16 shot_jump_count;
+
+
 #define TIMER_SHOT_JUMP_MAX  15
 
 #define TIMER_GRACE_MAX     6
@@ -98,4 +100,3 @@ bool PointVsRect_s16(Vect2D_s16 p, Rect_s16 r);
 bool PointVsRect_f32(const Vect2D_f32 *p, const Rect_f32 *r);
 bool RectVsRect_f32(const Rect_f32 *r1, const Rect_f32 *r2);
 
-#endif

@@ -15,7 +15,7 @@ static void enter() {
     p = (Player*) entities[player_id];
 
     // Initial "Hit" logic
-    PAL_set_colors(PAL1, 1, COL_BALL_RED, 3);
+    PAL_set_colors(PAL2, 1, COL_BALL_RED, 3);
     p->timer_death = 60;
     p->ent.vy = FIX16(-6);
     
@@ -56,7 +56,7 @@ static void exit() {
     p->ent.vx = F16_0;
     p->ent.vy = F16_0;
     p->state = P_FALLING;
-    p->count_shot_jump = 2; 
+    p->count_shot_jump = shot_jump_count; 
     p->timer_shot_jump = 0;
     LIVES--;
     p->physics_state = 0; 

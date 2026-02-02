@@ -28,6 +28,7 @@ const u16 COL_BALL_YELLOW[] = { 0x00AA, 0x0066, 0x00EE };
 const u16 COL_BALL_ORANGE[] = { 0x004A, 0x0026, 0x026E };
 const u16 COL_BALL_RED[]    = { 0x000E, 0x000A, 0x0006 };
 const u16 COL_BALL_BLUE[]   = { 0x0E00, 0x0A00, 0x0600 };
+u16 shot_jump_count = 1;
 
 // Logik-Funktionen
 bool PointVsRect_s16(Vect2D_s16 p, Rect_s16 r) {

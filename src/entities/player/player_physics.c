@@ -8,7 +8,7 @@
 
 static void update_player_stamina_visuals(Player* p) {
     if (p->timer_stamina <= 0) {
-        PAL_set_colors(PAL1, 1, COL_BALL_ORANGE, 3);
+        PAL_set_colors(PAL2, 1, COL_BALL_ORANGE, 3);
         return;
     }
 
@@ -16,19 +16,19 @@ static void update_player_stamina_visuals(Player* p) {
         u16 interval = (p->timer_stamina < 100) ? 14 : 30;
         
         if ((vtimer % interval) < (interval / 2)) {
-            PAL_set_colors(PAL1, 1, COL_BALL_ORANGE, 3);
+            PAL_set_colors(PAL2, 1, COL_BALL_ORANGE, 3);
         } else {
-            PAL_restore_direct(PAL1, 1, 3);
+            PAL_restore_direct(PAL2, 1, 3);
         }
     }
 }
 
 static void apply_ground_physics(Player* p) {
     p->timer_grace = TIMER_GRACE_MAX;
-    if (p->count_shot_jump != 2 || p->timer_stamina < 300) {
-        p->count_shot_jump = 2;
+    if (p->state_old != P_GROUNDED){
+        p->count_shot_jump = shot_jump_count;
         p->timer_stamina = 300;
-        PAL_restore_direct(PAL1, 1, 3);
+        PAL_restore_direct(PAL2, 1, 3);
     } 
 
     SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
@@ -47,7 +47,6 @@ static void apply_air_physics(Player* p) {
 
 static void apply_wall_physics(Player* p) {
     update_player_stamina_visuals(p);
-    p->count_shot_jump = 2;
     p->ent.vx = F16_0; 
 
     /* Reibung wirkt auf den Betrag von vy, egal ob hoch oder runter */

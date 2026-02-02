@@ -3,7 +3,7 @@
 #include "title.h"
 #include "entities/player/update_player.h"
 #include "entities/update_platform.h"
-#include "level.h"
+#include "sprites.h"
 #include "area.h"
 #include "entities/update_camera.h"
 
@@ -55,7 +55,7 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
                 
                 p->timer_stamina = 300;
                 p->count_shot_jump = 2;
-                e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+                e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL2, TRUE, FALSE, FALSE));
                 
                 player_id = i;
             }
@@ -119,9 +119,9 @@ Platform* create_platform(const PlatformDef* def) {
 
             // Sprite Zuweisung (Beispiel mit zwei Steintypen)
             if (self->ent.width > 16) {
-                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             } else {
-                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
 
             if (CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE)) {
@@ -158,7 +158,7 @@ void spawn_player(u16 spawn_in_area) {
             pl->timer_grace = 0;
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
-            pl->count_shot_jump = 0;
+            pl->count_shot_jump = shot_jump_count;
             pl->current_area = (Area*)start_area;
         }
         camera_position.x = spawn_x - 160;
@@ -175,4 +175,54 @@ void spawn_platforms(const LevelDefinition* lv) {
         create_platform(&lv->platforms[i]);
     }        
     
+}
+
+Pickup* create_pickup(s16 x, s16 y, PickupKind kind) {
+    for (int i = 0; i < MAX_ENTITIES; i++) {
+        if (entity_used[i] == 0) {
+            entity_used[i] = 1;
+            Pickup* self = &entity_pool[i].pickup;
+
+            // Speicher initialisieren
+            memset(self, 0, sizeof(Pickup));
+
+            // Basis-Entity Setup
+            self->ent.type = ENTITY_PICKUP;
+            self->ent.update = ENTITY_UPDATE_pickup; // Musst du noch in update_pickup.c/h erstellen
+
+            self->ent.x = x << 3;
+            self->ent.y = y << 3;
+            self->ent.x_f32 = self->ent.x_old_f32 = FIX32(x);
+            self->ent.y_f32 = self->ent.y_old_f32 = FIX32(y);
+            
+            self->ent.width = 16;
+            self->ent.height = 16;
+
+            self->kind = kind;
+            self->collected = false;
+            self->float_sink = 0;
+
+            // Sprite-Zuweisung basierend auf Enum
+            if (kind == PICKUP_HEART) {
+                self->ent.sprite = SPR_addSprite(&heart_sprite, x, y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            } else if (kind == PICKUP_BALLOON) {
+                self->ent.sprite = SPR_addSprite(&ballon_sprite, x, y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            }
+
+            entities[i] = (Entity*)self;
+            return self;
+        }
+    }
+    return NULL;
+}
+
+void spawn_pickups(const LevelDefinition* lv) {
+    for (u16 i = 0; i < lv->pickup_count; i++) {
+        // Angenommen, dein LevelDefinition hat ein Array 'pickups'
+        create_pickup(
+            lv->pickups[i].x << 3, 
+            lv->pickups[i].y << 3, 
+            lv->pickups[i].kind
+        );
+    }
 }

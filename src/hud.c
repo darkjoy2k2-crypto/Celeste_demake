@@ -8,10 +8,10 @@ void setup_hud(){
     VDP_setTextPriority(1);
     VDP_setTextPalette(PAL2);
     
-    u32 tiles[8] = { 
-        0x11111111, 0x11111111, 0x11111111, 0x11111111, 
-        0x11111111, 0x11111111, 0x11111111, 0x11111111 
-    };
+u32 tiles[8] = { 
+    0x44444444, 0x44444444, 0x44444444, 0x44444444, 
+    0x44444444, 0x44444444, 0x44444444, 0x44444444 
+};
 
     // Wir laden die Tiles an die aktuelle Position von 'ind'
     VDP_loadTileData(tiles, ind, 1, CPU);

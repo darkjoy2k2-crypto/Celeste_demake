@@ -54,9 +54,8 @@ static void enter() {
     SYS_doVBlankProcess(); 
 
     /* 5. Initialize Map */
-    state_ctx.ingame.current_map = MAP_create(lv->map_def, BG_A, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind));
+    state_ctx.ingame.current_map = MAP_create(lv->map_def, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
     ind += lv->tileset->numTile;
-
     /* 6. Entity Spawning */
     // Spawning often involves SPR_addSprite, which uses more VRAM/bandwidth
     spawn_player(0);
