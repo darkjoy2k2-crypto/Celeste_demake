@@ -60,6 +60,7 @@ static void enter() {
     // Spawning often involves SPR_addSprite, which uses more VRAM/bandwidth
     spawn_player(0);
     spawn_platforms(lv);
+    spawn_pickups(lv);
 
     /* 7. Final View Sync */
     if (player_id != -1) {

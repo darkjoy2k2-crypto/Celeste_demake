@@ -113,6 +113,7 @@ void destroy_entity(int index);
 
 void spawn_player(u16 spawn_in_area);
 void spawn_platforms(const LevelDefinition* lv);
+void spawn_pickups(const LevelDefinition* lv);
 
 // Deklaration der Update-Funktion (damit create_platform sie kennt)
 void ENTITY_UPDATE_platform(Entity* _e);

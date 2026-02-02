@@ -220,8 +220,8 @@ void spawn_pickups(const LevelDefinition* lv) {
     for (u16 i = 0; i < lv->pickup_count; i++) {
         // Angenommen, dein LevelDefinition hat ein Array 'pickups'
         create_pickup(
-            lv->pickups[i].x << 3, 
-            lv->pickups[i].y << 3, 
+            lv->pickups[i].x, 
+            lv->pickups[i].y, 
             lv->pickups[i].kind
         );
     }

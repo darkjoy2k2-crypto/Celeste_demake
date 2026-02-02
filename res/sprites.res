@@ -1,5 +1,5 @@
 PALETTE pal_player_hud "sprites/ball.png"
-PALETTE pal_entities "sprites/stone.png"
+PALETTE pal_entities "sprites/heart.png"
 
 SPRITE player_sprite "sprites/ball.png" 2 2 FAST 0
 SPRITE stone_sprite "sprites/stone.png" 2 2 FAST 0

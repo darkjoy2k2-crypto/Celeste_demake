@@ -52,15 +52,7 @@ case ENTITY_PICKUP:
 {
     Pickup* p = (Pickup*)e;
     
-    // Einfache Schweb-Animation (bobbing)
-    p->float_sink++; // Nutze dein float_sink als Frame-Zähler
-    
-    // Sinus-Offset für die Y-Position (macht es lebendiger)
-    s16 offset = sinFix32(p->float_sink << 3) >> 6;
-    SPR_setPosition(e->sprite, e->x, e->y + offset);
     SPR_setAnim(e->sprite, 0);
-    // Optional: Falls deine Items mehrere Frames haben (z.B. glitzern)
-    // SPR_nextFrame(e->sprite); 
 }
 break;
         default:
