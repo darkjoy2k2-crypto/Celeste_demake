@@ -373,10 +373,7 @@ const PlatformDef level_0_platforms[] = {
 };
 
 const PlatformDef level_1_platforms[] = {
-    { 4, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
-    { 6, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
-    { 4, 11, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
-    { 6, 11, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
+    { 4, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 }
 };
 
 const PlatformDef dummy_platforms[] = {

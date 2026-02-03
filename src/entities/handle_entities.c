@@ -117,18 +117,20 @@ Platform* create_platform(const PlatformDef* def) {
             self->ent.width = (CHECK_P_FLAG(self->flags, PLAT_FLAG_X) && CHECK_P_FLAG(self->flags, PLAT_FLAG_SINUS)) ? 32 : 16;
             self->ent.height = 16;
 
-            // Sprite Zuweisung (Beispiel mit zwei Steintypen)
-            if (self->ent.width > 16) {
+            if (CHECK_P_FLAG(self->flags,PLAT_FLAG_CAMO)){
+                self->ent.width = self->ent.height = 32;
+                self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            
+            } else if (self->ent.width > 16) {
 
-                    self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            
             } else {
 
-                if (CHECK_P_FLAG(self->flags, PLAT_FLAG_CAMO)){
-                    self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-                } else {
-                                    self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-                }
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+                
             }
+
             if (CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE)) {
                 SPR_setVisibility(self->ent.sprite, HIDDEN);
             }
