@@ -377,8 +377,27 @@ const PlatformDef dummy_platforms[] = {
 };
 
 const PickupDef dummy_pickups[] = {
-    {18,18, PICKUP_BALLOON}
+    {0,0, 0}
 };
+
+const PickupDef level_1_pickups[] = {
+    {5,10, PICKUP_HEART},
+    {16,16, PICKUP_BALLOON},
+    {16,8, PICKUP_BALLOON}
+};
+
+const PickupDef level_2_pickups[] = {
+    {20,17, PICKUP_BALLOON}
+};
+
+const PickupDef level_3_pickups[] = {
+    {5,24, PICKUP_BALLOON},
+    {5,16, PICKUP_BALLOON},
+    {13,20, PICKUP_BALLOON},
+    {21,20, PICKUP_BALLOON},
+    {22,9, PICKUP_BALLOON}
+};
+
 
 const LevelDefinition levels[] = {
     {
@@ -393,7 +412,7 @@ const LevelDefinition levels[] = {
         .platforms = level_0_platforms,
         .platform_count = ARRAY_SIZE(level_0_platforms),           // Total number of platforms
         .pickups = dummy_pickups,
-        .pickup_count = ARRAY_SIZE(dummy_pickups)
+        .pickup_count = 0
 
     },
     {
@@ -407,8 +426,8 @@ const LevelDefinition levels[] = {
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = dummy_platforms,
         .platform_count = 0,           // Total number of platforms
-        .pickups = dummy_pickups,
-        .pickup_count = ARRAY_SIZE(dummy_pickups)
+        .pickups = level_1_pickups,
+        .pickup_count = ARRAY_SIZE(level_1_pickups)
 
     },
     {
@@ -422,8 +441,8 @@ const LevelDefinition levels[] = {
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = dummy_platforms,
         .platform_count = 0,
-        .pickups = dummy_pickups,
-        .pickup_count = ARRAY_SIZE(dummy_pickups)
+        .pickups = level_2_pickups,
+        .pickup_count = ARRAY_SIZE(level_2_pickups)
            // Total number of platforms
     },
     {
@@ -437,8 +456,8 @@ const LevelDefinition levels[] = {
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
         .platforms = dummy_platforms,
         .platform_count = 0,
-        .pickups = dummy_pickups,
-        .pickup_count = ARRAY_SIZE(dummy_pickups)
+        .pickups = level_3_pickups,
+        .pickup_count = ARRAY_SIZE(level_3_pickups)
         // Total number of platforms
     }           
 
