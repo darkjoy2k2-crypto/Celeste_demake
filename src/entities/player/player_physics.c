@@ -23,10 +23,15 @@ static void update_player_stamina_visuals(Player* p) {
     }
 }
 
+
+
+
+
+
 static void apply_ground_physics(Player* p) {
     p->timer_grace = TIMER_GRACE_MAX;
     if (p->state_old != P_GROUNDED){
-        p->count_shot_jump = shot_jump_count;
+        p->count_shot_jump = shot_jump_count = 0;
         p->timer_stamina = 300;
         PAL_restore_direct(PAL2, 1, 3);
     } 
@@ -112,7 +117,6 @@ void update_player_state_and_physics(Entity* e) {
     e->x = F32_toRoundedInt(e->x_f32); 
     e->y = F32_toRoundedInt(e->y_f32);
 
-    p->state_old = p->state;
     
     // Solid momentum für den nächsten Frame zurücksetzen
     p->solid_vx = F16_0; 

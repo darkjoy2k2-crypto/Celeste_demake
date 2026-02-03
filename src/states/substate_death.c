@@ -62,7 +62,7 @@ static void exit() {
     p->physics_state = 0; 
 
     update_camera(entities[player_id], level_1_map, true);
-    
+    SPR_setVisibility(p->ent.sprite,VISIBLE);
     // Fade back into the game after teleporting
     FADE_in(30, true);
 }

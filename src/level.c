@@ -372,20 +372,12 @@ const PlatformDef level_0_platforms[] = {
     { .x = 115, .y = 16, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y, .amplitude = 0, .range = 48, .timer_a = 0,  .timer_b = 0   }
 };
 
-const PlatformDef level_1_platforms[] = {
-    { 0, 0, 0, 0, 0, 0, 0, 0 } 
-};
-
-const PlatformDef level_2_platforms[] = {
-    { 0, 0, 0, 0, 0, 0, 0, 0 } 
-};
-
-const PlatformDef level_3_platforms[] = {
+const PlatformDef dummy_platforms[] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
 
 const PickupDef dummy_pickups[] = {
-    {10,10, PICKUP_BALLOON}
+    {18,18, PICKUP_BALLOON}
 };
 
 const LevelDefinition levels[] = {
@@ -413,8 +405,8 @@ const LevelDefinition levels[] = {
         .collision_data = level_1_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
-        .platforms = level_1_platforms,
-        .platform_count = ARRAY_SIZE(level_1_platforms),           // Total number of platforms
+        .platforms = dummy_platforms,
+        .platform_count = 0,           // Total number of platforms
         .pickups = dummy_pickups,
         .pickup_count = ARRAY_SIZE(dummy_pickups)
 
@@ -428,7 +420,7 @@ const LevelDefinition levels[] = {
         .collision_data = level_2_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
-        .platforms = level_2_platforms,
+        .platforms = dummy_platforms,
         .platform_count = 0,
         .pickups = dummy_pickups,
         .pickup_count = ARRAY_SIZE(dummy_pickups)
@@ -443,8 +435,8 @@ const LevelDefinition levels[] = {
         .collision_data = level_3_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
-        .platforms = level_3_platforms,
-        .platform_count = ARRAY_SIZE(level_3_platforms),
+        .platforms = dummy_platforms,
+        .platform_count = 0,
         .pickups = dummy_pickups,
         .pickup_count = ARRAY_SIZE(dummy_pickups)
         // Total number of platforms

@@ -177,7 +177,7 @@ void spawn_platforms(const LevelDefinition* lv) {
     
 }
 
-Pickup* create_pickup(s16 x, s16 y, PickupKind kind) {
+Pickup* create_pickup(const PickupDef* def) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 0) {
             entity_used[i] = 1;
@@ -189,24 +189,24 @@ Pickup* create_pickup(s16 x, s16 y, PickupKind kind) {
             // Basis-Entity Setup
             self->ent.type = ENTITY_PICKUP;
             self->ent.update = ENTITY_UPDATE_pickup; // Musst du noch in update_pickup.c/h erstellen
-
-            self->ent.x = x << 3;
-            self->ent.y = y << 3;
-            self->ent.x_f32 = self->ent.x_old_f32 = FIX32(x);
-            self->ent.y_f32 = self->ent.y_old_f32 = FIX32(y);
+            self->trigger = ENTITY_TRIGGER_pickup;
+            self->ent.x = def->x << 3;
+            self->ent.y = def->y << 3;
+            self->ent.x_f32 = self->ent.x_old_f32 = FIX32(self->ent.x);
+            self->ent.y_f32 = self->ent.y_old_f32 = FIX32(self->ent.y);
             
             self->ent.width = 16;
             self->ent.height = 16;
 
-            self->kind = kind;
+            self->kind = def->kind;
             self->collected = false;
             self->float_sink = 0;
 
             // Sprite-Zuweisung basierend auf Enum
-            if (kind == PICKUP_HEART) {
-                self->ent.sprite = SPR_addSprite(&heart_sprite, x, y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            } else if (kind == PICKUP_BALLOON) {
-                self->ent.sprite = SPR_addSprite(&ballon_sprite, x, y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            if (self->kind == PICKUP_HEART) {
+                self->ent.sprite = SPR_addSprite(&heart_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            } else if (self->kind == PICKUP_BALLOON) {
+                self->ent.sprite = SPR_addSprite(&ballon_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
 
             entities[i] = (Entity*)self;
@@ -218,11 +218,6 @@ Pickup* create_pickup(s16 x, s16 y, PickupKind kind) {
 
 void spawn_pickups(const LevelDefinition* lv) {
     for (u16 i = 0; i < lv->pickup_count; i++) {
-        // Angenommen, dein LevelDefinition hat ein Array 'pickups'
-        create_pickup(
-            lv->pickups[i].x, 
-            lv->pickups[i].y, 
-            lv->pickups[i].kind
-        );
+        create_pickup(&lv->pickups[i]);
     }
 }

@@ -14,6 +14,7 @@ static void reset_physics_internal(Player* p) {
 
 void ENTITY_UPDATE_player(Entity* self) {
     Player* p = (Player*) self;
+    p->state_old = p->state;
 
     update_area(self);
     reset_physics_internal(p);

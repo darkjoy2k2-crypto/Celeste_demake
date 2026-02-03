@@ -91,6 +91,7 @@ typedef struct {
     PickupKind kind;  // Herz oder Ballon?
     s16 float_sink; // Für einen schwebenden Effekt (Sinus-Animation)
     bool collected;
+    void (*trigger)(struct Entity* self);
 } Pickup;
 
 // --- POOL MANAGEMENT ---
@@ -118,3 +119,4 @@ void spawn_pickups(const LevelDefinition* lv);
 // Deklaration der Update-Funktion (damit create_platform sie kennt)
 void ENTITY_UPDATE_platform(Entity* _e);
 void ENTITY_UPDATE_pickup(Entity* self) ;
+void ENTITY_TRIGGER_pickup(Entity* self) ;

@@ -28,10 +28,10 @@ static inline void check_platform_collision(Player *p, Platform *plat)
     u8 h_eh = pl->height >> 1;
 
     /* Integer-Positionen */
-    s16 p_x  = F32_toInt(e->x_f32);
-    s16 p_y  = F32_toInt(e->y_f32);
-    s16 pl_x = F32_toInt(pl->x_f32);
-    s16 pl_y = F32_toInt(pl->y_f32);
+    s16 p_x  = F32_toRoundedInt(e->x_f32);
+    s16 p_y  = F32_toRoundedInt(e->y_f32);
+    s16 pl_x = F32_toRoundedInt(pl->x_f32);
+    s16 pl_y = F32_toRoundedInt(pl->y_f32);
 
     /* Distanzen basierend auf MITTEN */
     s16 dx = (p_x + h_pw) - (pl_x + h_ew); 
@@ -82,7 +82,7 @@ static inline void check_platform_collision(Player *p, Platform *plat)
                     if (!CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL))
                     {
                         e->x_f32 = original_x_f32; // Zurück auf Ursprungsposition
-                        p_x = F32_toInt(original_x_f32);
+                        p_x = F32_toRoundedInt(original_x_f32);
                         pos_changed_x = true;
                     }
                 }
@@ -119,6 +119,28 @@ static inline void check_platform_collision(Player *p, Platform *plat)
 /* =============================================================================
    PLATTFORM-HANDLER
    ============================================================================= */
+
+/* =============================================================================
+   HILFSFUNKTION FÜR PICKUPS (AABB CENTERED)
+   ============================================================================= */
+static inline bool check_collision_centered(Entity *a, Entity *b) {
+    s16 ha_w = a->width >> 1;
+    s16 hb_w = b->width >> 1;
+    s16 ha_h = a->height >> 1;
+    s16 hb_h = b->height >> 1;
+
+    s16 dx = a->x - b->x;
+    s16 dy = a->y - b->y;
+
+    if (dx < 0) dx = -dx;
+    if (dy < 0) dy = -dy;
+
+    return (dx < (ha_w + hb_w) && dy < (ha_h + hb_h));
+}
+
+/* =============================================================================
+   PLATTFORM-HANDLER
+   ============================================================================= */
 void handle_platform_collision(Entity *entity)
 {
     if (entity->type != ENTITY_PLAYER) return;
@@ -127,13 +149,30 @@ void handle_platform_collision(Entity *entity)
 
     for (int i = 0; i < MAX_ENTITIES; i++)
     {
-        if (entities[i] != NULL && entities[i]->type == ENTITY_PLATFORM)
-        {
-            /* Cast von Entity* zu Platform* für die neue Funktionssignatur */
-            Platform* plat = (Platform*) entities[i];
+        if (entities[i] == NULL) continue;
 
-            if (plat->enabled)
+        // 1. PLATTFORMEN (Solid)
+        if (entities[i]->type == ENTITY_PLATFORM)
+        {
+            Platform* plat = (Platform*) entities[i];
+            if (plat->enabled) {
                 check_platform_collision(p, plat);
+            }
         }
-    }
-}
+        
+        // 2. PICKUPS (Trigger)
+        else if (entities[i]->type == ENTITY_PICKUP)
+        {
+            Pickup* pick = (Pickup*) entities[i];
+            if (!pick->collected) {
+                // HIER: Funktionsname muss mit der Definition oben übereinstimmen!
+                if (check_collision_centered(&p->ent, &pick->ent)) {
+                    pick->collected = true; 
+                    if (pick->trigger) {
+                        pick->trigger(entities[i]);
+                    }
+                }
+            }
+        }
+    } // Ende der for-Schleife
+} // Ende der Funktion

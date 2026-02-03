@@ -27,7 +27,7 @@ void update_all_entities_sprites() {
             if (x < -64 || x > 384 || y < -64 || y > 288) {
                 SPR_setVisibility(e->sprite, HIDDEN);
             } else {
-                SPR_setVisibility(e->sprite, VISIBLE);
+                //SPR_setVisibility(e->sprite, VISIBLE);
                 SPR_setPosition(e->sprite, x, y);
             }
         }
