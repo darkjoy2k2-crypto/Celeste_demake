@@ -372,6 +372,13 @@ const PlatformDef level_0_platforms[] = {
     { .x = 115, .y = 16, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y, .amplitude = 0, .range = 48, .timer_a = 0,  .timer_b = 0   }
 };
 
+const PlatformDef level_1_platforms[] = {
+    { 4, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
+    { 6, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
+    { 4, 11, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
+    { 6, 11, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 },
+};
+
 const PlatformDef dummy_platforms[] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
@@ -424,8 +431,8 @@ const LevelDefinition levels[] = {
         .collision_data = level_1_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
-        .platforms = dummy_platforms,
-        .platform_count = 0,           // Total number of platforms
+        .platforms = level_1_platforms,
+        .platform_count = ARRAY_SIZE(level_1_platforms),           // Total number of platforms
         .pickups = level_1_pickups,
         .pickup_count = ARRAY_SIZE(level_1_pickups)
 

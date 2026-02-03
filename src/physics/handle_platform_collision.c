@@ -50,7 +50,8 @@ static inline void check_platform_collision(Player *p, Platform *plat)
 
         if (gapX <= stick_tolerance)
         {
-            SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+                SET_P_FLAG(p->physics_state, P_FLAG_ON_WALL);
+
             plat->touched = true;
             if (gapX < 0)
             {
@@ -66,7 +67,7 @@ static inline void check_platform_collision(Player *p, Platform *plat)
     /* --- Y-SWEEP --- */
     if (abs_dx < (h_pw + h_ew - 2))
     {
-        s16 fall_margin = (e->vy > F16_0) ? F16_toInt(e->vy) + 3 : 4;
+        s16 fall_margin = (e->vy > F16_0) ? F16_toRoundedInt(e->vy) + 3 : 4;
 
         if (abs_dy < (h_ph + h_eh + fall_margin))
         {
@@ -90,7 +91,7 @@ static inline void check_platform_collision(Player *p, Platform *plat)
             else // Landen
             {
                 s16 target_y = pl_y - e->height;
-                if (p->state == P_GROUNDED || e->vy >= F16_0)
+                if (p->state == P_GROUNDED || e->vy >= F16_0) 
                 {
                     p_y = target_y;
                     pos_changed_y = true;
@@ -138,9 +139,54 @@ static inline bool check_collision_centered(Entity *a, Entity *b) {
     return (dx < (ha_w + hb_w) && dy < (ha_h + hb_h));
 }
 
-/* =============================================================================
-   PLATTFORM-HANDLER
-   ============================================================================= */
+
+
+
+static inline void simple_platform_collision(Player *p, Platform *plat)
+{
+    if (!plat->enabled)
+        return;
+
+    Entity *e = &p->ent;
+    Entity *pl = &plat->ent;
+
+    s16 h_pw = e->width >> 1;
+    s16 h_ph = e->height >> 1;
+    s16 h_ew = pl->width >> 1;
+    s16 h_eh = pl->height >> 1;
+
+    s16 dx = (F32_toInt(e->x_f32) + h_pw) - (F32_toRoundedInt(pl->x_f32) + h_ew);
+    s16 dy = (F32_toInt(e->y_f32) + h_ph) - (F32_toRoundedInt(pl->y_f32) + h_eh);
+    
+    s16 overlap_x = (h_pw + h_ew) - (dx < 0 ? -dx : dx);
+    s16 overlap_y = (h_ph + h_eh) - (dy < 0 ? -dy : dy);
+
+    // If no contact, do nothing
+    if (overlap_x <= 0 || overlap_y <= 0) return;
+
+    // Contact confirmed: Check if we just disable it
+    if (p->state == P_SHOT_JUMP) {
+        plat->enabled = false;
+        return; // No collision response (player passes through)
+    }
+
+    // Normal collision response (push player out)
+    if (overlap_x < overlap_y) 
+    {
+        if (dx > 0) e->x_f32 = FIX32(F32_toRoundedInt(pl->x_f32) + pl->width);
+        else        e->x_f32 = FIX32(F32_toRoundedInt(pl->x_f32) - e->width);
+        e->x = F32_toRoundedInt(e->x_f32);
+    }
+    else 
+    {
+        if (dy > 0) e->y_f32 = FIX32(F32_toInt(pl->y_f32) + pl->height);
+        else        e->y_f32 = FIX32(F32_toRoundedInt(pl->y_f32) - e->height);
+        e->y = F32_toRoundedInt(e->y_f32);
+    }
+}
+
+
+
 void handle_platform_collision(Entity *entity)
 {
     if (entity->type != ENTITY_PLAYER) return;
@@ -156,7 +202,11 @@ void handle_platform_collision(Entity *entity)
         {
             Platform* plat = (Platform*) entities[i];
             if (plat->enabled) {
-                check_platform_collision(p, plat);
+                if (CHECK_P_FLAG(plat->flags, PLAT_FLAG_CAMO))
+                    simple_platform_collision(p, plat);
+                else{
+                    check_platform_collision(p, plat);
+                }
             }
         }
         

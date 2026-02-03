@@ -36,7 +36,12 @@ case ENTITY_PLATFORM:
             
             if (!plat->enabled) {
                 // Wenn kaputt/deaktiviert: Animation 1 (oder verstecken)
-                SPR_setAnim(e->sprite, 1);
+                if (CHECK_P_FLAG(plat->flags, PLAT_FLAG_CAMO)){
+                    SPR_setVisibility(e->sprite, HIDDEN);
+                }else{
+                    SPR_setAnim(e->sprite, 1);
+                }
+
             } 
             else if (CHECK_P_FLAG(plat->flags, PLAT_FLAG_INVISIBLE)) {
                 // Wenn noch nicht entdeckt: Animation 1 (Geisterbild/Umrandung)
