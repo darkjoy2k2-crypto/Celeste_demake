@@ -384,18 +384,32 @@ const PickupDef dummy_pickups[] = {
     {0,0, 0}
 };
 
+const PickupDef level_0_pickups[] = {
+    {97,8, PICKUP_HEART},
+    {96, 4, PICKUP_NEXTLEVEL},
+    {98, 4, PICKUP_NEXTLEVEL}
+};
+
 const PickupDef level_1_pickups[] = {
     {5,10, PICKUP_HEART},
+    {27, 0, PICKUP_NEXTLEVEL},
+    {29, 0, PICKUP_NEXTLEVEL}
 };
 
 const PickupDef level_2_pickups[] = {
     {20,17, PICKUP_BALLOON},
-    {24,25, PICKUP_HEART}
+    {24,25, PICKUP_HEART},
+    {25, 0, PICKUP_NEXTLEVEL},
+    {27, 0, PICKUP_NEXTLEVEL},
+    {29, 0, PICKUP_NEXTLEVEL}
 };
 
 const PickupDef level_3_pickups[] = {
     {11,29, PICKUP_SPRING},
-    {27,29, PICKUP_SPRING}
+    {27,29, PICKUP_SPRING},
+    {19, 0, PICKUP_NEXTLEVEL},
+    {21, 0, PICKUP_NEXTLEVEL},
+    {23, 0, PICKUP_NEXTLEVEL}
 };
 
 
@@ -411,8 +425,8 @@ const LevelDefinition levels[] = {
         .height_tiles = 73,   // Example: level 1 is 72 tiles high
         .platforms = level_0_platforms,
         .platform_count = ARRAY_SIZE(level_0_platforms),           // Total number of platforms
-        .pickups = dummy_pickups,
-        .pickup_count = 0
+        .pickups = level_0_pickups,
+        .pickup_count = ARRAY_SIZE(level_0_pickups)
 
     },
     {

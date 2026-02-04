@@ -217,8 +217,9 @@ Pickup* create_pickup(const PickupDef* def) {
             } else if (self->kind == PICKUP_BALLOON) {
                 self->ent.sprite = SPR_addSprite(&ballon_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             } else if (self->kind == PICKUP_SPRING){
-                SPR_setAnimAndFrame(self->ent.sprite, 0, 0);
                 self->ent.sprite = SPR_addSprite(&spring_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            } else if (self->kind == PICKUP_NEXTLEVEL){
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
 
             entities[i] = (Entity*)self;

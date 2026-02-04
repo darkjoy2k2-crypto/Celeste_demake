@@ -16,7 +16,8 @@ typedef enum {
     PICKUP_HEART,
     PICKUP_BALLOON,
     PICKUP_COIN,
-    PICKUP_SPRING
+    PICKUP_SPRING,
+    PICKUP_NEXTLEVEL
 } PickupKind;
 
 // --- PLAYER LOGIC ---

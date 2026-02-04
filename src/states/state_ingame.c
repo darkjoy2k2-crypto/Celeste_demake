@@ -109,6 +109,8 @@ static void update() {
 }
 
 static void exit() {
+    FADE_out(15, false);      // Smoothly reveal the level
+
     /* 1. Cleanup Dynamic Memory */
     if (state_ctx.ingame.current_map) {
         MAP_release(state_ctx.ingame.current_map);

@@ -1,5 +1,6 @@
 #include "entities/update_platform.h"
 #include "globals.h"
+#include "states/states.h"
 
 void ENTITY_UPDATE_pickup(Entity* _e) {
     if (!GameSync) return;
@@ -112,6 +113,10 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
             p->timer_stamina = 300;
             break;
 
+        case PICKUP_NEXTLEVEL:
+            current_level_index++;
+            STATE_set(&State_InGame);
+        break;
         default:
     }
 }
