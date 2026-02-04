@@ -10,6 +10,7 @@ extern const SpriteDefinition stone_sprite;
 extern const SpriteDefinition stone2_sprite;
 extern const SpriteDefinition heart_sprite;
 extern const SpriteDefinition ballon_sprite;
+extern const SpriteDefinition spring_sprite;
 extern const SpriteDefinition breakable_sprite;
 
 #endif // _RES_SPRITES_H_

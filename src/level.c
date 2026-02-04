@@ -386,20 +386,16 @@ const PickupDef dummy_pickups[] = {
 
 const PickupDef level_1_pickups[] = {
     {5,10, PICKUP_HEART},
-    {16,16, PICKUP_BALLOON},
-    {16,8, PICKUP_BALLOON}
 };
 
 const PickupDef level_2_pickups[] = {
-    {20,17, PICKUP_BALLOON}
+    {20,17, PICKUP_BALLOON},
+    {24,25, PICKUP_HEART}
 };
 
 const PickupDef level_3_pickups[] = {
-    {5,24, PICKUP_BALLOON},
-    {5,16, PICKUP_BALLOON},
-    {13,20, PICKUP_BALLOON},
-    {21,20, PICKUP_BALLOON},
-    {22,9, PICKUP_BALLOON}
+    {11,29, PICKUP_SPRING},
+    {27,29, PICKUP_SPRING}
 };
 
 

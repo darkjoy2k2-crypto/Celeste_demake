@@ -4,47 +4,114 @@
 void ENTITY_UPDATE_pickup(Entity* _e) {
     if (!GameSync) return;
     Pickup* self = (Pickup*)_e;
+    Player* p = (Player*) entities[player_id];
 
-    if (self->kind == PICKUP_BALLOON) {
-        Player* p = (Player*) entities[player_id];
-        
-        // Reset Logik (wie gehabt)
-        if (p->state_old != P_GROUNDED && p->state == P_GROUNDED && self->collected) {
-            self->collected = false;
-            SPR_setVisibility(self->ent.sprite, VISIBLE);
+    switch (self->kind){
+        case PICKUP_HEART:
+            if (p->state_old != P_GROUNDED && p->state == P_GROUNDED){
+                if (self->collected && !self->counted ) {
+                    self->counted = true;
+                }
+            }
+            
+        break;
+        case PICKUP_BALLOON:
+
+            if (p->state_old != P_GROUNDED && p->state == P_GROUNDED && self->collected) {
+                self->collected = false;
+                SPR_setVisibility(self->ent.sprite, VISIBLE);
+            }
+
+            if (self->collected) return;
+
+            fix32 float_offset = sinFix32(vtimer << 4); 
+            
+            s16 draw_y = F32_toInt(self->ent.y_f32) + F32_toInt(float_offset >> 1);
+
+            if (vtimer & 64) {
+                SPR_setHFlip(self->ent.sprite, TRUE);
+            } else {
+                SPR_setHFlip(self->ent.sprite, FALSE);
+            }
+            
+            self->ent.x = F32_toInt(self->ent.x_f32);
+            self->ent.y = draw_y; 
+            SPR_setPosition(self->ent.sprite, self->ent.x, self->ent.y);
+        break;
+
+case PICKUP_SPRING:
+    if (self->anim_running) {
+        self->time++;
+
+        // Geschwindigkeit (15 Frames warten für 1 Sekunde Rücklauf ist okay)
+
+
+            self->anim_frame += self->anim_direction;
+
+            // HARTE GRENZEN (0 bis 7)
+            if (self->anim_direction == 1) {
+                // Wenn wir ausfahren
+                if (self->anim_frame >= 7) {
+                    self->anim_frame = 7;
+                    self->anim_direction = -1; // Umkehren
+                    p->ent.vx = F16_0;
+                    p->ent.vy = JUMP_FORCE_SPRING;                
+
+                }
+            } else {
+                // Wenn wir einfahren
+                if (self->anim_frame <= 0) {
+                    self->anim_frame = 0;
+                    self->anim_running = false; // STOPP
+                    self->anim_direction = 1;
+                }
+            }
+
+            // Sicherstellen, dass SGDK niemals einen illegalen Frame bekommt
+            if (self->anim_frame > 7) self->anim_frame = 7;
+            if (self->anim_frame < 0) self->anim_frame = 0;
+
+            SPR_setFrame(self->ent.sprite, self->anim_frame);
         }
 
-        if (self->collected) return;
-
-        // --- OPTIMIERTE BEWEGUNG ---
-        // Sinus-Geschwindigkeit: Wir schieben den vtimer bitweise (schneller als Mult)
-        // sinFix32 nutzt intern eine Tabelle, das ist okay.
-        fix32 float_offset = sinFix32(vtimer << 4); 
-        
-        // Amplitude: * 4 ist einfach ein Shift um 2 nach links (schnell)
-        s16 draw_y = F32_toInt(self->ent.y_f32) + F32_toInt(float_offset >> 1);
-
-        // --- OPTIMIERTER FLIP ---
-        // Wir prüfen Bit 6 des vtimers (0100 0000 = 64). 
-        // Das Bit wechselt alle 64 Frames von 0 auf 1.
-        if (vtimer & 64) {
-            SPR_setHFlip(self->ent.sprite, TRUE);
-        } else {
-            SPR_setHFlip(self->ent.sprite, FALSE);
-        }
-
-        self->ent.x = F32_toInt(self->ent.x_f32);
-        self->ent.y = draw_y; 
-
-        SPR_setPosition(self->ent.sprite, self->ent.x, self->ent.y);
+break;
+        default:
+        break;
     }
+
+
+
 }
 
 void ENTITY_TRIGGER_pickup(Entity* _e) {
     Pickup* self = (Pickup*)_e;
-    SPR_setVisibility(self->ent.sprite, HIDDEN);
-    self->collected = true;
-
     Player* p = (Player*) entities[player_id];
-    p->count_shot_jump++;
+
+    if (self->collected) return;
+        
+
+    switch (self->kind){
+        case PICKUP_HEART:
+        case PICKUP_COIN:
+            SPR_setVisibility(self->ent.sprite, HIDDEN);
+            self->collected = true;
+            break;
+
+        case PICKUP_BALLOON:
+            SPR_setVisibility(self->ent.sprite, HIDDEN);
+            self->collected = true;
+            p->count_shot_jump++;
+
+            break;
+
+        case PICKUP_SPRING:
+            if (self->anim_running) return;
+            self->anim_running = true;
+            self->anim_frame = 6;
+            self->anim_direction = 1;
+            p->timer_stamina = 300;
+            break;
+
+        default:
+    }
 }

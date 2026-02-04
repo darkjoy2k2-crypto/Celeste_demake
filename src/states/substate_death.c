@@ -65,6 +65,16 @@ static void exit() {
     SPR_setVisibility(p->ent.sprite,VISIBLE);
     // Fade back into the game after teleporting
     FADE_in(30, true);
+
+    for (u16 i = 0; i < MAX_ENTITIES; i++) {
+        if (entity_used[i] == 1) {
+            Pickup* p = (Pickup*) entities[i];
+            if (p->kind == PICKUP_HEART && !p->counted){
+                p->collected = false;
+                SPR_setVisibility(p->ent.sprite, VISIBLE);
+            }
+        }
+    }
 }
 
 const GameState SubState_Death = {enter, update, exit};

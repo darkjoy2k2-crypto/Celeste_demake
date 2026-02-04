@@ -89,8 +89,13 @@ typedef struct {
 typedef struct {
     Entity ent;
     PickupKind kind;  // Herz oder Ballon?
+    u16 anim_frame;
+    u16 anim_direction;
+    s16 time;
     s16 float_sink; // Für einen schwebenden Effekt (Sinus-Animation)
     bool collected;
+    bool counted;
+    bool anim_running;
     void (*trigger)(struct Entity* self);
 } Pickup;
 

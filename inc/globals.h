@@ -29,6 +29,8 @@ extern u16 button_map[ACTION_MAX];
 #define MOVE_SPEED_MAX      FIX16(2.0)
 #define CLIMB_SPEED         FIX16(0.4)
 #define JUMP_FORCE          FIX16(-4)
+#define JUMP_FORCE_SPRING   FIX16(-7)
+
 #define JUMP_FORCE_WALL_V   FIX16(-4.0)
 #define JUMP_FORCE_WALL_H   FIX16(3.0)
 #define JUMP_FORCE_EDGE     FIX16(-3.5)

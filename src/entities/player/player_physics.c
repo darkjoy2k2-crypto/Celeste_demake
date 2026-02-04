@@ -31,7 +31,7 @@ static void update_player_stamina_visuals(Player* p) {
 static void apply_ground_physics(Player* p) {
     p->timer_grace = TIMER_GRACE_MAX;
     if (p->state_old != P_GROUNDED){
-        p->count_shot_jump = shot_jump_count = 0;
+        p->count_shot_jump = shot_jump_count = 1;
         p->timer_stamina = 300;
         PAL_restore_direct(PAL2, 1, 3);
     } 

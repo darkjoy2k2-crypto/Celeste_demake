@@ -217,7 +217,6 @@ void handle_platform_collision(Entity *entity)
             if (!pick->collected) {
                 // HIER: Funktionsname muss mit der Definition oben übereinstimmen!
                 if (check_collision_centered(&p->ent, &pick->ent)) {
-                    pick->collected = true; 
                     if (pick->trigger) {
                         pick->trigger(entities[i]);
                     }

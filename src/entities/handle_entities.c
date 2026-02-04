@@ -206,14 +206,19 @@ Pickup* create_pickup(const PickupDef* def) {
             self->ent.height = 16;
 
             self->kind = def->kind;
-            self->collected = false;
-            self->float_sink = 0;
+            self->anim_running = self->counted = self->collected = false;
+            self->time = 0;
+
+            self->anim_direction = self->anim_frame = 0;
 
             // Sprite-Zuweisung basierend auf Enum
             if (self->kind == PICKUP_HEART) {
                 self->ent.sprite = SPR_addSprite(&heart_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             } else if (self->kind == PICKUP_BALLOON) {
                 self->ent.sprite = SPR_addSprite(&ballon_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            } else if (self->kind == PICKUP_SPRING){
+                SPR_setAnimAndFrame(self->ent.sprite, 0, 0);
+                self->ent.sprite = SPR_addSprite(&spring_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
 
             entities[i] = (Entity*)self;
