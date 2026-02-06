@@ -35,6 +35,8 @@ struct Area;
 #define PLAT_FLAG_RESPAWN         (1 << 7)
 #define PLAT_FLAG_STOMP_BREAK     (1 << 8)
 #define PLAT_FLAG_CAMO            (1 << 9)
+#define PLAT_FLAG_WIDE            (1 << 10)
+
 
 // --- BASIS ENTITY STRUKTUR ---
 typedef struct Entity {

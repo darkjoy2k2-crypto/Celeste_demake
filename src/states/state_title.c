@@ -63,7 +63,7 @@ static void update() {
         }
     }
     else if ((current_joy_state & BUTTON_DOWN) && !(last_joy_state & BUTTON_DOWN)) {
-        if (current_level_index < 3) {
+        if (current_level_index < 4) {
             current_level_index++;
         }
     }    

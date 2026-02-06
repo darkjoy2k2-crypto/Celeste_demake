@@ -68,11 +68,29 @@ static void exit() {
 
     for (u16 i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 1) {
-            Pickup* p = (Pickup*) entities[i];
-            if (p->kind == PICKUP_HEART && !p->counted){
-                p->collected = false;
-                SPR_setVisibility(p->ent.sprite, VISIBLE);
+
+            Entity* e = entities[i];
+
+            if (e->type == ENTITY_PICKUP ){
+
+                Pickup* p = (Pickup*) entities[i];
+                if (p->kind == PICKUP_HEART && !p->counted){
+                    p->collected = false;
+                    SPR_setVisibility(p->ent.sprite, VISIBLE);
+                }
             }
+            if (e->type == ENTITY_PLATFORM){
+                Platform* p = (Platform*) entities[i];
+                if (CHECK_P_FLAG(p->flags, PLAT_FLAG_BREAKABLE)){
+                    p->state = PLAT_IDLE;
+                    p->enabled = true;
+                    p->touched = false;
+                    p->wait_timer = 0;     
+                    SPR_setVisibility(e->sprite, VISIBLE);           
+                }
+            }
+
+
         }
     }
 }

@@ -11,3 +11,6 @@ MAP level_2_mapdefinition "levels/level_2.png" level_2_tileset  BEST 0
 
 TILESET level_3_tileset "levels/level_3.png" BEST ALL
 MAP level_3_mapdefinition "levels/level_3.png" level_3_tileset  BEST 0
+
+TILESET level_4_tileset "levels/level_4.png" BEST ALL
+MAP level_4_mapdefinition "levels/level_4.png" level_4_tileset  BEST 0

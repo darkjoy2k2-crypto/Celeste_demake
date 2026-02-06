@@ -29,7 +29,7 @@ extern u16 button_map[ACTION_MAX];
 #define MOVE_SPEED_MAX      FIX16(2.0)
 #define CLIMB_SPEED         FIX16(0.4)
 #define JUMP_FORCE          FIX16(-4)
-#define JUMP_FORCE_SPRING   FIX16(-7)
+#define JUMP_FORCE_SPRING   FIX16(-5)
 
 #define JUMP_FORCE_WALL_V   FIX16(-4.0)
 #define JUMP_FORCE_WALL_H   FIX16(3.0)
@@ -46,7 +46,7 @@ extern u16 shot_jump_count;
 #define TIMER_SHOT_JUMP_MAX  15
 
 #define TIMER_GRACE_MAX     6
-#define TIMER_BUFFER_MAX     6
+#define TIMER_BUFFER_MAX     20
 #define DASH_STAMINA_COST   10
 
 #define MAX_LIVES    3;

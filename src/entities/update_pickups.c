@@ -45,7 +45,11 @@ case PICKUP_SPRING:
         self->time++;
 
         // Geschwindigkeit (15 Frames warten für 1 Sekunde Rücklauf ist okay)
+        if (self->time > 1){
+            self->time = 0;
 
+            if (self->anim_frame == 1 && self->anim_direction == 1)
+                p->ent.vy = JUMP_FORCE_SPRING;                
 
             self->anim_frame += self->anim_direction;
 
@@ -56,7 +60,6 @@ case PICKUP_SPRING:
                     self->anim_frame = 7;
                     self->anim_direction = -1; // Umkehren
                     p->ent.vx = F16_0;
-                    p->ent.vy = JUMP_FORCE_SPRING;                
 
                 }
             } else {
@@ -73,6 +76,8 @@ case PICKUP_SPRING:
             if (self->anim_frame < 0) self->anim_frame = 0;
 
             SPR_setFrame(self->ent.sprite, self->anim_frame);
+                    }
+
         }
 
 break;
@@ -108,9 +113,10 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
         case PICKUP_SPRING:
             if (self->anim_running) return;
             self->anim_running = true;
-            self->anim_frame = 6;
+            self->anim_frame = 0;
             self->anim_direction = 1;
-            p->timer_stamina = 300;
+
+                    
             break;
 
         case PICKUP_NEXTLEVEL:

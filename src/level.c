@@ -190,6 +190,42 @@ const u16 level_3_collision_data[1024] = {
     1, 1, 1, 1, 3, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 3, 1, 1, 3, 1, 0, 0, 0, 0, 0, 1, 1, 3, 1, 1, 1
 };
 
+const u16 level_4_collision_data[1024] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+
 const fix32 OFFSET = FIX32(3);
 
 const Area level_0_areas[] = {
@@ -274,6 +310,20 @@ const Area level_2_areas[] = {
 };
 
 const Area level_3_areas[] = {
+    { // 0
+        .min = {0, 0},
+        .max = {256, 256},
+        .spawn = {3, 25},
+        .cam_mode = CAM_MODE_FOLLOW,
+        .cam_min = {0, 0},
+        .cam_max = {256, 256},
+        .type = 0,
+        .id = 0,
+        .die_on_bottom = true
+    }
+};
+
+const Area level_4_areas[] = {
     { // 0
         .min = {0, 0},
         .max = {256, 256},
@@ -379,13 +429,21 @@ const PlatformDef level_1_platforms[] = {
 const PlatformDef dummy_platforms[] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
+const PlatformDef level_4_platforms[] = {
+    { .x = 9, .y = 31, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN | PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 17, .y = 29, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 25, .y = 27, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 29, .y = 23, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 23, .y = 19, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
+    { .x = 25, .y = 13, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 }
+};
 
 const PickupDef dummy_pickups[] = {
     {0,0, 0}
 };
 
 const PickupDef level_0_pickups[] = {
-    {97,8, PICKUP_HEART},
+    {97,10, PICKUP_HEART},
     {96, 4, PICKUP_NEXTLEVEL},
     {98, 4, PICKUP_NEXTLEVEL}
 };
@@ -412,6 +470,12 @@ const PickupDef level_3_pickups[] = {
     {23, 0, PICKUP_NEXTLEVEL}
 };
 
+const PickupDef level_4_pickups[] = {
+    {5, 12, PICKUP_HEART},
+    {14, 0, PICKUP_NEXTLEVEL},
+    {16, 0, PICKUP_NEXTLEVEL},
+    {18, 0, PICKUP_NEXTLEVEL}
+};
 
 const LevelDefinition levels[] = {
     {
@@ -473,8 +537,22 @@ const LevelDefinition levels[] = {
         .pickups = level_3_pickups,
         .pickup_count = ARRAY_SIZE(level_3_pickups)
         // Total number of platforms
-    }           
-
+    } ,          
+    {
+        .areas = level_4_areas,
+        .area_count = ARRAY_SIZE(level_4_areas),
+        .map_def = &level_4_mapdefinition,
+        .tileset = &level_4_tileset,
+        .background = &layer_bg,
+        .collision_data = level_4_collision_data,
+        .width_tiles = 32,  // Example: level 1 is 103 tiles wide
+        .height_tiles = 32,   // Example: level 1 is 72 tiles high
+        .platforms = level_4_platforms,
+        .platform_count = ARRAY_SIZE(level_4_platforms),
+        .pickups = level_4_pickups,
+        .pickup_count = ARRAY_SIZE(level_4_pickups)
+        // Total number of platforms
+    }        
 
     // Add Level 2 here:
     // { .areas = level_2_areas, ... }

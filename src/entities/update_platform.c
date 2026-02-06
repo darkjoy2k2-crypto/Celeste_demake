@@ -21,7 +21,6 @@ void ENTITY_UPDATE_platform(Entity* _e) {
         case PLAT_BREAKING:
             if (self->wait_timer > 0) {
                 self->wait_timer--;
-                if (self->wait_timer % 4 < 2) self->ent.x++; else self->ent.x--;
             } else {
                 self->enabled = false;
                 SPR_setVisibility(self->ent.sprite, HIDDEN);
@@ -51,11 +50,11 @@ void ENTITY_UPDATE_platform(Entity* _e) {
     bool is_moving = !(CHECK_P_FLAG(self->flags, PLAT_FLAG_TOUCH_START)) || (self->status_bits & 0x0001);
 
     if (self->enabled && is_moving) {
-        fix32 offset_f32 = 0;
+        fix32 offset_f32 = FIX32(0);
 
         if (CHECK_P_FLAG(self->flags, PLAT_FLAG_SINUS)) {
             // Sinus nutzt vtimer -> globaler Takt, kein Überlauf-Problem hier
-            s16 speed_val = F16_toInt(self->speed);
+            s16 speed_val = F16_toRoundedInt(self->speed);
             offset_f32 = getSinusValueF32(vtimer, speed_val, self->range);
         } else {
             // LINEAR (Lift & Pendel)
@@ -102,8 +101,8 @@ void ENTITY_UPDATE_platform(Entity* _e) {
         if (CHECK_P_FLAG(self->flags, PLAT_FLAG_Y)) self->ent.y_f32 = base_y - offset_f32;
         else self->ent.y_f32 = base_y;
 
-        self->ent.x = F32_toInt(self->ent.x_f32);
-        self->ent.y = F32_toInt(self->ent.y_f32);
+        self->ent.x = F32_toRoundedInt(self->ent.x_f32);
+        self->ent.y = F32_toRoundedInt(self->ent.y_f32);
     }
 
     // --- 3. PHYSIK & SPRITE ---

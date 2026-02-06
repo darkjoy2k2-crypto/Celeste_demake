@@ -114,7 +114,7 @@ Platform* create_platform(const PlatformDef* def) {
             // Initialer Zustand
             self->state     = PLAT_IDLE;
             self->enabled   = true;
-            self->ent.width = (CHECK_P_FLAG(self->flags, PLAT_FLAG_X) && CHECK_P_FLAG(self->flags, PLAT_FLAG_SINUS)) ? 32 : 16;
+            self->ent.width = (CHECK_P_FLAG(self->flags, PLAT_FLAG_WIDE)) ? 32 : 16;
             self->ent.height = 16;
 
             if (CHECK_P_FLAG(self->flags,PLAT_FLAG_CAMO)){
