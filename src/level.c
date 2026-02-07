@@ -463,6 +463,7 @@ const PickupDef level_2_pickups[] = {
 };
 
 const PickupDef level_3_pickups[] = {
+    {3, 14, PICKUP_HEART},
     {11,29, PICKUP_SPRING},
     {27,29, PICKUP_SPRING},
     {19, 0, PICKUP_NEXTLEVEL},
@@ -471,7 +472,7 @@ const PickupDef level_3_pickups[] = {
 };
 
 const PickupDef level_4_pickups[] = {
-    {5, 12, PICKUP_HEART},
+    {5, 8, PICKUP_HEART_FLEEING},
     {14, 0, PICKUP_NEXTLEVEL},
     {16, 0, PICKUP_NEXTLEVEL},
     {18, 0, PICKUP_NEXTLEVEL}

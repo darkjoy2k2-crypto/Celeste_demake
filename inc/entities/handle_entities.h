@@ -96,6 +96,8 @@ typedef struct {
     s16 time;
     s16 float_sink; // Für einen schwebenden Effekt (Sinus-Animation)
     bool collected;
+    s16 origin_x, origin_y;
+    PickupState state;
     bool counted;
     bool anim_running;
     void (*trigger)(struct Entity* self);

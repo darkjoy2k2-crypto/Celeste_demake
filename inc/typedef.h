@@ -14,6 +14,7 @@ typedef enum {
 // --- PICKUPS / ITEMS ---
 typedef enum {
     PICKUP_HEART,
+    PICKUP_HEART_FLEEING,
     PICKUP_BALLOON,
     PICKUP_COIN,
     PICKUP_SPRING,
@@ -33,3 +34,9 @@ typedef enum {
     PLAT_HIDDEN,
     PLAT_DISABLED
 } PlatformState;
+
+typedef enum {
+    PICK_IDLE,
+    PICK_FOLLOW,
+    PICK_FLEE
+} PickupState;

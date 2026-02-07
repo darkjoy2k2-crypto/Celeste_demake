@@ -74,10 +74,15 @@ static void exit() {
             if (e->type == ENTITY_PICKUP ){
 
                 Pickup* p = (Pickup*) entities[i];
-                if (p->kind == PICKUP_HEART && !p->counted){
+                if ( (p->kind == PICKUP_HEART || PICKUP_HEART_FLEEING) && !p->counted){
                     p->collected = false;
+                    p->ent.x = p->ent.x_old = p->origin_x;
+                    p->ent.y = p->ent.y_old = p->origin_y;
+                    p->ent.x_f32 = p->ent.x_old_f32 = FIX32(p->ent.x);
+                    p->ent.y_f32 = p->ent.y_old_f32 = FIX32(p->ent.y);
+                    p->state = PICK_IDLE;
                     SPR_setVisibility(p->ent.sprite, VISIBLE);
-                }
+                } 
             }
             if (e->type == ENTITY_PLATFORM){
                 Platform* p = (Platform*) entities[i];

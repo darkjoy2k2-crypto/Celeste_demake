@@ -197,8 +197,9 @@ Pickup* create_pickup(const PickupDef* def) {
             self->ent.type = ENTITY_PICKUP;
             self->ent.update = ENTITY_UPDATE_pickup; // Musst du noch in update_pickup.c/h erstellen
             self->trigger = ENTITY_TRIGGER_pickup;
-            self->ent.x = def->x << 3;
-            self->ent.y = def->y << 3;
+            self->ent.x = self->origin_x = def->x << 3;
+            self->ent.y = self->origin_y = def->y << 3;
+            self->state = PICK_IDLE;
             self->ent.x_f32 = self->ent.x_old_f32 = FIX32(self->ent.x);
             self->ent.y_f32 = self->ent.y_old_f32 = FIX32(self->ent.y);
             
@@ -212,7 +213,7 @@ Pickup* create_pickup(const PickupDef* def) {
             self->anim_direction = self->anim_frame = 0;
 
             // Sprite-Zuweisung basierend auf Enum
-            if (self->kind == PICKUP_HEART) {
+            if (self->kind == PICKUP_HEART || self->kind == PICKUP_HEART_FLEEING)  {
                 self->ent.sprite = SPR_addSprite(&heart_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             } else if (self->kind == PICKUP_BALLOON) {
                 self->ent.sprite = SPR_addSprite(&ballon_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));

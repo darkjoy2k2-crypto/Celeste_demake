@@ -8,14 +8,55 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
     Player* p = (Player*) entities[player_id];
 
     switch (self->kind){
-        case PICKUP_HEART:
+
+        case PICKUP_HEART_FLEEING:
+            if (!self->collected) {
+                if (p->state == P_SHOT_JUMP || p->state_old == P_SHOT_JUMP)
+                    self->state = PICK_FLEE;
+
+                if (self->state == PICK_FLEE){
+                    if (p->ent.vy < FIX16(-0.8))
+                        self->ent.y_f32 += F16_toFix32(p->ent.vy);
+                    else
+                        self->ent.y_f32 += FIX32(-0.8 );
+                    
+                    self->ent.y = F32_toRoundedInt(self->ent.y_f32);
+                    SPR_setPosition(self->ent.sprite, self->ent.x, self->ent.y);
+                }
+            }
+            /* fallthrough */
+        case PICKUP_HEART: 
+            if (self->state == PICK_FOLLOW){
+
+                s16 distance_x = self->ent.x - p->ent.x;
+                s16 distance_y = self->ent.y - p->ent.y;
+
+                if (distance_x > 16)
+                    self->ent.x -= 5;
+
+                if (distance_x < -16)
+                    self->ent.x +=5 ;
+
+                if (distance_y > 16)
+                    self->ent.y -=5;
+
+                if (distance_y < -16)
+                    self->ent.y +=5;
+
+                self->ent.x_f32 = FIX32(self->ent.x);
+                self->ent.y_f32 = FIX32(self->ent.y);
+            }
+
+
             if (p->state_old != P_GROUNDED && p->state == P_GROUNDED){
                 if (self->collected && !self->counted ) {
                     self->counted = true;
+                    SPR_setVisibility(self->ent.sprite, HIDDEN);
                 }
             }
+        
+            break;
             
-        break;
         case PICKUP_BALLOON:
 
             if (p->state_old != P_GROUNDED && p->state == P_GROUNDED && self->collected) {
@@ -40,53 +81,51 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
             SPR_setPosition(self->ent.sprite, self->ent.x, self->ent.y);
         break;
 
-case PICKUP_SPRING:
-    if (self->anim_running) {
-        self->time++;
+        case PICKUP_SPRING:
+            if (self->anim_running) {
+                self->time++;
 
-        // Geschwindigkeit (15 Frames warten für 1 Sekunde Rücklauf ist okay)
-        if (self->time > 1){
-            self->time = 0;
+            // Geschwindigkeit (15 Frames warten für 1 Sekunde Rücklauf ist okay)
+            if (self->time > 1){
+                self->time = 0;
 
-            if (self->anim_frame == 1 && self->anim_direction == 1)
-                p->ent.vy = JUMP_FORCE_SPRING;                
+                if (self->anim_frame == 1 && self->anim_direction == 1)
+                    p->ent.vy = JUMP_FORCE_SPRING;                
 
-            self->anim_frame += self->anim_direction;
+                self->anim_frame += self->anim_direction;
 
-            // HARTE GRENZEN (0 bis 7)
-            if (self->anim_direction == 1) {
-                // Wenn wir ausfahren
-                if (self->anim_frame >= 7) {
-                    self->anim_frame = 7;
-                    self->anim_direction = -1; // Umkehren
-                    p->ent.vx = F16_0;
+                // HARTE GRENZEN (0 bis 7)
+                if (self->anim_direction == 1) {
+                    // Wenn wir ausfahren
+                    if (self->anim_frame >= 7) {
+                        self->anim_frame = 7;
+                        self->anim_direction = -1; // Umkehren
+                        p->ent.vx = F16_0;
 
+                    }
+                } else {
+                    // Wenn wir einfahren
+                    if (self->anim_frame <= 0) {
+                        self->anim_frame = 0;
+                        self->anim_running = false; // STOPP
+                        self->anim_direction = 1;
+                    }
                 }
-            } else {
-                // Wenn wir einfahren
-                if (self->anim_frame <= 0) {
-                    self->anim_frame = 0;
-                    self->anim_running = false; // STOPP
-                    self->anim_direction = 1;
+
+                // Sicherstellen, dass SGDK niemals einen illegalen Frame bekommt
+                if (self->anim_frame > 7) self->anim_frame = 7;
+                if (self->anim_frame < 0) self->anim_frame = 0;
+
+                SPR_setFrame(self->ent.sprite, self->anim_frame);
                 }
+
             }
 
-            // Sicherstellen, dass SGDK niemals einen illegalen Frame bekommt
-            if (self->anim_frame > 7) self->anim_frame = 7;
-            if (self->anim_frame < 0) self->anim_frame = 0;
+        break;
 
-            SPR_setFrame(self->ent.sprite, self->anim_frame);
-                    }
-
-        }
-
-break;
         default:
         break;
     }
-
-
-
 }
 
 void ENTITY_TRIGGER_pickup(Entity* _e) {
@@ -98,9 +137,10 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
 
     switch (self->kind){
         case PICKUP_HEART:
+        case PICKUP_HEART_FLEEING:
         case PICKUP_COIN:
-            SPR_setVisibility(self->ent.sprite, HIDDEN);
             self->collected = true;
+            self->state = PICK_FOLLOW;
             break;
 
         case PICKUP_BALLOON:
