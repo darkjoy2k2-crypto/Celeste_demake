@@ -40,16 +40,26 @@ struct Area;
 
 // --- BASIS ENTITY STRUKTUR ---
 typedef struct Entity {
-    EntityType type;
-    s16 x, y;
-    s16 x_old, y_old;
-    fix32 x_f32, y_f32;
-    fix32 x_old_f32, y_old_f32;
-    fix16 vx, vy;
-    u8 width, height;
-    Sprite* sprite;
-    fix16 anim_index;
     void (*update)(struct Entity* self);
+    Sprite* sprite;
+
+    fix32 x_f32;
+    fix32 y_f32;
+    fix32 x_old_f32;
+    fix32 y_old_f32;
+
+    fix16 vx;
+    fix16 vy;
+    fix16 anim_index;
+    s16 x;
+    s16 y;
+    s16 x_old;
+    s16 y_old;
+    EntityType type;
+
+    u8 width;
+    u8 height;
+    bool spr_visible;
 } Entity;
 
 // --- PLAYER STRUKTUR ---

@@ -48,10 +48,10 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
             }
 
 
-            if (p->state_old != P_GROUNDED && p->state == P_GROUNDED){
+            if (p->state_old == P_GROUNDED && p->state == P_GROUNDED && p->ent.vy == FIX16(0.5)){
                 if (self->collected && !self->counted ) {
                     self->counted = true;
-                    SPR_setVisibility(self->ent.sprite, HIDDEN);
+                    self->ent.spr_visible = false;
                 }
             }
         
@@ -61,7 +61,7 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
 
             if (p->state_old != P_GROUNDED && p->state == P_GROUNDED && self->collected) {
                 self->collected = false;
-                SPR_setVisibility(self->ent.sprite, VISIBLE);
+                self->ent.spr_visible = true;
             }
 
             if (self->collected) return;
@@ -139,18 +139,24 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
         case PICKUP_HEART:
         case PICKUP_HEART_FLEEING:
         case PICKUP_COIN:
-            self->collected = true;
-            self->state = PICK_FOLLOW;
+
+            if (!self->counted){
+                self->collected = true;
+                self->state = PICK_FOLLOW;
+            }
+
             break;
 
         case PICKUP_BALLOON:
-            SPR_setVisibility(self->ent.sprite, HIDDEN);
+                self->ent.spr_visible = false;
             self->collected = true;
             p->count_shot_jump++;
 
             break;
 
         case PICKUP_SPRING:
+            if (p->state == P_GROUNDED || p->state_old == P_GROUNDED  || p->ent.vy == FIX16(0.5))
+                    p->ent.vy = JUMP_FORCE_SPRING;                
             if (self->anim_running) return;
             self->anim_running = true;
             self->anim_frame = 0;

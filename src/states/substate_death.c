@@ -62,7 +62,7 @@ static void exit() {
     p->physics_state = 0; 
 
     update_camera(entities[player_id], level_1_map, true);
-    SPR_setVisibility(p->ent.sprite,VISIBLE);
+                p->ent.spr_visible = true;
     // Fade back into the game after teleporting
     FADE_in(30, true);
 
@@ -81,18 +81,19 @@ static void exit() {
                     p->ent.x_f32 = p->ent.x_old_f32 = FIX32(p->ent.x);
                     p->ent.y_f32 = p->ent.y_old_f32 = FIX32(p->ent.y);
                     p->state = PICK_IDLE;
-                    SPR_setVisibility(p->ent.sprite, VISIBLE);
+                p->ent.spr_visible = true;
                 } 
             }
             if (e->type == ENTITY_PLATFORM){
                 Platform* p = (Platform*) entities[i];
-                if (CHECK_P_FLAG(p->flags, PLAT_FLAG_BREAKABLE)){
+                if (!CHECK_P_FLAG(p->flags, PLAT_FLAG_BREAKABLE)){
                     p->state = PLAT_IDLE;
                     p->enabled = true;
                     p->touched = false;
                     p->wait_timer = 0;     
-                    SPR_setVisibility(e->sprite, VISIBLE);           
                 }
+
+                p->ent.spr_visible = CHECK_P_FLAG(p->flags, PLAT_FLAG_INVISIBLE) ? false : true;
             }
 
 

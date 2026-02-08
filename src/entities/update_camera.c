@@ -24,10 +24,12 @@ void update_all_entities_sprites() {
             s16 x = ex - camera_position.x - 8;
             s16 y = ey - camera_position.y - 8;
 
-            if (x < -64 || x > 384 || y < -64 || y > 288) {
+            if ((x < -64 || x > 384 || y < -64 || y > 288) || !e->spr_visible  ){
                 SPR_setVisibility(e->sprite, HIDDEN);
-            } else {
-                //SPR_setVisibility(e->sprite, VISIBLE);
+
+            } else if (e->spr_visible) {
+                    SPR_setVisibility(e->sprite, VISIBLE);
+
                 SPR_setPosition(e->sprite, x, y);
             }
         }

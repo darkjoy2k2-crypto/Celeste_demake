@@ -255,10 +255,10 @@ const Area level_0_areas[] = {
     },
     { // 2
         .min = {253, 188},
-        .max = {539, 347},
+        .max = {545, 347},
         .spawn = {33, 41},
         .cam = {232, 142},
-        .cam_mode = CAM_MODE_FIXED,
+        .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {232, 176},
         .cam_max = {552, 384},
         .type = 0,
@@ -271,7 +271,7 @@ const Area level_0_areas[] = {
         .max = {816, 187},
         .spawn = {66, 21},
         .cam = {496, 0},
-        .cam_mode = CAM_MODE_FIXED,
+        .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {496, 16},
         .cam_max = {816, 224},
         .type = 0,
@@ -381,7 +381,7 @@ const Area level_4_areas[] = {
  * @brief Level 1 Plattform-Definitionen
  * Parcours-Design für eine Welt von 960px (3 Screens) Breite.
  */
-const PlatformDef level_0_platforms[] = {
+const PlatformDef platform_examples[] = {
     
     // --- BILDSCHIRM 1: EINFÜHRUNG & MECHANIKEN ---
 
@@ -422,13 +422,15 @@ const PlatformDef level_0_platforms[] = {
     { .x = 115, .y = 16, .speed = FIX16(2.0), .flags = PLAT_FLAG_Y, .amplitude = 0, .range = 48, .timer_a = 0,  .timer_b = 0   }
 };
 
-const PlatformDef level_1_platforms[] = {
-    { 4, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 }
-};
 
 const PlatformDef dummy_platforms[] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 } 
 };
+
+const PlatformDef level_1_platforms[] = {
+    { 4, 9, 0, .flags = PLAT_FLAG_CAMO, 0, 0, 0, 0 }
+};
+
 const PlatformDef level_4_platforms[] = {
     { .x = 9, .y = 31, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN | PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
     { .x = 17, .y = 29, .speed = F16_0, .flags = PLAT_FLAG_BREAKABLE | PLAT_FLAG_RESPAWN| PLAT_FLAG_WIDE, .amplitude = 0, .range = 0, .timer_a = 45, .timer_b = 120 },
@@ -443,7 +445,7 @@ const PickupDef dummy_pickups[] = {
 };
 
 const PickupDef level_0_pickups[] = {
-    {97,10, PICKUP_HEART},
+    {45,41, PICKUP_SPRING},
     {96, 4, PICKUP_NEXTLEVEL},
     {98, 4, PICKUP_NEXTLEVEL}
 };
@@ -488,8 +490,8 @@ const LevelDefinition levels[] = {
         .collision_data = level_0_collision_data,
         .width_tiles = 102,  // Example: level 1 is 103 tiles wide
         .height_tiles = 73,   // Example: level 1 is 72 tiles high
-        .platforms = level_0_platforms,
-        .platform_count = ARRAY_SIZE(level_0_platforms),           // Total number of platforms
+        .platforms = dummy_platforms,
+        .platform_count = 0,           // Total number of platforms
         .pickups = level_0_pickups,
         .pickup_count = ARRAY_SIZE(level_0_pickups)
 

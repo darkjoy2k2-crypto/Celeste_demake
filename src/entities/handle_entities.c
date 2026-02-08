@@ -43,7 +43,9 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
 
             e->width = w;
             e->height = h;
-            
+
+            e->spr_visible = true;
+
             if (type == ENTITY_PLAYER) {
                 Player* p = (Player*)e;
                 
@@ -63,7 +65,7 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
                 /* Fallback für unbekannte Typen */
                 e->update = NULL;
             }
-            
+
             return i;
         }
     }
@@ -114,6 +116,8 @@ Platform* create_platform(const PlatformDef* def) {
             // Initialer Zustand
             self->state     = PLAT_IDLE;
             self->enabled   = true;
+            self->touched = false;
+            
             self->ent.width = (CHECK_P_FLAG(self->flags, PLAT_FLAG_WIDE)) ? 32 : 16;
             self->ent.height = 16;
 
@@ -131,9 +135,7 @@ Platform* create_platform(const PlatformDef* def) {
                 
             }
 
-            if (CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE)) {
-                SPR_setVisibility(self->ent.sprite, HIDDEN);
-            }
+            self->ent.spr_visible = CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE) ? false : true;
 
             entities[i] = (Entity*)self;
             return self;
@@ -222,7 +224,7 @@ Pickup* create_pickup(const PickupDef* def) {
             } else if (self->kind == PICKUP_NEXTLEVEL){
                 self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
-
+            self->ent.spr_visible = true;            
             entities[i] = (Entity*)self;
             return self;
         }

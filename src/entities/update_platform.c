@@ -8,6 +8,7 @@ void ENTITY_UPDATE_platform(Entity* _e) {
     // --- 1. STATUS-MASCHINE ---
     switch (self->state) {
         case PLAT_IDLE:
+            
             if (self->touched) {
                 if (CHECK_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE)) CLEAR_P_FLAG(self->flags, PLAT_FLAG_INVISIBLE);
                 if (CHECK_P_FLAG(self->flags, PLAT_FLAG_TOUCH_START)) SET_P_FLAG(self->status_bits, 0x0001); 
@@ -23,7 +24,7 @@ void ENTITY_UPDATE_platform(Entity* _e) {
                 self->wait_timer--;
             } else {
                 self->enabled = false;
-                SPR_setVisibility(self->ent.sprite, HIDDEN);
+                self->ent.spr_visible = false;
                 if (CHECK_P_FLAG(self->flags, PLAT_FLAG_RESPAWN)) {
                     self->wait_timer = self->timer_b;
                     self->state = PLAT_HIDDEN;
@@ -35,7 +36,7 @@ void ENTITY_UPDATE_platform(Entity* _e) {
             if (self->wait_timer > 0) self->wait_timer--;
             else { 
                 self->enabled = true; 
-                SPR_setVisibility(self->ent.sprite, VISIBLE);
+                self->ent.spr_visible = true;
                 self->state = PLAT_IDLE; 
             }
             break;
