@@ -51,15 +51,17 @@ case ENTITY_PLATFORM:
             }
         }
         break;
-case ENTITY_PICKUP:
-{
-    Pickup* p = (Pickup*)e;
-    
-    SPR_setAnim(e->sprite, 0);
-}
-break;
+        
+        case ENTITY_PICKUP:
+        {
+            Pickup* p = (Pickup*)e;
+            
+            SPR_setAnim(p->ent.sprite, 0);
+        }
+        break;
+
         default:
-            break;
+        break;
     }
 }
 

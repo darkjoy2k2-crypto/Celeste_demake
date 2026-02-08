@@ -36,3 +36,8 @@ void PAL_restore_direct(u16 pal_num, u16 start_index, u16 count) {
         PAL_setColor(base + i, target_palettes[base + i]);
     }
 }
+
+void FADE_set_target(u16 pal_num, const u16* data) {
+    // pal_num << 4 multipliziert mit 16 (da 16 Farben pro Palette)
+    memcpy(&target_palettes[pal_num << 4], data, 16 * 2);
+}

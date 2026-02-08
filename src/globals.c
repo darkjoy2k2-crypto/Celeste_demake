@@ -23,6 +23,8 @@ u16 button_map[ACTION_MAX] = {
     [ACTION_START] = BUTTON_START
 };
 
+u16 current_control_preset = 0;
+
 const u16 COL_BALL_WHITE[]  = { 0x0EEE, 0x0AAA, 0x0666 };
 const u16 COL_BALL_YELLOW[] = { 0x00AA, 0x0066, 0x00EE };
 const u16 COL_BALL_ORANGE[] = { 0x004A, 0x0026, 0x026E };

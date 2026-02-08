@@ -9,6 +9,8 @@
 #include "level.h"
 #include "title.h"
 #include "states/states.h"
+#include "levels.h"
+#include "sprites.h"
 
 /* --- Function Prototypes --- */
 static void enter();
@@ -21,57 +23,49 @@ const GameState State_InGame = { enter, update, exit };
 /* --- Implementation --- */
 
 static void enter() {
-    
-
-
-    /* 1. System & Memory Reset */
     memset(&state_ctx, 0, sizeof(state_ctx));
-    init_entities(); // Must happen before spawning anything
+    init_entities(); 
     
     const LevelDefinition* lv = &levels[current_level_index];
+
+    FADE_set_target(PAL0, pal_bg.data);
+    FADE_set_target(PAL1, pal_layer_1.data);
+    FADE_set_target(PAL2, pal_player_hud.data);
+    FADE_set_target(PAL3, pal_entities.data);
+
+    PAL_setColors(0, palette_black, 64, CPU);
 
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     setup_hud();
     init_camera();
 
-    /* 2. Load Background (Plane B) - HEAVY OPERATION */
-    // Drawing an image can be heavy, we do this first while screen is black
     VDP_drawImageEx(BG_B, lv->background, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
     ind += lv->background->tileset->numTile;
     SYS_doVBlankProcess(); 
 
-
-    /* 3. Prepare Logic Data */
     state_ctx.ingame.active_areas = lv->areas;
     state_ctx.ingame.active_count = lv->area_count;
     load_areas(state_ctx.ingame.active_areas, state_ctx.ingame.active_count);
 
-    /* 4. Load Foreground Tileset (DMA) - HEAVY OPERATION */
     VDP_loadTileSet(lv->tileset, ind, DMA);
-    
-    // We wait one frame here to ensure the TileSet DMA is finished 
-    // before we try to use those tiles for the Map.
     SYS_doVBlankProcess(); 
 
-    /* 5. Initialize Map */
     state_ctx.ingame.current_map = MAP_create(lv->map_def, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
     ind += lv->tileset->numTile;
-    /* 6. Entity Spawning */
-    // Spawning often involves SPR_addSprite, which uses more VRAM/bandwidth
+
     spawn_player(0);
     spawn_platforms(lv);
     spawn_pickups(lv);
 
-    /* 7. Final View Sync */
     if (player_id != -1) {
         update_camera(entities[player_id], state_ctx.ingame.current_map, true);
     }
 
-    /* 8. Hardware Push & Start */
-    SPR_update();           // Update sprites before fading in
-    SYS_doVBlankProcess();  // Sync one last time
+    SPR_update(); 
+    SYS_doVBlankProcess();
 
-    FADE_in(15, true);      // Smoothly reveal the level
+    FADE_in(15, true); 
+    
     JOY_init();
     debug_set_ram();
 }
@@ -114,7 +108,6 @@ static void exit() {
     /* 1. Cleanup Dynamic Memory */
     if (state_ctx.ingame.current_map) {
         MAP_release(state_ctx.ingame.current_map);
-        MEM_free(state_ctx.ingame.current_map);
         state_ctx.ingame.current_map = NULL;
     }
 

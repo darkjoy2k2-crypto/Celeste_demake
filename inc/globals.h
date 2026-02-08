@@ -13,6 +13,7 @@ typedef enum {
 } PlayerAction;
 
 extern u16 button_map[ACTION_MAX];
+extern u16 current_control_preset;
 
 #define F16_0               FIX16(0)
 #define F16_01              FIX16(0.1)
@@ -71,19 +72,29 @@ typedef struct {
 } InGameStateData;
 
 typedef struct {
-    s16 cursor_pos;
-    u16 option_count;
-} MenuStateData;
+    u16 idle_timer;
+    u16 blink_timer;
+    u16 last_joy_state;
+    bool show_text;
+} TitleStateData;
 
 typedef struct {
     u16 scene_id;
     u16 timer;
 } IntroStateData;
 
+typedef struct {
+    u16 idle_timer;
+    u16 last_joy_state;
+    u16 preset_index; // Wichtig für die Auswahl der 6 Kombinationen
+} ControlsStateData;
+
 typedef union {
     InGameStateData ingame;
-    MenuStateData menu;
+    TitleStateData menu;
     IntroStateData intro;
+    TitleStateData title;    // Neu hinzugefügt
+    ControlsStateData controls; // Neu
 } StateContext;
 
 extern StateContext state_ctx;

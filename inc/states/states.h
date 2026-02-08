@@ -14,4 +14,6 @@ void STATE_update();
 extern const GameState State_Title;
 extern const GameState State_InGame;
 extern const GameState State_GameOver;
+extern const GameState State_Controls;
+
 extern const GameState SubState_Death;
