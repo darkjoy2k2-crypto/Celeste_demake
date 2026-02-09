@@ -28,7 +28,7 @@ static void applyTitleHScroll(TitleStateData *state_data) {
         state_data->hscroll_vals[i] = -offset_bottom;
     }
 
-    VDP_setHorizontalScrollLine(BG_B, 0, state_data->hscroll_vals, 224, DMA);
+    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);
 }
 
 static void enter() {
@@ -36,12 +36,13 @@ static void enter() {
 
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
 
-    VDP_setHorizontalScroll(BG_B, 0);
-    VDP_setVerticalScroll(BG_B, 0);
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
 
     memset(state_data->hscroll_vals, 0, sizeof(state_data->hscroll_vals));
 
-    VDP_setHorizontalScrollLine(BG_B, 0, state_data->hscroll_vals, 224, DMA);    
+    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);
+    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);    
     
     FADE_set_target(PAL0, pal_title.data);
     PAL_setColors(0, palette_black, 64, CPU);
@@ -50,7 +51,7 @@ static void enter() {
     VDP_clearPlane(BG_B, TRUE);
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
    
-    VDP_drawImageEx(BG_B, &bg_title, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
+    VDP_drawImageEx(BG_A, &bg_title, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
     
     VDP_setTextPalette(PAL2); 
     VDP_setTextPriority(1); 
