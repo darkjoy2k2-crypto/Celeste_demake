@@ -72,9 +72,13 @@ typedef struct {
 } InGameStateData;
 
 typedef struct {
+
     u16 idle_timer;
     u16 blink_timer;
     u16 last_joy_state;
+    s16 scroll_x_dark;
+    s16 scroll_x_demake;
+    s16 hscroll_vals[224];
     bool show_text;
 } TitleStateData;
 
