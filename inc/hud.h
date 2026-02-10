@@ -1,4 +1,5 @@
 #pragma once
 #include <genesis.h>
 
-void setup_hud();
+void hud_setup();
+void hud_clear();

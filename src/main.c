@@ -2,17 +2,19 @@
 #include "debug.h"
 #include "globals.h"
 #include "states/states.h"
-#include "title.h"
+#include "background.h"
+#include "fonts.h"
+#include "fade.h"
+#include "level.h"
 
 int i = 0;
 
 int main() {
     SPR_init(); 
-    VDP_loadFont(&my_font_tiles , DMA);
 
 
     FADE_init();
-
+    LEVELS_init();
 
     
 

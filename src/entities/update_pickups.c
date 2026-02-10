@@ -51,6 +51,7 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
             if (p->state_old == P_GROUNDED && p->state == P_GROUNDED && p->ent.vy == FIX16(0.5)){
                 if (self->collected && !self->counted ) {
                     self->counted = true;
+                    HEARTS++;
                     self->ent.spr_visible = false;
                 }
             }
@@ -166,8 +167,15 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
             break;
 
         case PICKUP_NEXTLEVEL:
-            current_level_index++;
-            STATE_set(&State_InGame);
+
+            if (current_level_index < MAX_LEVEL){
+                current_level_index++;
+                STATE_set(&State_InGame);
+            }
+            else{
+                STATE_set(&State_EndOfGame);
+            }
+
         break;
         default:
     }

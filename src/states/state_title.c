@@ -3,62 +3,57 @@
 #include "fade.h"
 #include "globals.h"
 #include "states/states.h"
-#include "title.h"
+#include "background.h"
 #include "level.h"
+#include "sprites.h"
+#include "fonts.h"
 
-// Der ausgelagerte Effekt
+// Fangnetz für den H-Int Crash
+static void hint_dummy() { }
+
 static void applyTitleHScroll(TitleStateData *state_data) {
     u16 t = state_data->scroll_x_dark;
-
-    // 1. Der obere Text (Block-Bewegung)
     s16 offset_top = F32_toRoundedInt(getSinusValueF32(t, 2, 60));
-    for (int i = 22; i <= 47; i++) {
-        state_data->hscroll_vals[i] = offset_top;
-    }
-
-    // 2. Der Bereich DAZWISCHEN (Wobble-Effekt)
+    for (int i = 22; i <= 47; i++) global_hscroll[i] = offset_top;
     for (int i = 50; i <= 93; i++) {
-        state_data->hscroll_vals[i] = 
-        F32_toRoundedInt(getSinusValueF32(t + (i * 2), 10, 2));
+        global_hscroll[i] = F32_toRoundedInt(getSinusValueF32(t + (i * 2), 10, 2));
     }
-
-    // 3. Der untere Text (Block-Bewegung, gegengleich)
     s16 offset_bottom = F32_toRoundedInt(getSinusValueF32(t, 2, 60));
-    for (int i = 94; i <= 112; i++) {
-        state_data->hscroll_vals[i] = -offset_bottom;
-    }
+    for (int i = 94; i <= 112; i++) global_hscroll[i] = -offset_bottom;
 
-    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);
+    VDP_setHorizontalScrollLine(BG_A, 0, global_hscroll, 224, DMA);
 }
 
 static void enter() {
-    TitleStateData *state_data = &state_ctx.ingame;
-
-    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
-
-    VDP_setHorizontalScroll(BG_A, 0);
-    VDP_setVerticalScroll(BG_A, 0);
-
-    memset(state_data->hscroll_vals, 0, sizeof(state_data->hscroll_vals));
-
-    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);
-    VDP_setHorizontalScrollLine(BG_A, 0, state_data->hscroll_vals, 224, DMA);    
+    VDP_loadFont(&TS_FONT_CLEAR , DMA);
+    TitleStateData *state_data = &state_ctx.title;
     
-    FADE_set_target(PAL0, pal_title.data);
-    PAL_setColors(0, palette_black, 64, CPU);
+    VDP_loadTileSet(&TS_MOUNTAIN, ind, DMA);
+    state_data->current_map = MAP_create(&MAP_MOUNTAION, BG_B, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind));
+    ind += TS_MOUNTAIN.numTile;
+    
+    state_data->scroll_x_demake = 0; 
+    MAP_scrollTo(state_data->current_map, 0, 0);
+    SYS_doVBlankProcess(); 
 
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
+    // 3. LOGO (BG_A)
+    VDP_drawImageEx(BG_A, &bg_title, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+    ind += bg_title.tileset->numTile;
+    SYS_doVBlankProcess();
+
+    // 4. TEXT & UI SETUP
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
-   
-    VDP_drawImageEx(BG_A, &bg_title, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
-    
     VDP_setTextPalette(PAL2); 
     VDP_setTextPriority(1); 
 
+    FADE_set_target(PAL0, pal_bg_mountain.data);
+    FADE_set_target(PAL1, pal_bg_title.data);
+    FADE_set_target(PAL2, pal_player_hud.data);
+
     state_data->show_text = TRUE;
     state_data->idle_timer = 0;
-    state_data->scroll_x_dark = 0; // Initialisierung
+    state_data->scroll_x_dark = 0;
+    state_data->blink_timer = 0;
 
     VDP_drawText("Celeste Demake/Dark Mode for", 2, 22);
     VDP_drawText("Sega Genesis by Darkjoy2k2", 3, 23);
@@ -66,25 +61,33 @@ static void enter() {
     VDP_drawText("Maddy Thorson, Noel Berry,", 3, 25);
     VDP_drawText("Lena Raine. Get it on Steam!", 2, 26);
 
-    // Initialen Frame berechnen, damit beim Fade-In alles an seinem Platz ist
-    memset(state_data->hscroll_vals, 0, sizeof(state_data->hscroll_vals));
     applyTitleHScroll(state_data);
-
     FADE_in(30, true);
 }
 
 static void update() {
-    TitleStateData *state_data = &state_ctx.ingame;
+    TitleStateData *state_data = &state_ctx.title;
 
-    // Timer erhöhen und Effekt anwenden
     state_data->scroll_x_dark++; 
     applyTitleHScroll(state_data);
 
-    char str[4];
-    uintToStr(current_level_index, str, 1);
-    VDP_drawText("LEVEL SELECT:", 8, 18);
-    VDP_drawText(str, 22, 18);
+    // Berg-Scrolling
+    if (state_data->scroll_x_demake < 544) {
+        state_data->scroll_x_demake++;
+        if (state_data->current_map) {
+            MAP_scrollTo(state_data->current_map,0, state_data->scroll_x_demake);
+        }
+    }
 
+    // Level-Anzeige (Aktualisierung alle 4 Frames reicht)
+    if ((state_data->scroll_x_dark % 4) == 0) {
+        char str[4];
+        uintToStr(current_level_index, str, 1);
+        VDP_drawText("LEVEL SELECT:", 8, 18);
+        VDP_drawText(str, 22, 18);
+    }
+
+    // Blinkender Start-Text
     state_data->blink_timer++;
     if (state_data->blink_timer >= 30) {
         state_data->blink_timer = 0;
@@ -92,39 +95,50 @@ static void update() {
         VDP_drawText(state_data->show_text ? "PUSH (A) TO START GAME" : "                      ", 5, 16);
     }
 
-    u16 current_joy_state = JOY_readJoypad(JOY_1);
-    state_data->idle_timer = current_joy_state ? 0 : state_data->idle_timer + 1;
-
-    if (state_data->idle_timer >= 720) {
-        STATE_set(&State_Controls);
-        return; 
-    }
-
-    if (current_joy_state & BUTTON_A) {
+    u16 joy = JOY_readJoypad(JOY_1);
+    
+    // Start Game
+    if ((joy & BUTTON_A) && !(state_data->last_joy_state & BUTTON_A)) {
+        LIVES = 0;
+        HEARTS = 0;
+        TIME = vtimer;
         STATE_set(&State_InGame);
         return;
     }
 
-    if ((current_joy_state & BUTTON_UP) && !(state_data->last_joy_state & BUTTON_UP)) {
+    // Level Auswahl
+    if ((joy & BUTTON_UP) && !(state_data->last_joy_state & BUTTON_UP)) {
         if (current_level_index > 0) current_level_index--;
     }
-    else if ((current_joy_state & BUTTON_DOWN) && !(state_data->last_joy_state & BUTTON_DOWN)) {
-        if (current_level_index < 4) current_level_index++;
+    else if ((joy & BUTTON_DOWN) && !(state_data->last_joy_state & BUTTON_DOWN)) {
+        if (current_level_index < MAX_LEVEL) current_level_index++;
     }
 
-    state_data->last_joy_state = current_joy_state;
+    state_data->last_joy_state = joy;
+    
+    // Idle-Timer für Controls-Screen
+    state_data->idle_timer = joy ? 0 : state_data->idle_timer + 1;
+    if (state_data->idle_timer >= 720) {
+        STATE_set(&State_Controls);
+        return; 
+    }
 
     SPR_update();
     SYS_doVBlankProcess();
 }
 
 static void exit() {
-    FADE_out(15, false);
-    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
-    SPR_reset();
-    LIVES = MAX_LIVES; 
-}
+    // 1. Interrupts stoppen, BEVOR das Fading fertig ist
+    VDP_setHInterrupt(FALSE);
+    SYS_setHIntCallback(&hint_dummy); 
 
+    FADE_out(15, false);
+
+    // 3. Map-Engine Cleanup
+    if (state_ctx.title.current_map) {
+        MAP_release(state_ctx.title.current_map);
+        state_ctx.title.current_map = NULL;
+    }
+
+}
 const GameState State_Title = { enter, update, exit };

@@ -50,10 +50,11 @@ extern u16 shot_jump_count;
 #define TIMER_BUFFER_MAX     20
 #define DASH_STAMINA_COST   10
 
-#define MAX_LIVES    3;
-
 extern u16 LIVES;
+extern u16 HEARTS;
+extern u16 TIME;
 
+extern s16 global_hscroll[224];
 extern const u16 COL_BALL_WHITE[3];
 extern const u16 COL_BALL_YELLOW[3];
 extern const u16 COL_BALL_ORANGE[3];
@@ -72,13 +73,12 @@ typedef struct {
 } InGameStateData;
 
 typedef struct {
-
+    Map* current_map;
     u16 idle_timer;
     u16 blink_timer;
     u16 last_joy_state;
     s16 scroll_x_dark;
     s16 scroll_x_demake;
-    s16 hscroll_vals[224];
     bool show_text;
 } TitleStateData;
 
@@ -102,9 +102,6 @@ typedef union {
 } StateContext;
 
 extern StateContext state_ctx;
-extern Map* level_0_map;
-extern Map* level_1_map;
-extern Map* level_2_map;
 
 extern s16 player_id;
 extern Player* player_one;

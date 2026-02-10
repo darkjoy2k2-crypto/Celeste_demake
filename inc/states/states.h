@@ -15,5 +15,7 @@ extern const GameState State_Title;
 extern const GameState State_InGame;
 extern const GameState State_GameOver;
 extern const GameState State_Controls;
+extern const GameState State_EndOfGame;
+
 
 extern const GameState SubState_Death;

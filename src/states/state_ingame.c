@@ -2,15 +2,14 @@
 #include "debug.h"
 #include "entities/handle_entities.h"
 #include "entities/sprites.h"
-#include "entities/update_camera.h"
 #include "fade.h"
 #include "globals.h"
 #include "hud.h"
-#include "level.h"
-#include "title.h"
+#include "background.h"
 #include "states/states.h"
 #include "levels.h"
 #include "sprites.h"
+#include "fonts.h"
 
 /* --- Function Prototypes --- */
 static void enter();
@@ -23,12 +22,12 @@ const GameState State_InGame = { enter, update, exit };
 /* --- Implementation --- */
 
 static void enter() {
-    memset(&state_ctx, 0, sizeof(state_ctx));
+    VDP_loadFont(&TS_FONT_SOLID , DMA);
     init_entities(); 
     
     const LevelDefinition* lv = &levels[current_level_index];
 
-    FADE_set_target(PAL0, pal_bg.data);
+    FADE_set_target(PAL0, pal_bg_city_2.data);
     FADE_set_target(PAL1, pal_layer_1.data);
     FADE_set_target(PAL2, pal_player_hud.data);
     FADE_set_target(PAL3, pal_entities.data);
@@ -36,7 +35,7 @@ static void enter() {
     PAL_setColors(0, palette_black, 64, CPU);
 
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
-    setup_hud();
+    hud_setup();
     init_camera();
 
     VDP_drawImageEx(BG_B, lv->background, TILE_ATTR_FULL(PAL0, false, false, false, ind), 0, 0, false, true);
@@ -97,33 +96,19 @@ static void update() {
     SYS_doVBlankProcess();
 
     /* 6. State Transitions */
-    if (LIVES < 1) {
-        STATE_set(&State_GameOver);
-    }
+    // if (LIVES < 1) {
+    //   STATE_set(&State_GameOver);
+    //}
 }
+
 
 static void exit() {
     FADE_out(15, false);      // Smoothly reveal the level
-
+    clear_entities();
+    hud_clear();
     /* 1. Cleanup Dynamic Memory */
     if (state_ctx.ingame.current_map) {
         MAP_release(state_ctx.ingame.current_map);
         state_ctx.ingame.current_map = NULL;
     }
-
-    /* 2. Hardware Cleanup */
-    SPR_reset();
-    VDP_resetSprites();
-    
-    ind = TILE_USER_INDEX; // Reset VRAM index for next load
-
-    /* 3. Plane Cleanup */
-    VDP_setTextPlane(BG_A); 
-    VDP_setWindowOff();
-    VDP_setHorizontalScroll(BG_A, 0);
-    VDP_setVerticalScroll(BG_A, 0);
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
-    
-    SPR_update();
 }

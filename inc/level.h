@@ -13,7 +13,7 @@
 #define cam_min_y 65
 #define cam_max_y 176
 
-
+extern u16 MAX_LEVEL;
 
 // Die Map selbst (extern, damit nur eine Instanz existiert)
 extern const fix32 OFFSET;
@@ -55,3 +55,4 @@ typedef struct {
 
 extern u16 current_level_index;
 extern const LevelDefinition levels[];
+void LEVELS_init();

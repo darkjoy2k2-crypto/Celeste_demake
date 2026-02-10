@@ -1,13 +1,16 @@
 #include "globals.h"
 
 // Initialisierung der Variablen
-u16 LIVES = MAX_LIVES;
+s16 global_hscroll[224];
+
+u16 LIVES = 0;
+u16 HEARTS = 0;
+u16 TIME = 0;
+
 bool GameSync = false;
 s16 player_id = -1;
 u16 ind = TILE_USER_INDEX;
 u16 hud_tile_base = 0;
-Map* level_0_map = NULL;
-Map* level_1_map = NULL;
 Player* player_one = NULL;
 StateContext state_ctx;
 

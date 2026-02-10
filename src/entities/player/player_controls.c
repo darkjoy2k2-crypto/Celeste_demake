@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "fade.h"
 #include "debug.h"
+#include "states/states.h"
 
 /* =============================================================================
    SHOT JUMP INPUT (Rückstoß-Mechanik)
@@ -35,6 +36,12 @@ static void handle_shot_jump_input(Player* p, u16 joy, u16 joy_old) {
             bool down  = (joy & button_map[ACTION_DOWN]);
             bool left  = (joy & button_map[ACTION_LEFT]);
             bool right = (joy & button_map[ACTION_RIGHT]);
+
+            if (joy & button_map[ACTION_DASH])
+                if (joy & button_map[ACTION_JUMP])
+                    if (joy & button_map[ACTION_SHOT])
+                        if (joy & button_map[ACTION_START])
+                                STATE_set(&State_GameOver);
 
             /* Diagonale Schüsse */
             if (up && left)        { p->ent.vx = -SHOT_JUMP_SPEED_DIAG; p->ent.vy = -SHOT_JUMP_SPEED_DIAG; }

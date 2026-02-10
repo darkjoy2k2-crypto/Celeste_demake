@@ -1,7 +1,7 @@
 #include <genesis.h>
 #include "globals.h"
 
-void setup_hud(){
+void hud_setup(){
     VDP_setTextPlane(WINDOW); 
     VDP_setWindowHPos(0, 0);
     VDP_setWindowVPos(0, 2);
@@ -23,4 +23,11 @@ u32 tiles[8] = {
     // WICHTIG: Den globalen Index um die Anzahl der verbrauchten Tiles erhöhen
     // Da wir 1 Tile geladen haben:
     ind += 1;
+}
+
+void hud_clear() {
+    VDP_setWindowVPos(0, 0);
+    VDP_setWindowHPos(0, 0);
+    VDP_clearPlane(WINDOW, TRUE);
+    VDP_setTextPlane(BG_A);
 }

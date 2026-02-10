@@ -1,7 +1,7 @@
 #include "level.h"
 #include "levels.h"
 #include "area.h"
-#include "title.h"
+#include "background.h"
 #include "globals.h"
 #include "entities/handle_entities.h"
 
@@ -475,7 +475,7 @@ const LevelDefinition levels[] = {
         .area_count = ARRAY_SIZE(level_0_areas),
         .map_def = &level_0_mapdefinition,
         .tileset = &level_0_tileset,
-        .background = &layer_bg,
+        .background = &bg_city_2,
         .collision_data = level_0_collision_data,
         .width_tiles = 102,  // Example: level 1 is 103 tiles wide
         .height_tiles = 73,   // Example: level 1 is 72 tiles high
@@ -490,7 +490,7 @@ const LevelDefinition levels[] = {
         .area_count = ARRAY_SIZE(level_1_areas),
         .map_def = &level_1_mapdefinition,
         .tileset = &level_1_tileset,
-        .background = &layer_bg,
+        .background = &bg_city_2,
         .collision_data = level_1_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
@@ -505,7 +505,7 @@ const LevelDefinition levels[] = {
         .area_count = ARRAY_SIZE(level_2_areas),
         .map_def = &level_2_mapdefinition,
         .tileset = &level_2_tileset,
-        .background = &layer_bg,
+        .background = &bg_city_2,
         .collision_data = level_2_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
@@ -520,7 +520,7 @@ const LevelDefinition levels[] = {
         .area_count = ARRAY_SIZE(level_3_areas),
         .map_def = &level_3_mapdefinition,
         .tileset = &level_3_tileset,
-        .background = &layer_bg,
+        .background = &bg_city_2,
         .collision_data = level_3_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
@@ -535,7 +535,7 @@ const LevelDefinition levels[] = {
         .area_count = ARRAY_SIZE(level_4_areas),
         .map_def = &level_4_mapdefinition,
         .tileset = &level_4_tileset,
-        .background = &layer_bg,
+        .background = &bg_city_2,
         .collision_data = level_4_collision_data,
         .width_tiles = 32,  // Example: level 1 is 103 tiles wide
         .height_tiles = 32,   // Example: level 1 is 72 tiles high
@@ -549,6 +549,11 @@ const LevelDefinition levels[] = {
     // Add Level 2 here:
     // { .areas = level_2_areas, ... }
 };
+#define INTERNAL_LEVEL_COUNT (sizeof(levels) / sizeof(levels[0]))
 
 u16 current_level_index = 2;
+u16 MAX_LEVEL = 0;
 
+void LEVELS_init() {
+    MAX_LEVEL = sizeof(levels) / sizeof(levels[0]) - 1;
+}

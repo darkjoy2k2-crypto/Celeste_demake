@@ -7,7 +7,6 @@
 #include "entities/update_camera.h"
 #include "states/states.h"
 
-extern Map* level_1_map;
 
 static Player* p;
 
@@ -30,7 +29,7 @@ static void update() {
     p->ent.y = F32_toInt(p->ent.y_f32);
 
     handle_all_animations();
-    update_camera(entities[player_id], level_1_map, true);
+    update_camera(entities[player_id], state_ctx.ingame.current_map, true);
 
     p->timer_death--;
 
@@ -58,10 +57,10 @@ static void exit() {
     p->state = P_FALLING;
     p->count_shot_jump = shot_jump_count; 
     p->timer_shot_jump = 0;
-    LIVES--;
+    LIVES++;
     p->physics_state = 0; 
 
-    update_camera(entities[player_id], level_1_map, true);
+    update_camera(entities[player_id], state_ctx.ingame.current_map, true);
                 p->ent.spr_visible = true;
     // Fade back into the game after teleporting
     FADE_in(30, true);

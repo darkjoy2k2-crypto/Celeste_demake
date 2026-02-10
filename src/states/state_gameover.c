@@ -7,21 +7,11 @@
 static u16 tick = 0;
 
 static void enter() {
-    /* RAM sauber machen */
-    
-    /* VRAM leeren */
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
-    VDP_clearPlane(WINDOW, TRUE);
 
-    /* Palette für Namco-Font auf PAL0 setzen (für einfachen Text) */
     VDP_setTextPalette(PAL2);
 
-
-    /* Text zentrieren */
     VDP_drawText("GAME OVER", 10, 13);
     
-    /* Synchroner Fade In */
     FADE_in(30, false); 
     tick = 0;
 }
@@ -40,12 +30,9 @@ static void update() {
 }
 
 static void exit() {
-    /* Synchroner Fade Out */
+
     FADE_out(30, false);
 
-    /* Alles sauber hinterlassen */
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
     tick = 0;
 }
 
