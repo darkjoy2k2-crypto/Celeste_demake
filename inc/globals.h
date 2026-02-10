@@ -23,7 +23,7 @@ extern u16 current_control_preset;
 #define GRAVITY_FALL        FIX16(0.4)
 #define GRAVITY_GROUNDED    FIX16(0.5)
 #define FRICTION            FIX16(0.85)
-#define FRICTION_AIR        FIX16(0.98)
+#define FRICTION_AIR        FIX16(0.92)
 #define WALL_FRICTION       FIX16(0.9)
 
 #define MOVE_SPEED          FIX16(0.5)
