@@ -20,7 +20,7 @@ extern u16 current_control_preset;
 #define abs16(x)            ((x) < 0 ? -(x) : (x))
 
 #define GRAVITY_JUMP        FIX16(0.2)
-#define GRAVITY_FALL        FIX16(0.4)
+#define GRAVITY_FALL        FIX16(0.3)
 #define GRAVITY_GROUNDED    FIX16(0.5)
 #define FRICTION            FIX16(0.85)
 #define FRICTION_AIR        FIX16(0.92)
@@ -29,19 +29,19 @@ extern u16 current_control_preset;
 #define MOVE_SPEED          FIX16(0.5)
 #define MOVE_SPEED_MAX      FIX16(2.0)
 #define CLIMB_SPEED         FIX16(0.4)
-#define JUMP_FORCE          FIX16(-4)
-#define JUMP_FORCE_SPRING   FIX16(-5)
+#define JUMP_FORCE          FIX16(-3.5)
+#define JUMP_FORCE_SPRING   FIX16(-3.5)
 
 #define JUMP_FORCE_WALL_V   FIX16(-4.0)
 #define JUMP_FORCE_WALL_H   FIX16(3.0)
 #define JUMP_FORCE_EDGE     FIX16(-3.5)
 #define JUMP_RELEASE_LIMIT  FIX16(-1.5)
-#define HELPING_HOP         FIX16(-2.5)
+#define HELPING_HOP         FIX16(-2.8)
 #define WALL_FACTOR         FIX16(0.9)
 
 #define SHOT_JUMP_SPEED      FIX16(4)
 #define SHOT_JUMP_SPEED_DIAG FIX16(2.8)
-extern u16 shot_jump_count;
+extern u16 shot_jump_max;
 
 
 #define TIMER_SHOT_JUMP_MAX  15
@@ -80,6 +80,7 @@ typedef struct {
     s16 scroll_x_dark;
     s16 scroll_x_demake;
     bool show_text;
+    bool level_select;
 } TitleStateData;
 
 typedef struct {

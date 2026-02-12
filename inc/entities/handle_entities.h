@@ -25,9 +25,9 @@ struct Area;
 
 // --- FLAGS (Nutzen deine Macros SET_P_FLAG etc.) ---
 #define PLAT_FLAG_NONE            0x0000
-#define PLAT_FLAG_X               (1 << 0)
-#define PLAT_FLAG_Y               (1 << 1)
-#define PLAT_FLAG_SINUS           (1 << 2)
+#define PLAT_FLAG_X_MOVE               (1 << 0)
+#define PLAT_FLAG_Y_MOVE               (1 << 1)
+#define PLAT_FLAG_SINUS_X           (1 << 2)
 #define PLAT_FLAG_INVISIBLE       (1 << 3)
 #define PLAT_FLAG_TOUCH_START     (1 << 4)
 #define PLAT_FLAG_ONCE            (1 << 5)
@@ -36,6 +36,7 @@ struct Area;
 #define PLAT_FLAG_STOMP_BREAK     (1 << 8)
 #define PLAT_FLAG_CAMO            (1 << 9)
 #define PLAT_FLAG_WIDE            (1 << 10)
+#define PLAT_FLAG_SINUS_Y       (1 << 11)
 
 
 // --- BASIS ENTITY STRUKTUR ---
@@ -82,20 +83,27 @@ typedef struct {
 
 // --- PLATFORM STRUKTUR ---
 typedef struct {
-    Entity ent;
-    fix16 speed;
-    u16 flags;              // PLAT_FLAG_... (Eigenschaften/Gene)
-    PlatformState state;    // Aktueller Lebenszustand
-    u16 status_bits;        // Temporäre Bits (z.B. Bit 0 = IsMoving)
-    s16 origin_x, origin_y;
-    s16 wait_timer;         // Zeitgeber für Zustandswechsel
-    fix16 anim_timer;         // Zeitgeber für Bewegungskurve
-    s16 amplitude;          
-    s16 range;              
-    s16 timer_a;            
-    s16 timer_b;            
-    bool enabled;           // Kollision aktiv?
-    bool touched;           // Kontakt in diesem Frame?
+    Entity ent;             // Enthält fix32 und Sprite* (8-4 Byte)
+    fix16 speed;            // 4 Byte
+    fix16 anim_timer_x;     // 4 Byte (Sinus-Beschleunigung)
+    fix16 anim_timer_y;     // 4 Byte
+    fix16 dir_x;            // 4 Byte
+    fix16 dir_y;            // 4 Byte
+    s16 origin_x;           // 2 Byte
+    s16 origin_y;           // 2 Byte
+    s16 target_x;           // 2 Byte
+    s16 target_y;           // 2 Byte
+    s16 wait_timer;         // 2 Byte (Breakable Countdown)
+    s16 amplitude;          // 2 Byte (Pause am Ziel Countdown)
+    s16 range;              // 2 Byte
+    s16 timer_a;            // 2 Byte
+    s16 timer_b;            // 2 Byte
+    u16 flags;              // 2 Byte
+    u16 status_bits;        // 2 Byte
+    PlatformState state;    // 2 Byte (Enum)
+    bool enabled;           // 1 Byte
+    bool touched;           // 1 Byte
+    // (Ggf. 2 Byte Padding vom Compiler am Ende für 4-Byte-Alignment)
 } Platform;
 
 typedef struct {

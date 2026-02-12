@@ -12,8 +12,6 @@ EntitySlot entity_pool[MAX_ENTITIES];
 Entity* entities[MAX_ENTITIES];
 u8 entity_used[MAX_ENTITIES];
 
-// --- INITIALISIERUNG ---
-
 void init_entities() {
     for (u16 i = 0; i < MAX_ENTITIES; i++) {
         entity_used[i] = 0;
@@ -24,13 +22,10 @@ void init_entities() {
     }
 }
 
-// --- CORE ENTITY CREATION ---
-
 int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
     for (u16 i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 0) {
             entity_used[i] = 1;
-            
             Entity* e = entities[i];
             e->type = type;
             e->x = x;
@@ -46,63 +41,47 @@ int create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type) {
             e->width = w;
             e->height = h;
             e->spr_visible = true;
-
-            if (type == ENTITY_PLAYER) {
-                Player* p = (Player*)e;
-                e->update = (void (*)(struct Entity*))ENTITY_UPDATE_player;
-                p->physics_state = 0; 
-                p->timer_stamina = 300;
-                p->count_shot_jump = 2;
-                e->sprite = SPR_addSprite(&player_sprite, x, y, TILE_ATTR(PAL2, TRUE, FALSE, FALSE));
-                player_id = i;
-            } else {
-                e->update = NULL;
-                e->sprite = NULL;
-            }
+            e->update = NULL;
+            e->sprite = NULL;
             return i;
         }
     }
     return -1;
 }
 
-void destroy_entity(int index) {
-    if (index >= 0 && index < MAX_ENTITIES) {
-        if (entity_used[index]) {
-            if (entities[index]->sprite) {
-                SPR_releaseSprite(entities[index]->sprite);
-                entities[index]->sprite = NULL;
-            }
-            entity_used[index] = 0;
-            entities[index]->type = ENTITY_NONE;
-        }
-    }
-}
-
-// --- PLATFORMS ---
-
 Platform* create_platform(const PlatformDef* def) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entity_used[i] == 0) {
             entity_used[i] = 1;
             Platform* self = &entity_pool[i].platform;
+            
+            // 1. Den gesamten Speicherblock nullen
             memset(self, 0, sizeof(Platform));
 
             self->ent.type = ENTITY_PLATFORM;
             self->ent.update = (void (*)(Entity*))ENTITY_UPDATE_platform;
 
-            self->origin_x = def->x;
-            self->origin_y = def->y;
-            self->ent.x = def->x << 3;
-            self->ent.y = def->y << 3;
+            // Koordinaten setzen (Pixel zu Subpixel)
+            self->origin_x = def->x << 3;
+            self->origin_y = def->y << 3;
+            self->target_x = def->target_x << 3;
+            self->target_y = def->target_y << 3;
+
+            self->ent.x = self->origin_x;
+            self->ent.y = self->origin_y;
             self->ent.x_f32 = self->ent.x_old_f32 = FIX32(self->ent.x);
             self->ent.y_f32 = self->ent.y_old_f32 = FIX32(self->ent.y);
+
+            // --- KRITISCHER FIX: MATHE-VARIABLEN RESETTEN ---
+            self->anim_timer_x = F16_0; // Phase zwingend auf 0
+            self->status_bits = 0;     // Alle Logik-Bits (inkl. 0x8000) auf 0
+            self->dir_x = F16_0;       // Vektoren nullen (werden im ersten Update berechnet)
+            self->dir_y = F16_0;
+            // ------------------------------------------------
 
             self->flags     = def->flags;
             self->speed     = def->speed;
             self->amplitude = def->amplitude;
-            self->range     = def->range;
-            self->timer_a   = def->timer_a;
-            self->timer_b   = def->timer_b;
             self->state     = PLAT_IDLE;
             self->enabled   = true;
             self->touched   = false;
@@ -110,6 +89,7 @@ Platform* create_platform(const PlatformDef* def) {
             self->ent.width = (self->flags & PLAT_FLAG_WIDE) ? 32 : 16;
             self->ent.height = 16;
 
+            // Sprite-Initialisierung
             if (self->flags & PLAT_FLAG_CAMO) {
                 self->ent.width = self->ent.height = 32;
                 self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
@@ -120,7 +100,8 @@ Platform* create_platform(const PlatformDef* def) {
             }
 
             self->ent.spr_visible = (self->flags & PLAT_FLAG_INVISIBLE) ? false : true;
-            entities[i] = (Entity*)self; // Re-link pointer
+            
+            entities[i] = (Entity*)self; 
             return self;
         }
     }
@@ -132,8 +113,6 @@ void spawn_platforms(const LevelDefinition* lv) {
         create_platform(&lv->platforms[i]);
     }        
 }
-
-// --- PICKUPS ---
 
 Pickup* create_pickup(const PickupDef* def) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
@@ -180,49 +159,42 @@ void spawn_pickups(const LevelDefinition* lv) {
     }
 }
 
-// --- PLAYER SPAWN ---
-
 void spawn_player(u16 spawn_in_area) {
     const Area* start_area = get_area(spawn_in_area);
     if (start_area) {
         s16 spawn_x = start_area->spawn.x << 3; 
         s16 spawn_y = start_area->spawn.y << 3;
         player_id = create_entity(spawn_x, spawn_y, 13, 13, F16_0, F16_0, ENTITY_PLAYER);
-    
+        
         if (player_id != -1) {
             Player* pl = (Player*) entities[player_id];
+            pl->ent.update = (void (*)(struct Entity*))ENTITY_UPDATE_player;
+            pl->physics_state = 0; 
+            pl->timer_stamina = 500;
             pl->state = P_FALLING;
             pl->state_old = P_FALLING;
             pl->physics_state = 0; 
-            pl->timer_stamina = 100;
             pl->timer_grace = 0;
             pl->timer_buffer = 0;
             pl->timer_shot_jump = 0;
-            pl->count_shot_jump = shot_jump_count;
+            pl->count_shot_jump = shot_jump_max;
             pl->current_area = (Area*)start_area;
+            pl->ent.sprite = SPR_addSprite(&player_sprite, pl->ent.x, pl->ent.y, TILE_ATTR(PAL2, TRUE, FALSE, FALSE));
         }
         camera_position.x = spawn_x - 160;
         camera_position.y = spawn_y - 112;
     }
 }
 
-// --- CLEANUP (DIE BRANDNESTER) ---
-
 void clear_entities() {
     for (u16 i = 0; i < MAX_ENTITIES ; i++) {
-        // Erst Sprite freigeben, falls vorhanden
         if (entities[i] != NULL && entities[i]->sprite != NULL) {
             SPR_releaseSprite(entities[i]->sprite);
             entities[i]->sprite = NULL;
         }
         
-        // Slot als frei markieren
         entity_used[i] = 0;
-        
-        // Pointer zurück auf Basis-Pool biegen (WICHTIGSTES BRANDNEST)
         entities[i] = &entity_pool[i].entity;
-        
-        // Daten für Neustart nullen
         entities[i]->type = ENTITY_NONE;
         entities[i]->sprite = NULL;
         entities[i]->update = NULL;

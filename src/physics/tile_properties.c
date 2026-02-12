@@ -57,7 +57,7 @@ bool is_tile_solid_only(u16 tile_index, Entity* entity, s16 world_x, s16 world_y
         case TILE_ONEWAY:
             /* vy Zugriff über Basis-Entität */
             if (side == SIDE_BOTTOM && p->ent.vy >= F16_0) {
-                if (local_y <= 2) return true;
+                if (local_y <= 6) return true;
             }
             return false;
 

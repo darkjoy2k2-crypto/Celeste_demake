@@ -25,9 +25,12 @@ static void applyTitleHScroll(TitleStateData *state_data) {
 }
 
 static void enter() {
-    VDP_loadFont(&TS_FONT_CLEAR , DMA);
     TitleStateData *state_data = &state_ctx.title;
     
+    VDP_loadFont(&TS_FONT_CLEAR , DMA);
+    state_data->level_select = false;
+    current_level_index = 0;
+
     VDP_loadTileSet(&TS_MOUNTAIN, ind, DMA);
     state_data->current_map = MAP_create(&MAP_MOUNTAION, BG_B, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind));
     ind += TS_MOUNTAIN.numTile;
@@ -80,7 +83,7 @@ static void update() {
     }
 
     // Level-Anzeige (Aktualisierung alle 4 Frames reicht)
-    if ((state_data->scroll_x_dark % 4) == 0) {
+    if ((state_data->scroll_x_dark % 4) == 0 && state_data->level_select) {
         char str[4];
         uintToStr(current_level_index, str, 1);
         VDP_drawText("LEVEL SELECT:", 8, 18);
@@ -107,12 +110,19 @@ static void update() {
     }
 
     // Level Auswahl
-    if ((joy & BUTTON_UP) && !(state_data->last_joy_state & BUTTON_UP)) {
-        if (current_level_index > 0) current_level_index--;
+    if (state_data->level_select){
+        if ((joy & BUTTON_UP) && !(state_data->last_joy_state & BUTTON_UP)) {
+            if (current_level_index > 0) current_level_index--;
+        }
+        else if ((joy & BUTTON_DOWN) && !(state_data->last_joy_state & BUTTON_DOWN)) {
+            if (current_level_index < MAX_LEVEL) current_level_index++;
+        }
     }
-    else if ((joy & BUTTON_DOWN) && !(state_data->last_joy_state & BUTTON_DOWN)) {
-        if (current_level_index < MAX_LEVEL) current_level_index++;
-    }
+
+    if (joy & BUTTON_B)
+        if (joy & BUTTON_C)
+            if (joy & BUTTON_START)
+                state_data->level_select = true;
 
     state_data->last_joy_state = joy;
     

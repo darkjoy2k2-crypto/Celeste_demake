@@ -83,7 +83,6 @@ static void update() {
     if (player_id != -1 && entity_used[player_id]) {
         entities[player_id]->update(entities[player_id]);
     }
-
     /* 3. Camera & Visuals */
     update_camera(entities[player_id], state_ctx.ingame.current_map, false);
     handle_all_animations();
@@ -95,10 +94,6 @@ static void update() {
     SPR_update(); 
     SYS_doVBlankProcess();
 
-    /* 6. State Transitions */
-    // if (LIVES < 1) {
-    //   STATE_set(&State_GameOver);
-    //}
 }
 
 

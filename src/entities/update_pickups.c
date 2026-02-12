@@ -1,6 +1,7 @@
 #include "entities/update_platform.h"
 #include "globals.h"
 #include "states/states.h"
+#include "entities/player/player_physics.h"
 
 void ENTITY_UPDATE_pickup(Entity* _e) {
     if (!GameSync) return;
@@ -90,8 +91,6 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
             if (self->time > 1){
                 self->time = 0;
 
-                if (self->anim_frame == 1 && self->anim_direction == 1)
-                    p->ent.vy = JUMP_FORCE_SPRING;                
 
                 self->anim_frame += self->anim_direction;
 
@@ -101,8 +100,6 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
                     if (self->anim_frame >= 7) {
                         self->anim_frame = 7;
                         self->anim_direction = -1; // Umkehren
-                        p->ent.vx = F16_0;
-
                     }
                 } else {
                     // Wenn wir einfahren
@@ -130,6 +127,8 @@ void ENTITY_UPDATE_pickup(Entity* _e) {
 }
 
 void ENTITY_TRIGGER_pickup(Entity* _e) {
+    if (!GameSync) return;
+
     Pickup* self = (Pickup*)_e;
     Player* p = (Player*) entities[player_id];
 
@@ -152,17 +151,27 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
                 self->ent.spr_visible = false;
             self->collected = true;
             p->count_shot_jump++;
+            update_player_visuals(p);
 
             break;
 
         case PICKUP_SPRING:
-            if (p->state == P_GROUNDED || p->state_old == P_GROUNDED  || p->ent.vy == FIX16(0.5))
-                    p->ent.vy = JUMP_FORCE_SPRING;                
+            //if (p->state == P_GROUNDED || p->state_old == P_GROUNDED  || p->ent.vy == FIX16(0.5))
+            //        p->ent.vy = JUMP_FORCE_SPRING;    
+            u16 joy = JOY_readJoypad(JOY_1);
+            
+            p->ent.vy = JUMP_FORCE_SPRING; 
+            if (joy & button_map[ACTION_JUMP]){
+                p->ent.vy += FIX16(-2); 
+                p->timer_stamina = 500;
+            update_player_visuals(p);
+            }
+
             if (self->anim_running) return;
             self->anim_running = true;
             self->anim_frame = 0;
             self->anim_direction = 1;
-
+            p->ent.y--;
                     
             break;
 
@@ -171,9 +180,11 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
             if (current_level_index < MAX_LEVEL){
                 current_level_index++;
                 STATE_set(&State_InGame);
+                GameSync = false;
             }
             else{
                 STATE_set(&State_EndOfGame);
+                GameSync = false;
             }
 
         break;

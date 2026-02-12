@@ -10,6 +10,36 @@
 
 static Player* p;
 
+void ENTITY_RESET_platform(Platform* self) {
+    // 1. Position hart auf Ursprung setzen
+    self->ent.x = self->origin_x;
+    self->ent.y = self->origin_y;
+    self->ent.x_f32 = FIX32(self->origin_x);
+    self->ent.y_f32 = FIX32(self->origin_y);
+    self->ent.x_old = self->origin_x;
+    self->ent.y_old = self->origin_y;
+
+    // 2. Bewegungs-Bits löschen (Bit 0: Moving, Bit 1: Returning)
+    self->status_bits = 0;
+
+    // 3. Timer und Status zurücksetzen
+    self->wait_timer = 0;
+    self->anim_timer_x = F16_0;
+    self->state = PLAT_IDLE;
+
+    // 4. Sichtbarkeit und Kollision wiederherstellen
+    self->enabled = true;
+    self->ent.spr_visible = true;
+    self->touched = false;
+    self->dir_x = self->dir_y = self->ent.vx = self->ent.vy = F16_0;
+
+    // 5. Sprite sofort an die neue (alte) Position schieben
+    SPR_setPosition(self->ent.sprite, self->ent.x, self->ent.y);
+    
+    // 6. Geschwindigkeit/Vektoren nullen, damit der Player keinen Impuls bekommt
+}
+
+
 static void enter() {
     p = (Player*) entities[player_id];
 
@@ -42,6 +72,8 @@ static void update() {
 }
 
 static void exit() {
+        if (!GameSync)return;
+
     const Area* death_area = p->current_area;
 
     /* Teleport player to Spawn */
@@ -55,7 +87,7 @@ static void exit() {
     p->ent.vx = F16_0;
     p->ent.vy = F16_0;
     p->state = P_FALLING;
-    p->count_shot_jump = shot_jump_count; 
+    p->count_shot_jump = shot_jump_max; 
     p->timer_shot_jump = 0;
     LIVES++;
     p->physics_state = 0; 
@@ -84,18 +116,8 @@ static void exit() {
                 } 
             }
             if (e->type == ENTITY_PLATFORM){
-                Platform* p = (Platform*) entities[i];
-                if (!CHECK_P_FLAG(p->flags, PLAT_FLAG_BREAKABLE)){
-                    p->state = PLAT_IDLE;
-                    p->enabled = true;
-                    p->touched = false;
-                    p->wait_timer = 0;     
-                }
-
-                p->ent.spr_visible = CHECK_P_FLAG(p->flags, PLAT_FLAG_INVISIBLE) ? false : true;
+                ENTITY_RESET_platform((Platform*) e);          
             }
-
-
         }
     }
 }

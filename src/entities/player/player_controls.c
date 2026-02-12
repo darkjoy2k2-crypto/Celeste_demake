@@ -1,4 +1,5 @@
 #include "entities/player/player_controls.h"
+#include "entities/player/player_physics.h"
 #include "genesis.h"
 #include "globals.h"
 #include "fade.h"
@@ -10,8 +11,8 @@
    ============================================================================= */
 static void handle_shot_jump_input(Player* p, u16 joy, u16 joy_old) {
     /* "Just Pressed" Erkennung für den Schuss-Knopf */
-    if ((joy & button_map[ACTION_SHOT]) && !(joy_old & button_map[ACTION_SHOT]) && 
-        p->state != P_SHOT_JUMP && p->count_shot_jump > 0) {
+    if ((joy & button_map[ACTION_SHOT]) && !(joy_old & button_map[ACTION_SHOT]) 
+    && p->state != P_SHOT_JUMP && p->count_shot_jump > 0) {
         
         p->ent.vx = F16_0;
         p->ent.vy = F16_0;
@@ -19,11 +20,8 @@ static void handle_shot_jump_input(Player* p, u16 joy, u16 joy_old) {
         p->count_shot_jump--; 
 
         /* Farb-Feedback basierend auf verbleibender Munition */
-        if (p->count_shot_jump == 1)
-            PAL_set_colors(PAL2, 1, COL_BALL_YELLOW, 3);
-        if (p->count_shot_jump == 0)
-            PAL_set_colors(PAL2, 1, COL_BALL_BLUE, 3);
-            
+        update_player_visuals(p);
+        debug_set (3, p->timer_stamina);
         p->state = P_SHOT_JUMP;
     }
 
@@ -37,11 +35,7 @@ static void handle_shot_jump_input(Player* p, u16 joy, u16 joy_old) {
             bool left  = (joy & button_map[ACTION_LEFT]);
             bool right = (joy & button_map[ACTION_RIGHT]);
 
-            if (joy & button_map[ACTION_DASH])
-                if (joy & button_map[ACTION_JUMP])
-                    if (joy & button_map[ACTION_SHOT])
-                        if (joy & button_map[ACTION_START])
-                                STATE_set(&State_GameOver);
+
 
             /* Diagonale Schüsse */
             if (up && left)        { p->ent.vx = -SHOT_JUMP_SPEED_DIAG; p->ent.vy = -SHOT_JUMP_SPEED_DIAG; }
@@ -148,6 +142,21 @@ void handle_player_input(Player* p) {
     u16 joy = JOY_readJoypad(JOY_1);
     u16 joy_old = p->state_old_joy;
 
+    // QUICK END OF GAME
+
+    if (joy & button_map[ACTION_DASH])
+        if (joy & button_map[ACTION_JUMP])
+            if (joy & button_map[ACTION_SHOT])
+                if (joy & button_map[ACTION_START])
+                        STATE_set(&State_GameOver);
+
+    // QUICK RESPAWN
+
+    if (joy & button_map[ACTION_START])
+            SET_P_FLAG(p->physics_state, P_FLAG_DYING);       
+
+
+        
     if (p->timer_shot_jump > 0) p->timer_shot_jump--;
 
     handle_shot_jump_input(p, joy, joy_old);
@@ -183,7 +192,7 @@ void handle_player_input(Player* p) {
             if (abs16(p->ent.vy) <= FIX16(0.1)) p->ent.vy = F16_0;
         }
         p->ent.vx = F16_0;
-        if (p->ent.vy < FIX16(0.5)) p->ent.vy += FIX16(0.15); 
+        //if (p->ent.vy < FIX16(0.5)) p->ent.vy += FIX16(0.15); 
     }
     else {
         // State-Wechsel von Wall zu Air abfangen

@@ -4,3 +4,4 @@
 
 
 void update_player_state_and_physics(Entity* entity);
+extern void update_player_visuals(Player* p);

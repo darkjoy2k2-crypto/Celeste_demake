@@ -16,7 +16,7 @@ void ENTITY_UPDATE_player(Entity* self) {
     Player* p = (Player*) self;
     p->state_old = p->state;
 
-    update_area(self);
+    (self);
     reset_physics_internal(p);
 
     handle_platform_collision(self); 

@@ -6,34 +6,45 @@
 #include "area.h"
 #include "fade.h"
 
-static void update_player_stamina_visuals(Player* p) {
+void pick_shot_color(Player* p){
+
+    // 2. Shot Count Logic (Healthy Stamina)
+    if (p->count_shot_jump == 0) {
+        PAL_set_colors(PAL2, 1, COL_BALL_BLUE, 3);
+    }
+    else if (p->count_shot_jump == 1) {
+        PAL_restore_direct(PAL2, 1, 3);
+    }
+    else if (p->count_shot_jump > 1) {
+        PAL_set_colors(PAL2, 1, COL_BALL_YELLOW, 3);
+    }
+}
+
+void update_player_visuals(Player* p) {
+    // 1. Stamina Logic (Restored)
     if (p->timer_stamina <= 0) {
         PAL_set_colors(PAL2, 1, COL_BALL_ORANGE, 3);
         return;
-    }
-
-    if (p->timer_stamina < 200) {
+    } 
+    else if (p->timer_stamina < 200) {
         u16 interval = (p->timer_stamina < 100) ? 14 : 30;
         
         if ((vtimer % interval) < (interval / 2)) {
             PAL_set_colors(PAL2, 1, COL_BALL_ORANGE, 3);
         } else {
-            PAL_restore_direct(PAL2, 1, 3);
+            pick_shot_color(p);
         }
-    }
+        return; // Exit early so stamina flash overrides shot colors
+    } 
+    pick_shot_color(p);
 }
-
-
-
-
-
 
 static void apply_ground_physics(Player* p) {
     p->timer_grace = TIMER_GRACE_MAX;
     if (p->state_old != P_GROUNDED){
-        p->count_shot_jump = shot_jump_count = 1;
-        p->timer_stamina = 300;
-        PAL_restore_direct(PAL2, 1, 3);
+        p->count_shot_jump = shot_jump_max;
+        p->timer_stamina = 500;
+        update_player_visuals(p);
     } 
 
     SET_P_FLAG(p->physics_state, P_FLAG_ON_GROUND);
@@ -51,7 +62,7 @@ static void apply_air_physics(Player* p) {
 }
 
 static void apply_wall_physics(Player* p) {
-    update_player_stamina_visuals(p);
+    update_player_visuals(p);
     p->ent.vx = F16_0; 
 
     /* Reibung wirkt auf den Betrag von vy, egal ob hoch oder runter */
@@ -123,5 +134,6 @@ void update_player_state_and_physics(Entity* e) {
     p->solid_vy = F16_0;
     debug_set(0, e->x);
     debug_set(1, e->y);
+    debug_set (2, p->count_shot_jump);
     
 }
