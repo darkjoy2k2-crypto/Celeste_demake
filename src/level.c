@@ -405,9 +405,9 @@ const Area level_5_areas[] = {
         .die_on_bottom = true
     },
     { // 1
-        .min = {320, 0},
-        .max = {496, 266},
-        .spawn = {36, 33},
+        .min = {321, 0},
+        .max = {640, 276},
+        .spawn = {45, 33},
         .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {320, 0},
         .cam_max = {640, 288},
@@ -417,13 +417,24 @@ const Area level_5_areas[] = {
     },
     { // 2
         .min = {0, 0},
-        .max = {320, 266},
-        .spawn = {46, 33},
+        .max = {320, 270},
+        .spawn = {37, 33},
         .cam_mode = CAM_MODE_FOLLOW,
         .cam_min = {0, 0},
         .cam_max = {320, 288},
         .type = 0,
         .id = 2,
+        .die_on_bottom = true
+    },
+    { // 3
+        .min = {641, 200},
+        .max = {960, 512},
+        .spawn = {83, 33},
+        .cam_mode = CAM_MODE_FOLLOW,
+        .cam_min = {640, 200},
+        .cam_max = {960, 512},
+        .type = 0,
+        .id = 3,
         .die_on_bottom = true
     }
 
@@ -511,9 +522,19 @@ const PlatformDef level_5_platforms[] = {
     .amplitude = 0,
     .speed = FIX16(1)
     },
+    { 
+    .x = 95,           // Deine Startposition (Tile)
+    .y = 44,           // Deine Startposition (Tile)
+    .target_x = 102, // Mittlere Geschwindigkeit für das Celeste-Feeling
+    .target_y = 38, // Mittlere Geschwindigkeit für das Celeste-Feeling
+    .flags = PLAT_FLAG_Y_MOVE | PLAT_FLAG_SINUS_X | PLAT_FLAG_TOUCH_START | PLAT_FLAG_WIDE, 
+    .amplitude = 0,
+    .speed = FIX16(0.5)
+    }
     
 };
-    
+
+
 const PickupDef dummy_pickups[] = {
     {0,0, 0}
 };
@@ -557,8 +578,12 @@ const PickupDef level_4_pickups[] = {
 };
 
 const PickupDef level_5_pickups[] = {
-    {22, 0, PICKUP_NEXTLEVEL},
-    {24, 0, PICKUP_NEXTLEVEL}
+    {14, 31, PICKUP_HEART},
+    {45, 5, PICKUP_HEART},
+    {109, 32, PICKUP_HEART},
+    {77, 15, PICKUP_SPRING},
+    {75, 0, PICKUP_NEXTLEVEL},
+    {77, 0, PICKUP_NEXTLEVEL}
 };
 
 const LevelDefinition levels[] = {

@@ -134,6 +134,6 @@ void update_player_state_and_physics(Entity* e) {
     p->solid_vy = F16_0;
     debug_set(0, e->x);
     debug_set(1, e->y);
-    debug_set (2, p->count_shot_jump);
+    debug_set (2, p->current_area->id);
     
 }

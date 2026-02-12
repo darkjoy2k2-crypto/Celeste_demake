@@ -18,6 +18,7 @@ void ENTITY_UPDATE_player(Entity* self) {
 
     (self);
     reset_physics_internal(p);
+    update_area(self);
 
     handle_platform_collision(self); 
     check_tile_collision(self);
