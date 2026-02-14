@@ -10,6 +10,7 @@
 #include "levels.h"
 #include "sprites.h"
 #include "fonts.h"
+#include "entities/update_camera.h"
 
 /* --- Function Prototypes --- */
 static void enter();
@@ -88,7 +89,7 @@ static void update() {
     handle_all_animations();
 
     /* 4. Debug & UI */
-    debug_draw();
+    //debug_draw();
 
     /* 5. Engine Sync */
     SPR_update(); 

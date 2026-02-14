@@ -11,22 +11,78 @@ static inline void update_animation(Entity* e) {
         {
             /* Caching des Player-Pointers für Zustandsabfragen */
             Player* p = (Player*)e;
-            
+            s16 dx = 0; 
+
             /* Einfache Lauf-Animation basierend auf X-Differenz */
-            s16 dx = e->x_old - e->x; 
-            e->anim_index += abs16(dx); 
 
-            if (e->anim_index > 59) e->anim_index -= 60;
 
-            /* Sprite-Update */
-            SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
-            
-            /* Flip-Handling über das Facing-Flag */
-            if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
-                SPR_setHFlip(e->sprite, FALSE);
-            } else {
-                SPR_setHFlip(e->sprite, TRUE);
+            if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING) ){
+                e->anim_index += 1; 
+                if (e->anim_index >= 60) {     
+                    e->anim_index = 0;
+                }   
+                SPR_setAnimAndFrame(e->sprite,4,  e->anim_index / 15);
+
+
+
+            } else if (CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL) ){
+                if (abs16(p->ent.vy) > FIX16(0.3)){
+                    e->anim_index += 1; 
+                    if (e->anim_index >= 80) {     
+                        e->anim_index = 0;
+                    }   
+                    SPR_setAnimAndFrame(e->sprite,3,  e->anim_index / 20);
+                
+                }
+                if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
+                    SPR_setHFlip(e->sprite, TRUE);
+                } else {
+                    SPR_setHFlip(e->sprite, FALSE);
+                }
             }
+            
+            else if (p->ent.vy < FIX16(0.5)){
+                e->anim_index += 1; 
+                if (e->anim_index >= 80) {     
+                    e->anim_index = 0;
+                }   
+                SPR_setAnimAndFrame(e->sprite,2,  e->anim_index / 20);
+            } else if (p->ent.vy > FIX16(0.5)){
+                e->anim_index += 1; 
+                if (e->anim_index >= 80) {     
+                    e->anim_index = 0;
+                }   
+                SPR_setAnimAndFrame(e->sprite,2, 4 + e->anim_index / 20);
+
+            } else if (p->ent.vx == F16_0){
+                e->anim_index += 1; 
+                if (e->anim_index >= 120) {                
+                    e->anim_index = 0;
+                }                    
+                SPR_setAnimAndFrame(e->sprite,1,  e->anim_index / 20);
+
+
+            } else{
+
+                dx = e->x_old - e->x;
+                e->anim_index += abs(dx); 
+
+                if (e->anim_index > 36) e->anim_index -= 36;
+
+                /* Sprite-Update */
+                SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
+                
+                /* Flip-Handling über das Facing-Flag */
+                if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
+                    SPR_setHFlip(e->sprite, TRUE);
+                } else {
+                    SPR_setHFlip(e->sprite, FALSE);
+                }
+            }
+
+
+
+
         }
         break;
 

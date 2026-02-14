@@ -37,7 +37,7 @@ struct Area;
 #define PLAT_FLAG_CAMO            (1 << 9)
 #define PLAT_FLAG_WIDE            (1 << 10)
 #define PLAT_FLAG_SINUS_Y       (1 << 11)
-
+#define PLAT_FLAG_LONG            (1 << 12)
 
 // --- BASIS ENTITY STRUKTUR ---
 typedef struct Entity {
@@ -51,7 +51,7 @@ typedef struct Entity {
 
     fix16 vx;
     fix16 vy;
-    fix16 anim_index;
+    s16 anim_index;
     s16 x;
     s16 y;
     s16 x_old;
@@ -138,6 +138,7 @@ void init_entities();
 int  create_entity(s16 x, s16 y, u8 w, u8 h, f16 vx, f16 vy, EntityType type);
 Platform* create_platform(const PlatformDef* def);
 void destroy_entity(int index);
+void clear_entities();
 
 void spawn_player(u16 spawn_in_area);
 void spawn_platforms(const LevelDefinition* lv);

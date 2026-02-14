@@ -1,10 +1,10 @@
 {
-	"identifier": "Level_6",
-	"uniqueIdentifer": "192c6bf0-fa90-11f0-b18b-99f13af3ba3e",
+	"identifier": "Level_4",
+	"uniqueIdentifer": "d013d290-fa90-11f0-90f8-55c2fbd74dac",
 	"x": -1,
 	"y": -1,
-	"width": 1024,
-	"height": 512,
+	"width": 256,
+	"height": 256,
 	"bgColor": "#000000",
 	"neighbourLevels": [],
 	"customFields": {

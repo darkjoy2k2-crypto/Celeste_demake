@@ -85,19 +85,28 @@ Platform* create_platform(const PlatformDef* def) {
             self->state     = PLAT_IDLE;
             self->enabled   = true;
             self->touched   = false;
-            
-            self->ent.width = (self->flags & PLAT_FLAG_WIDE) ? 32 : 16;
-            self->ent.height = 16;
+
+            if (self->flags & PLAT_FLAG_WIDE){
+                self->ent.width = 32;
+                self->ent.height = 16;
+                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            }
+            else if (self->flags & PLAT_FLAG_LONG){
+                self->ent.width = 24;
+                self->ent.height = 16;
+                self->ent.sprite = SPR_addSprite(&stone3_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            }
+            else {
+                self->ent.width = self->ent.height = 16;
+                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            }
+
 
             // Sprite-Initialisierung
             if (self->flags & PLAT_FLAG_CAMO) {
                 self->ent.width = self->ent.height = 32;
                 self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            } else if (self->ent.width > 16) {
-                self->ent.sprite = SPR_addSprite(&stone2_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            } else {
-                self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            }
+            } 
 
             self->ent.spr_visible = (self->flags & PLAT_FLAG_INVISIBLE) ? false : true;
             
@@ -170,7 +179,7 @@ void spawn_player(u16 spawn_in_area) {
             Player* pl = (Player*) entities[player_id];
             pl->ent.update = (void (*)(struct Entity*))ENTITY_UPDATE_player;
             pl->physics_state = 0; 
-            pl->timer_stamina = 500;
+            pl->timer_stamina = 800;
             pl->state = P_FALLING;
             pl->state_old = P_FALLING;
             pl->physics_state = 0; 

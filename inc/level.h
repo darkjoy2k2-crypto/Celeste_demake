@@ -44,6 +44,7 @@ typedef struct {
     const PickupDef* pickups; // Neu
 
     // Group 2: 16-bit Integers (2 bytes each)
+    u16 mod;
     u16 width_tiles;
     u16 height_tiles;
     u16 area_count;

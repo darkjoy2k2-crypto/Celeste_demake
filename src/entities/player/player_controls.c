@@ -75,8 +75,8 @@ static void handle_jump_input(Player* p, u16 joy, u16 joy_old) {
             p->ent.vy = JUMP_FORCE;
 
 
-            p->ent.vx += F16_mul(p->solid_vx, FIX16(2));
-            p->ent.vy += F16_mul(p->solid_vy, FIX16(2));
+            p->ent.vx += p->solid_vx;
+            p->ent.vy += p->solid_vy;
             
 
                CLEAR_P_FLAG(p->physics_state, P_FLAG_DONT_BREAK);

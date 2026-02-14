@@ -1,10 +1,10 @@
 {
-	"identifier": "Celeste_2a",
+	"identifier": "Level_0",
 	"uniqueIdentifer": "a2c54220-66b0-11ec-9cd7-8fe822b5bd24",
 	"x": -1,
 	"y": -1,
-	"width": 816,
-	"height": 584,
+	"width": 1024,
+	"height": 512,
 	"bgColor": "#2B2B2B",
 	"neighbourLevels": [],
 	"customFields": {

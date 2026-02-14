@@ -163,7 +163,7 @@ void ENTITY_TRIGGER_pickup(Entity* _e) {
             p->ent.vy = JUMP_FORCE_SPRING; 
             if (joy & button_map[ACTION_JUMP]){
                 p->ent.vy += FIX16(-2); 
-                p->timer_stamina = 500;
+                p->timer_stamina = 800;
             update_player_visuals(p);
             }
 

@@ -8,6 +8,7 @@ extern const Palette pal_entities;
 extern const SpriteDefinition player_sprite;
 extern const SpriteDefinition stone_sprite;
 extern const SpriteDefinition stone2_sprite;
+extern const SpriteDefinition stone3_sprite;
 extern const SpriteDefinition heart_sprite;
 extern const SpriteDefinition ballon_sprite;
 extern const SpriteDefinition spring_sprite;
