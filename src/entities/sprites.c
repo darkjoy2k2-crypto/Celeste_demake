@@ -18,7 +18,7 @@ static inline void update_animation(Entity* e) {
 
             if (CHECK_P_FLAG(p->physics_state, P_FLAG_DYING) ){
                 e->anim_index += 1; 
-                if (e->anim_index >= 60) {     
+                if (e->anim_index >= 59) {     
                     e->anim_index = 0;
                 }   
                 SPR_setAnimAndFrame(e->sprite,4,  e->anim_index / 15);
@@ -28,7 +28,7 @@ static inline void update_animation(Entity* e) {
             } else if (CHECK_P_FLAG(p->physics_state, P_FLAG_ON_WALL) ){
                 if (abs16(p->ent.vy) > FIX16(0.3)){
                     e->anim_index += 1; 
-                    if (e->anim_index >= 80) {     
+                    if (e->anim_index >= 119) {     
                         e->anim_index = 0;
                     }   
                     SPR_setAnimAndFrame(e->sprite,3,  e->anim_index / 20);
@@ -43,42 +43,45 @@ static inline void update_animation(Entity* e) {
             
             else if (p->ent.vy < FIX16(0.5)){
                 e->anim_index += 1; 
-                if (e->anim_index >= 80) {     
+                if (e->anim_index >= 79) {     
                     e->anim_index = 0;
                 }   
                 SPR_setAnimAndFrame(e->sprite,2,  e->anim_index / 20);
             } else if (p->ent.vy > FIX16(0.5)){
                 e->anim_index += 1; 
-                if (e->anim_index >= 80) {     
+                if (e->anim_index >= 79) {     
                     e->anim_index = 0;
                 }   
                 SPR_setAnimAndFrame(e->sprite,2, 4 + e->anim_index / 20);
 
             } else if (p->ent.vx == F16_0){
                 e->anim_index += 1; 
-                if (e->anim_index >= 120) {                
+                if (e->anim_index >= 119) {                
                     e->anim_index = 0;
                 }                    
                 SPR_setAnimAndFrame(e->sprite,1,  e->anim_index / 20);
 
 
-            } else{
+} else {
+    // dx is the difference in pixels
+    dx = e->x_old - e->x; 
+    e->anim_index += abs(dx); 
 
-                dx = e->x_old - e->x;
-                e->anim_index += abs(dx); 
+    // STRICT BOUNDS: Never let it reach 36.
+    // 35 is the absolute maximum for a 6-frame animation with a /6 divisor.
+    if (e->anim_index >= 36) {
+        e->anim_index = 0;
+    }
 
-                if (e->anim_index > 36) e->anim_index -= 36;
-
-                /* Sprite-Update */
-                SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
-                
-                /* Flip-Handling über das Facing-Flag */
-                if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
-                    SPR_setHFlip(e->sprite, TRUE);
-                } else {
-                    SPR_setHFlip(e->sprite, FALSE);
-                }
-            }
+    // Calculation: 35 / 6 = 5 (Valid). 36 / 6 = 6 (CRASH).
+    SPR_setAnimAndFrame(e->sprite, 0, e->anim_index / 6);
+    
+    if (CHECK_P_FLAG(p->physics_state, P_FLAG_FACING_LEFT)) {
+        SPR_setHFlip(e->sprite, TRUE);
+    } else {
+        SPR_setHFlip(e->sprite, FALSE);
+    }
+}
 
 
 

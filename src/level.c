@@ -478,7 +478,7 @@ const Area level_5_areas[] = {
 
 
 const PlatformDef dummy_platforms[] = {
-    { 0, 0, 0, 0, 0, 0} 
+    { 0, 0, 0, 0, 0, 0, 0} 
 };
 
 const PlatformDef level_1_platforms[] = {

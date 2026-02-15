@@ -10,7 +10,7 @@
 #define MAP_HEIGHT_TILES MAP_H
 
 
-static inline bool isTileSolid(Entity* entity, const u16* _colMap,LevelDefinition* _lv, s16 world_x, s16 world_y, CollisionSide side)
+static inline bool isTileSolid(Entity* entity, const u16* _colMap, const LevelDefinition* _lv, s16 world_x, s16 world_y, CollisionSide side)
 {
 
     s16 tile_x = world_x >> 3;
