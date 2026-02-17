@@ -89,7 +89,7 @@ static void update() {
     handle_all_animations();
 
     /* 4. Debug & UI */
-    //debug_draw();
+    debug_draw();
 
     /* 5. Engine Sync */
     SPR_update(); 

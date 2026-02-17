@@ -16,5 +16,7 @@ extern const TileSet level_4_tileset;
 extern const MapDefinition level_4_mapdefinition;
 extern const TileSet level_5_tileset;
 extern const MapDefinition level_5_mapdefinition;
+extern const TileSet level_6_tileset;
+extern const MapDefinition level_6_mapdefinition;
 
 #endif // _RES_LEVELS_H_

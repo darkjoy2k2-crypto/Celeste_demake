@@ -117,7 +117,7 @@ void update_player_state_and_physics(Entity* e) {
     }
 
     // Globales Speed-Limit (optional)
-    if (e->vy > FIX16(5)) e->vy = FIX16(5);
+    if (e->vy > FIX16(4)) e->vy = FIX16(4);
 
     // Bewegung integrieren
     e->x_f32 += F16_toFix32(e->vx + p->solid_vx);

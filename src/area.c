@@ -11,7 +11,7 @@ void update_area(Entity* e) {
     const Area* new_area = get_area(area_id);
     
     if (p->current_area != NULL) {
-        if (p->current_area->die_on_bottom && e->y >= p->current_area->max.y - 8) {
+        if (p->current_area->die_on_bottom && e->y >= p->current_area->max.y) {
             return; 
         }
     }

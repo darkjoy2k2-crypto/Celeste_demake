@@ -176,7 +176,7 @@ void handle_player_input(Player* p) {
 
     if (is_at_wall && is_holding_dash && p->timer_stamina > 0) {
         p->state = P_ON_WALL;
-        p->timer_stamina -= 5;
+        p->timer_stamina -= 3;
 
         if (joy & button_map[ACTION_UP]) {
             if (p->ent.vy > -CLIMB_SPEED) p->ent.vy -= FIX16(0.5);

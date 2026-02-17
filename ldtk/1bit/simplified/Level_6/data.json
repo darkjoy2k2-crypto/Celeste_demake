@@ -1,0 +1,17 @@
+{
+	"identifier": "Level_6",
+	"uniqueIdentifer": "7dfd5040-fa90-11f0-b057-cf83a79f0a7f",
+	"x": -1,
+	"y": -1,
+	"width": 1024,
+	"height": 368,
+	"bgColor": "#000000",
+	"neighbourLevels": [],
+	"customFields": {
+		"biome": null
+	},
+	"layers": [
+		"IntGrid.png"
+	],
+	"entities" : {}
+}

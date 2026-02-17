@@ -95,18 +95,14 @@ Platform* create_platform(const PlatformDef* def) {
                 self->ent.width = 24;
                 self->ent.height = 16;
                 self->ent.sprite = SPR_addSprite(&stone3_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            }
+            } else if (self->flags & PLAT_FLAG_CAMO) {
+                self->ent.width = self->ent.height = 32;
+                self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
+            } 
             else {
                 self->ent.width = self->ent.height = 16;
                 self->ent.sprite = SPR_addSprite(&stone_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
             }
-
-
-            // Sprite-Initialisierung
-            if (self->flags & PLAT_FLAG_CAMO) {
-                self->ent.width = self->ent.height = 32;
-                self->ent.sprite = SPR_addSprite(&breakable_sprite, self->ent.x, self->ent.y, TILE_ATTR(PAL3, TRUE, FALSE, FALSE));
-            } 
 
             self->ent.spr_visible = (self->flags & PLAT_FLAG_INVISIBLE) ? false : true;
             
