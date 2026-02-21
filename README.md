@@ -5,7 +5,7 @@ A private, non-commercial technical study focused on porting the core mechanics 
 > **Note:** This is a hobbyist learning project. There is no set release schedule, and it is intended for educational purposes only. The Creators of Celeste are in no way affilated or involved in this project. Level design and id of celeste belong to them. There is no license for me to use any of that.
 
 ## 🖼️ Screenshots
-<img width="1205" height="796" alt="Celeste Genesis Gameplay" src="https://github.com/user-attachments/assets/00f60461-bde5-45e8-9514-36035ae6c0db" />
+<img width="972" height="730" alt="image" src="https://github.com/user-attachments/assets/311ca502-71e8-4b95-a6e4-a8c67a374ecf" />
 
 ## 🚀 Installation & Execution
 
