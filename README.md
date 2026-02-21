@@ -6,6 +6,7 @@ A private, non-commercial technical study focused on porting the core mechanics 
 
 ## 🖼️ Screenshots
 <img width="972" height="730" alt="image" src="https://github.com/user-attachments/assets/311ca502-71e8-4b95-a6e4-a8c67a374ecf" />
+<img width="976" height="745" alt="image" src="https://github.com/user-attachments/assets/18879b58-5e2e-463b-9928-740720e1df61" />
 
 ## 🚀 Installation & Execution
 
