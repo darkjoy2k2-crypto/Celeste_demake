@@ -1,39 +1,151 @@
-<div class="controls-box" style="margin-bottom: 10px;">
-    <h3>Select Project</h3>
-    <select id="project-selector" style="width: 100%; padding: 10px; background: #0d1117; color: white; border: 1px solid #30363d;">
-        <option value="Celeste_demake/out/rom.bin" data-title="Celeste Demake">Celeste Demake</option>
-        <option value="tetris-vibe/out/rom.bin" data-title="Tetris Vibe SGDK">Tetris Vibe SGDK</option>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sega Genesis Dev Hub</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
+            line-height: 1.6; color: #c9d1d9; background-color: #0d1117; margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .container { max-width: 800px; width: 100%; }
+        h1 { border-bottom: 1px solid #30363d; padding-bottom: 10px; color: #f0f6fc; text-align: center; }
+        
+        #game-container { 
+            width: 100%; aspect-ratio: 4 / 3; background: #000; margin: 20px 0;
+            border-radius: 8px; overflow: hidden; border: 2px solid #30363d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #game { width: 100%; height: 100%; }
+
+        .selector-box {
+            background-color: #161b22; border: 1px solid #58a6ff; border-radius: 6px;
+            padding: 15px; margin-bottom: 20px;
+        }
+        select {
+            width: 100%; padding: 12px; background: #0d1117; color: #58a6ff;
+            border: 1px solid #30363d; border-radius: 4px; font-size: 1rem;
+        }
+
+        .controls-box {
+            background-color: #161b22; border: 1px solid #30363d; border-radius: 6px;
+            padding: 20px; margin-bottom: 20px;
+        }
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .control-item { display: flex; align-items: center; font-size: 0.9rem; }
+        
+        .btn-round {
+            display: inline-flex; justify-content: center; align-items: center;
+            width: 24px; height: 24px; border-radius: 50%; color: white;
+            font-weight: bold; margin-right: 12px; font-size: 0.75rem;
+        }
+        
+        .btn-a { background-color: #ff3e3e; }
+        .btn-b { background-color: #3eaf7c; }
+        .btn-c { background-color: #3e8eff; }
+        .btn-mode { background-color: #6e7681; border-radius: 4px; width: auto; padding: 0 8px; }
+
+        .readme-content { border-top: 1px solid #30363d; margin-top: 30px; padding-top: 20px; }
+        h3 { color: #58a6ff; margin-top: 0; }
+        .footer { margin-top: 40px; text-align: center; font-size: 0.9rem; color: #8b949e; }
+        a { color: #58a6ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="main-title">Sega Genesis Dev Hub</h1>
+
+    <div class="selector-box">
+        <label for="project-selector" style="display:block; margin-bottom:8px; font-size:0.8rem; color:#8b949e;">CHOOSE PROJECT:</label>
+        <select id="project-selector">
+            <option value="celeste">Celeste Demake</option>
+            <option value="tetris">Tetris Vibe SGDK</option>
         </select>
+    </div>
+
+    <div id="game-container">
+        <div id="game"></div>
+    </div>
+
+    <div class="controls-box">
+        <h3>Input Mapping</h3>
+        <div id="controls-display" class="controls-grid">
+            </div>
+    </div>
+
+    <div id="readme-display" class="readme-content">
+        </div>
+
+    <div class="footer">
+        Powered by EmulatorJS | Developed by <a href="https://github.com/darkjoy2k2-crypto">darkjoy2k2-crypto</a>
+    </div>
 </div>
 
 <script>
+    const projects = {
+        celeste: {
+            title: "Celeste Demake",
+            rom: "Celeste_demake/out/rom.bin",
+            controls: [
+                { btn: "A", label: "Jump", class: "btn-a" },
+                { btn: "B", label: "Climb", class: "btn-b" },
+                { btn: "C", label: "Dash", class: "btn-c" },
+                { btn: "MODE", label: "Fly (Debug)", class: "btn-mode" }
+            ],
+            about: "<h3>About Celeste</h3><p>A port of the famous indie platformer. Precision movements on 16-bit hardware.</p>"
+        },
+        tetris: {
+            title: "Tetris Vibe SGDK",
+            rom: "tetris-vibe/out/rom.bin",
+            controls: [
+                { btn: "A", label: "Rotate", class: "btn-a" },
+                { btn: "B", label: "Rotate", class: "btn-b" },
+                { btn: "C", label: "Hold Piece", class: "btn-c" },
+                { btn: "UP", label: "Hard Drop", class: "btn-mode" }
+            ],
+            about: "<h3>About Tetris Vibe</h3><p>AI-assisted development project. Features the 'Tetromino Rain' background system and random Curse effects.</p>"
+        }
+    };
+
     const selector = document.getElementById('project-selector');
-    const titleHeader = document.querySelector('h1');
+    
+    function updateUI(projectId) {
+        const p = projects[projectId];
+        document.getElementById('main-title').innerText = p.title;
+        document.getElementById('readme-display').innerHTML = p.about;
+        
+        const ctrlContainer = document.getElementById('controls-display');
+        ctrlContainer.innerHTML = p.controls.map(c => `
+            <div class="control-item">
+                <span class="btn-round ${c.class}">${c.btn}</span> ${c.label}
+            </div>
+        `).join('');
+    }
 
-    function loadGame(romUrl, title) {
-        // Clear existing emulator instance if necessary
+    function loadEmulator(romUrl) {
         document.getElementById('game').innerHTML = '';
-        titleHeader.innerText = title;
-
         EJS_player = "#game";
         EJS_core = "segaMD";
         EJS_gameUrl = romUrl;
         EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
         
-        // Reload loader script to trigger new game
-        const oldScript = document.querySelector('script[src*="loader.js"]');
-        if (oldScript) oldScript.remove();
-        
-        const script = document.createElement('script');
-        script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
-        document.body.appendChild(script);
+        const loader = document.createElement('script');
+        loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+        document.body.appendChild(loader);
     }
 
     selector.addEventListener('change', (e) => {
-        const option = e.target.options[e.target.selectedIndex];
-        loadGame(e.target.value, option.dataset.title);
+        updateUI(e.target.value);
+        loadEmulator(projects[e.target.value].rom);
     });
 
-    // Initial Load
-    loadGame(selector.value, "Celeste Demake");
+    // Initial load
+    updateUI('celeste');
+    loadEmulator(projects['celeste'].rom);
 </script>
+
+</body>
+</html>
